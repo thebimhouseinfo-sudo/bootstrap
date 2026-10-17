@@ -1,8 +1,0 @@
-# Deprecated compatibility example; prefer worker-context.example.yaml, which
-# supports BOTH coder and tester skills + knowledge with reload policy.
-# Empty entries are valid; generic worker operation remains available.
-coder:
-  additional_skills: []
-  additional_references: []
-  verification_commands: []
-  restrictions: []

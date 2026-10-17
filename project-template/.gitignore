@@ -1,0 +1,13 @@
+# Ignore secrets/local ledgers/runtime generated state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+harness/chat-journal.jsonl
+harness/decisions.jsonl
+harness/approvals.jsonl
+harness/requests/
+harness/snapshots/
+harness/state.json
+harness/last-block.json

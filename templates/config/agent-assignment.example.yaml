@@ -1,8 +1,0 @@
-# Data-only profile example; NOT native runtime configuration.
-# Map through verified runtime adapter; no invented model IDs.
-roles:
-  planner: {contract: subagents/planner.md, model: UNVERIFIED, skills: [plan-task, trace-impact]}
-  reviewer: {contract: subagents/reviewer.md, model: UNVERIFIED, skills: [goal-review, review-lessons]}
-  critic: {contract: subagents/critic.md, model: UNVERIFIED, skills: [critical-review]}
-  coder: {contract: subagents/coder.md, model: UNVERIFIED, skills: [implement-task, debug-protocol, test-and-verify, safe-change, report-evidence]}
-  tester: {contract: subagents/tester.md, model: UNVERIFIED, skills: [test-and-verify, report-evidence]}
