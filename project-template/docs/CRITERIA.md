@@ -1,11 +1,21 @@
-# Project criteria — PLANNER MUST WRITE
+# Product theory — Planner-owned single source
 
-Status: NOT_CONFIGURED. This file is the sole authoritative product-theory source; never populate with made-up examples just to satisfy a template.
+Status: DISCOVERY / NOT_CONFIGURED
 
-Planner: collect approved user specification into purpose/scope, definitions, data/states, invariants, operating flows, rules, integrations, errors/recovery, measurable nonfunctional constraints, observable AC, OPEN points and version history. Keep GOALMAP (goal → theory ID coverage → observable success → exclusions) inside THIS file. All content must trace to user-approved theory. Pending theory changes use the approved decision/request and theory-update process.
+## Problem, audience and scope
+<!-- Planner fills from user interaction; unapproved content marked OPEN -->
 
-## Theory
-<!-- Planner replaces with actual ID-based approved requirements -->
+## Definitions, states, flows, rules and invariants
+<!-- Maintain stable IDs, examples and sources; distinguish hypothesis from approval -->
+
+## Integrations, error handling and measurable outcomes
+<!-- Record actual constraints and evidence; do not invent platform capabilities -->
+
+## OPEN questions / proposed alternatives
+<!-- ID, options, tradeoffs, evidence and pending user decision -->
+
+## Approvals and version history
+<!-- Cite verified user approval records; chat acknowledgement alone is not approval -->
 
 ## GOALMAP
-<!-- Planner derives and obtains approval; no default goals -->
+<!-- Derive only after sufficient approved theory; no default milestones -->
