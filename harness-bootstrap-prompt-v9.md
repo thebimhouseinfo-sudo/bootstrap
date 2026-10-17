@@ -43,9 +43,9 @@ Mỗi template ở phụ lục ghi tầng tối thiểu. Chỉ dựng những g�
 Phân loại:
 - **A: dự án đã có code.** Khảo sát code/cấu hình/tài liệu; đề xuất harness ngay. Không tự diễn giải lại kiến trúc. Chưa có lý thuyết vận hành thì ghi `LÝ THUYẾT: CHƯA CÓ`; Planner cùng người dùng ghi hành vi hiện có vào CRITERIA ở trạng thái `DRAFT` theo từng ID, người dùng duyệt bằng request. Bootstrap không tự suy diễn hành vi hệ thống.
 - **B: dự án mới, đã có logic/đặc tả được người dùng chấp thuận.** Đọc đặc tả để nhận biết loại sản phẩm, ràng buộc, tích hợp, yêu cầu kiểm chứng. Không viết lại/duyệt thay logic, không tạo plan/milestone. Planner chuẩn hóa đặc tả thành CRITERIA.
-- **C: dự án mới, chưa có logic.** Chỉ ghi bối cảnh tối thiểu, báo cần hoàn thành logic với người dùng/Planner. **DỪNG bootstrap**; không chọn stack cuối, không dựng harness.
+- **C: dự án mới, chưa có logic.** Kích hoạt **Discovery Mode** tối thiểu: Planner generic với skill brainstorm-theory và research-evidence, CRITERIA placeholder và kênh trao đổi/duyệt khả dụng. Planner chủ động brainstorm, nghiên cứu và cùng user hoàn thiện lý thuyết; các giả thuyết ghi OPEN trong CRITERIA, không tạo draft lý thuyết song song. Chưa chọn stack cuối, chưa lập milestone/task hoặc dựng full harness. Chỉ chuyển qua bootstrap đầy đủ khi có lý thuyết đủ rõ và được user duyệt.
 
-Với A/B, xem thông tin sẵn có trước khi hỏi. Câu hỏi intake (gộp ngắn, không hỏi lại điều đã biết):
+Với A/B, xem thông tin sẵn có trước khi hỏi. Với C, chỉ intake thông tin thiết yếu cho Discovery Mode; không yêu cầu user chốt logic/stack trước khi Planner bắt đầu brainstorm và research. Research là bằng chứng hỗ trợ, không tự biến thành lý thuyết đã duyệt. Câu hỏi intake (gộp ngắn, không hỏi lại điều đã biết):
 1. **Tầng** Lite / Standard / Full.
 2. **Runtime agent đích** (Codex, Claude Code, hay khác) và phiên bản; định dạng file vai/skill/hook PHẢI theo tài liệu chính thức của runtime này, không trộn schema của runtime khác. Hệ điều hành và shell mặc định (vd. PowerShell trên Windows).
 3. **Git:** có dùng không? repo/remote/nhánh đích? Mặc định không push. Không tự `git init`.
