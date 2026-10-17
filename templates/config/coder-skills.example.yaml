@@ -1,0 +1,7 @@
+# Optional PROJECT-SCOPED coder customization. Default remains usable without this file.
+# User/Bootstrap validates real skill existence and fit, then adapts to runtime.
+coder:
+  additional_skills: [] # e.g. verified relative path to skill folder, no default assumption
+  additional_references: [] # official platform/host documentation scoped to project
+  verification_commands: [] # only commands verified for target project
+  restrictions: [] # additive; may not weaken shared role or approval boundaries
