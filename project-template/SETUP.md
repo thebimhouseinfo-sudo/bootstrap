@@ -11,3 +11,6 @@ IMPLEMENT AFTER RUNTIME DISCOVERY: harness/specs/ documents are implementation g
 Coder & Tester default to generic operation. Optional project skills/knowledge from .agents/config/worker-context.yaml can improve first-pass accuracy; absence should lead to normal testing/debugging, not an automatic task failure.
 
 Before claiming READY, test native agent/skill activation and relevant harness allow/deny scenarios. Mark NOT_CONFIGURED or GUIDED_ONLY honestly.
+
+## Empty project — Discovery Mode
+When no product theory exists, do not stop Planner. Install only the minimal Planner agent with brainstorm-theory and research-evidence skills, the CRITERIA placeholder and an available user dialogue/approval channel. Planner explores options and research with the user, recording OPEN hypotheses only in CRITERIA. Full harness setup, final stack selection, production milestones and coder tasks follow sufficient approved theory. Do not falsely claim approval mechanisms or native agents work before tested.
