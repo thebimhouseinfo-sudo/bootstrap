@@ -1,7 +1,7 @@
-# Generic reusable skills
+# Reusable generic skills
 
-This library contains portable SKILL.md contracts. Installing them is runtime-specific: discover native skill paths and schema first. Apply minimum relevant subset; avoid duplicate trusted external skills.
+Portable SKILL.md contracts; actual skill discovery/invocation depends on verified agent runtime.
 
-Core generic capabilities: plan-task, goal-review, critical-review, implement-task, debug-protocol, test-and-verify, safe-change, report-evidence, review-lessons. Standard adds trace-impact. Runtime hooks/scripts are separate enforcement mechanisms, not skill promises.
+Common: plan-task, goal-review, critical-review, implement-task, debug-protocol, test-and-verify, safe-change, report-evidence, review-lessons, context-reload; trace-impact for Standard+.
 
-**Coder extension:** optional user-controlled project skills should live separately from this shared library and be selected by verified applicability. Absence of project skills must not prevent generic coder operation. Never let a skill override protected core role contract.
+Coder and Tester may load extra user-configured skills and knowledge from a **project-local** manifest. Refresh on session/task/context change, select only applicable verified packs, record provenance and missing references. Empty optional context is a supported normal mode; generic source inspection and test/debug continue. A skill cannot override role permissions, approved theory or explicit host constraints.

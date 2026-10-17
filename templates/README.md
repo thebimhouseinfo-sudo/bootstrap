@@ -1,21 +1,25 @@
 # Generic harness bootstrap library
 
-This directory supplies copy-and-adapt scaffolds plus **portable subagent and skill definitions**. It is not an installed runtime harness. Follow the main bootstrap prompt for intake, user approval, adaptation and simulation tests.
+Reusable scaffolds, role contracts and generic SKILL.md definitions. These are not a preinstalled runtime harness; follow the main prompt for approvals, runtime-specific implementation and testing.
 
-## Select a tier
-- Lite: core docs, evidence, lesson, verify/approval/enforcement contracts, generic coder + reviewer agents, relevant default skills.
-- Standard: Lite + planning docs, planner/tester/critic agent contracts, goal-review and trace-related skill/contracts.
-- Full: Standard + harness-fixer, Git administration and advanced diagnosis contracts.
+## Tiers
+- Lite: core docs, evidence/lesson/verify/approval contracts, generic coder + reviewer and relevant common skills.
+- Standard: Lite + planning docs, planner/tester/critic, review/trace contracts.
+- Full: Standard + harness-fixer and Git administration.
 
-## Portable roles
-`subagents/planner.md`, `reviewer.md`, `critic.md` are broadly project-independent. Keep their semantics stable. `coder.md` works generically without project extras; user may add specialized skills in project-scoped configuration. Never change the shared base because of a particular product.
+## Reusability contract
+- Planner, Reviewer, Critic: portable project-independent role behavior.
+- Coder **and Tester**: generic defaults work with empty custom configuration. Optional project-scoped skill and knowledge packs are loaded/reloaded independently per role on session/task/project-context change to improve first-pass accuracy, not to make basic operation possible.
+- Use `config/worker-context.example.yaml`, `skills/context-reload/`, and `knowledge/PACK.template.md` as the starting points. The former coder-skills example is compatibility-only.
+- Technical profile requirements are not optional: missing optional knowledge is no excuse to knowingly ignore target dialect or API compatibility.
+- No shared generic template should embed project-specific Visual LISP, Revit, web or other reference rules.
 
-## Bootstrap steps
-1. Inventory existing repo, runtime/version, available model IDs, official extension formats, existing trusted skills and approvals. Case C (no approved product logic): stop.
-2. Prepare harness-only proposal and obtain user approval; avoid overwriting existing config.
-3. Copy relevant docs, subagent contracts, SKILL.md folders and data-only assignment samples. Adapt native subagent/skill directories and permission/sandbox to **verified runtime**, not assumptions.
-4. Leave generic coder fully functional when `coder-skills.example.yaml` customization is empty. Add user-approved project-specific skills separately when provided. Verify stack/host and commands before enabling checks.
-5. Implement authorization, state, verification and hooks for selected tier; templates alone are NOT executable protections.
-6. Test both allowed and rejected role/guard scenarios in a disposable workspace, record ENFORCED vs GUIDED_ONLY vs UNVERIFIED.
+## Installation
+1. Inventory existing project, approved theory, runtime/version, skills, models and tools; stop for case C without approved product logic.
+2. Propose only harness setup and obtain approval before material changes.
+3. Copy selected documents, subagent/skill contracts and data manifests; adapt to official native runtime configuration and verify actual invocation, permissions and context reload.
+4. Project user may add coder/tester skill and knowledge paths without modifying generic base roles. No customization is required for initial use.
+5. Implement scripts/guards/hooks per verified runtime; simulation-test working generic fallback, enriched mode and blocked cases. Do not claim ENFORCED when merely described.
+6. Keep `docs/CRITERIA.md` as sole product-theory source, with GOALMAP inside.
 
-`docs/CRITERIA.md` remains the single source of product theory with GOALMAP inside. All plans/tasks/trace derived. No raw pushes or product code during bootstrap.
+No product development or raw push during bootstrap.
