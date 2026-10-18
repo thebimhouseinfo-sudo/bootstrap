@@ -63,7 +63,18 @@ def pretool(payload):
     if paths and policy().get("snapshot_apply_patch", False):
         try:
             mod = load_module("snapshot")
-            existing = [name for name in paths if (ROOT / name).is_file()]
+            existing = []
+            for name in paths:
+                rel = pathlib.Path(name)
+                if rel.is_absolute() or ".." in rel.parts or not rel.parts:
+                    raise ValueError("patch path escapes project: " + name)
+                dest = ROOT / rel
+                if dest.is_symlink() or not dest.parent.resolve().is_relative_to(ROOT):
+                    raise ValueError("patch path points to symlink/outside project: " + name)
+                if dest.is_file():
+                    # Apply the same exclusion rules as explicit snapshots.
+                    mod.source_file(name)
+                    existing.append(name)
             if existing:
                 snap = mod.capture(existing)
                 notes.append("Pre-edit snapshot " + snap + " captured for " + str(len(existing)) + " files.")
