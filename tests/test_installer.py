@@ -181,7 +181,7 @@ class InstallTests(unittest.TestCase):
         self.assertIn("do not claim scope compliance", critic.lower())
         self.assertIn("No CRITERIA", critic)
         criteria = (SOURCE / "docs/CRITERIA.md").read_text(encoding="utf-8")
-        for phrase in ("personal-only", "commercial", "proportional", "full", "BEFORE modifying"):
+        for phrase in ("personal-only", "commercial", "proportional", "complete coherent draft", "BEFORE modifying"):
             self.assertIn(phrase.lower(), criteria.lower(), phrase)
         approval = (SOURCE / "harness/specs/APPROVAL.md").read_text(encoding="utf-8")
         self.assertIn("whole draft", approval)
