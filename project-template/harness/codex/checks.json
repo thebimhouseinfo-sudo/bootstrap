@@ -1,0 +1,5 @@
+{
+  "_status": "NOT_CONFIGURED: populate only actual verified target project commands",
+  "_notes": "argv arrays execute without a shell; do not place secrets here. Empty checks intentionally exit 2, never PASS.",
+  "checks": []
+}
