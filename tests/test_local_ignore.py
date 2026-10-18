@@ -231,7 +231,7 @@ class LocalIgnoreTests(unittest.TestCase):
         first = self.install('--apply')
         self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
         ignore = self.root / '.gitignore'
-        legacy = ignore.read_bytes().replace(b'# mode: local\n', b'')
+        legacy = ignore.read_bytes().replace(b'# mode: local\r\n', b'').replace(b'# mode: local\n', b'')
         ignore.write_bytes(legacy)
         preview = self.install()
         self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
