@@ -1,18 +1,10 @@
-# Bootstrap — a reusable foundation for coding agents
+# Bootstrap — harness templates for coding agents
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-Starting a project with a coding agent often means setting up the same things all over again: where the AI should look for requirements, who makes the plan, who writes the code, when to review and test, and when to ask for your approval. Repeating that work takes time and tokens, and it's easy to end up with a different workflow for every project.
+**Bootstrap** is a set of **harness templates** for setting up consistent, well-structured projects for AI coding agents such as **Codex, Google Antigravity, Claude Code, Continue, Cline, Qwen Code, Cursor, and Copilot**.
 
-**Bootstrap** is meant to save you from doing that setup over and over. It comes with reusable agent roles, skills, working guidelines, scripts, and hooks for supporting checks. Rather than building a new agent harness for every project, you start with the shared pieces and customize only what that project actually needs.
-
-Getting started is straightforward: give your AI assistant a link to this repository and tell it what you're working on and which tool you're using. The AI checks what's already in your project, proposes any files it needs to add or change, and asks for your approval before proceeding. If it has access, it can do the setup itself. If not, it gives you the exact commands to run, so you don't have to hunt down and copy template files by hand.
-
-Bootstrap works for more than projects that already have code. If you're starting with an idea, the Planner can help you brainstorm, research options, and work out the requirements before development begins. If you're working on an existing project, the setup helps the agents continue within the rules and decisions you've already agreed on.
-
-**Current support:** Codex and Google Antigravity IDE have been tested with the reusable template on real machines. Claude Code has a prepared configuration but hasn't been tested on its host yet. Continue has most of its configuration in place, but still needs provider/model selection and host verification. For Cline, Qwen Code, Cursor, Copilot, and DeepSeek-based clients, the repository provides reusable configuration sources and porting guidance; that doesn't mean every adapter is ready to run without further checks.
-
-One important distinction: **a usable template is not the same as a fully configured project**. You still need to establish project-specific details such as the active Git branch, runtime environment, APIs, build and test commands, and product requirements. Likewise, having a rule or hook in the template doesn't mean it's technically enforced. Anything that hasn't been tested should be reported as unverified.
+It provides reusable **agent roles, skills, workflows, scripts, and hooks**, so each agent only needs to adapt the setup to the project instead of building it from scratch. Platform support and testing status are documented below.
 
 ---
 
