@@ -14,3 +14,6 @@ Before claiming READY, test native agent/skill activation and relevant harness a
 
 ## Empty project — Discovery Mode
 When no product theory exists, do not stop Planner. Install only the minimal Planner agent with brainstorm-theory and research-evidence skills, the CRITERIA placeholder and an available user dialogue/approval channel. Planner explores options and research with the user, recording OPEN hypotheses only in CRITERIA. Full harness setup, final stack selection, production milestones and coder tasks follow sufficient approved theory. Do not falsely claim approval mechanisms or native agents work before tested.
+
+## Contract adoption from Claude's reorganized ZIP
+The canonical destination is this already-laid-out project tree, not the ZIP's categorized `templates/` folder. Read `harness/specs/GATES.md`, `TESTS.md`, `APPROVAL.md`, `FIXER.md` and `HARNESS_SPEC_TEMPLATE.md` for the more detailed platform-neutral contracts before implementing. These files are specifications: implement only the approved tier for the verified runtime/host, then execute permitted and denied self-tests. Discovery Mode remains supported for projects without approved logic; it does not pretend that a full harness exists.

@@ -11,3 +11,5 @@ Not an executable doctor or selftest.
 - Weakening detector flags removed or broadened safeguards as T1 even when labeled T0.
 - On test failure roll back; after 2 failed fix attempts stop and report.
 - Document patch, tests, decision, and rollback in CHANGELOG.
+- Template for the approved intent of each rule: `contracts/HARNESS_SPEC.md`. Keep `harness/CHANGELOG.md` and a separate snapshot of harness files.
+- Classify every block first as CONFIG ERROR / CORRECT BLOCK / OUTSIDE HARNESS (remote auth, branch protection, network); only the first kind may be repaired. A correct block is explained, not bypassed. An urgent need uses a one-time BREAK_GLASS request, then the root cause is fixed separately.

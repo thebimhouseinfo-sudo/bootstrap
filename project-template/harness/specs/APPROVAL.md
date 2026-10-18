@@ -13,3 +13,28 @@ This file is a **specification**, not an operational approval system.
 - Protected files: journal, decisions, approvals, request history and theory-update pathway.
 - Implement rejection tests: fabricated quote, agent answering own request, changed request after approval, repeated rejected request, missing OTHER note.
 - Do not claim cryptographic or permission guarantees without actual enforcement tests.
+
+## Request types
+
+| Type | Replaces |
+|---|---|
+| THEORY_CHANGE | change to `docs/CRITERIA.md` (needs a CONFIRMED decision) |
+| THEORY_GAP | choosing an option where theory is silent; batch several gaps into one request |
+| COVERAGE_MAP | approval of GOALMAP (goal to theory-ID coverage) |
+| MILESTONE_SET / MILESTONE_ACCEPT | approving milestones and triggers / accepting a finished milestone |
+| PUSH, BRANCH_ACTION | one-time push for exact remote, ref and commit set / merge, cleanup, new branch |
+| HARNESS_PATCH | the bootstrap plan itself, protected-config changes, tier upgrades |
+| BREAK_GLASS | one-time unlock for exactly one BLOCK; never changes config |
+| DEP_ADD, MODEL_CHOICE | adding a dependency, choosing a model |
+
+## Answer channel (choose at intake, in order of preference)
+
+1. Real buttons in the target tool's UI.
+2. A command only the human types, e.g. `harness answer REQ-0012 agree|disagree|other --note "..."`.
+3. A generated `inbox.html` whose buttons copy the command.
+
+If no channel exists the state is `AWAITING_USER`. Never substitute chat "ok".
+
+## Runtimes without hooks (e.g. a chat UI driving tools over MCP)
+
+The machine cannot capture the user's messages, so the journal and the "quote must be a substring of the journal" check are `GUIDED_ONLY`: an agent that relays the user's words could fabricate both sides. Record this in `ENFORCEMENT.md`. Mitigation: the user pastes the decision text into the request, or answers through a real UI channel.
