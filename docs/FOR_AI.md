@@ -6,6 +6,8 @@
 
 ## First-install staged contract
 
+**Tier prerequisite:** the fully guided Planner Discovery → technical direction → Coder/Tester → Plan/Milestones flow requires Standard or Full. Lite does not package Planner and Tester; do not promise the full experience for Lite. Ask for approval before switching tiers. Native host behaviors remain subject to runtime verification.
+
 1. Identify **new** (no code) vs **existing** (working code) project. Inventory its host, stack, Git and existing files. Batch only missing questions. Avoid touching existing product code.
 2. **Preliminary install:** preview `python install.py --target PATH --tier Standard --runtime RUNTIME --staged`, obtain approval, then append `--apply`. Staged installs leave blocking hooks in BOOTSTRAPPING mode. Old installs without staged state retain legacy behavior; do not silently override them.
 3. **Planner Discovery:** immediately check status of `docs/CRITERIA.md`. If new, brainstorm with human. If existing code, reconstruct verified observed behavior, distinguish CURRENT/REQUESTED/GAP, and ask what human wants. Never equate code to approved requirements; never overwrite an already approved CRITERIA without the settled-delta/Advisor/human process.
