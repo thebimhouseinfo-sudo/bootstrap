@@ -8,7 +8,7 @@
 > - **Codex and Google Antigravity IDE — GENERIC READY:** The Human has installed and tested both on real machines. Choose the correct runtime and tier, **copy the template and start the generic coding-agent workflow without modifying the generic package**.
 > - **Claude Code — CONFIGURED, NOT HOST-TESTED:** Role/skill configuration, native settings and hook adapter are prepared. The Human has not installed Claude Code for a real-host smoke test; **this does not mean its generic configuration is missing**.
 > - **Continue — NEAR GENERIC READY, NOT HOST-TESTED:** Role configurations and rules are prepared. Its provider/**model mapping** must be set for the user's VS Code environment. Similarity to Antigravity does not prove identical native hook or subagent behavior; verify on the actual host.
-> - **Other coding agents:** Follow the existing guides to **adapt only platform-specific adapters/config formats**, not to rebuild the complete harness.
+> - **Other coding agents:** Use prepared **`.generic/` roles and porting guides** for Cline, Qwen Code, DeepSeek-based clients and other platforms; adapt only native registration/config formats, not the whole harness.
 >
 > **Two separate notions of ready:** GENERIC READY means the reusable coding-agent template is usable without rewriting its generic files. **The target project still needs its own configuration** (CRITERIA, stack/host/API, paths, verified build/tests, Git branch and any required model choices). This does **not** certify all gates, hooks or isolation as `ENFORCED`. `harness/common/status.py` reports technical capability states; it is not the standalone measure of *generic template usability*.
 >
@@ -73,6 +73,10 @@ project-template/
     skills/
   .continue/                # for Continue
     agents/
+  .generic/                 # for other coding clients
+    agents/                 # portable tier-filtered role contracts
+    platforms/              # Cline / Qwen Code / DeepSeek client guidance
+    PORTING.md
   harness/
     common/                   # shared verify and inventory
     codex/                    # Codex preflight
@@ -84,8 +88,8 @@ project-template/
 
 - **Codex and Google Antigravity IDE — GENERIC READY:** The Human has tested installation and generic use on machines with the respective apps. Copy the matching runtime package; do not rewrite prepared generic roles, skills or scripts merely to start using it. Codex: `.codex/agents/*.toml` and `.codex/hooks.json`; Antigravity: `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Configure target-project facts separately.
 - **Claude Code — configured, not tested inside Claude Code:** `.claude/agents/`, `.claude/settings.json`, `harness/claude/hook.py` and reused skills/rules are included. Lack of a host test is not a reason to rebuild the adapter. Smoke-test when Claude Code is available.
-- **Continue — nearly ready:** `.continue/agents/` includes role configs/rules. Configure the actual provider/models, select a role config, and check Continue's own hook/subagent limitations in VS Code; do not assume Antigravity exposes identical APIs.
-- **Copilot, Cline, Cursor and others:** Start from the prepared contracts/files, consult the platform's documentation, and port only the necessary adapters or hooks. Report any `UNVERIFIED` / `GUIDED_ONLY` boundaries without treating absent host tests as lack of support.
+- **Continue — nearly ready:** `.continue/agents/` includes role configs/rules; it reuses the **same `.agents/roles/`, `.agents/skills/` and shared Python helpers as Antigravity**, differing only in native agent/model registration. Configure the actual provider/models, select a role config, and check Continue's own hook/subagent limitations in VS Code; do not assume Antigravity exposes identical APIs.
+- **Cline, Qwen Code, DeepSeek-based clients, Copilot, Cursor and others:** Select `--runtime generic --target-app APP` to copy `.generic/agents` and porting guides. DeepSeek may be a model/provider, not the client; identify the actual host first. Start from the prepared contracts/files, consult the platform's documentation, and port only the necessary adapters or hooks. Report any `UNVERIFIED` / `GUIDED_ONLY` boundaries without treating absent host tests as lack of support.
 
 ### Core rules
 
@@ -105,7 +109,7 @@ project-template/
 
 ### Setup workflow
 
-**One-message Pre-Ask:** before running setup tools or mixing in host tool-permission dialogs, gather all genuinely missing choices (project path, tier, runtime, Git branch, model, host/testing needs and approval channel) **in one chat message**, reusing context already known. After the human responds, inspect and install; do not drip-feed setup questions across command authorization prompts. This saves interaction time and quota.
+**One-message Pre-Ask:** `python install.py --ask-first` prints the whole question set only (never installs and never asks sequential terminal questions). Before running setup tools or mixing in host tool-permission dialogs, gather all genuinely missing choices (project path, tier, runtime, Git branch, model, host/testing needs and approval channel) **in one chat message**, reusing context already known. After the human responds, inspect and install; do not drip-feed setup questions across command authorization prompts. This saves interaction time and quota.
 
 #### Step 0. Classify the project
 
@@ -133,7 +137,7 @@ Include the tier, a role → model/reasoning/permission matrix, the enforcement 
 
 #### Step 3. The AI installs and customizes
 
-**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME` (choose `antigravity`, `codex`, `claude` or `continue` explicitly); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
+**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME` (choose `antigravity`, `codex`, `claude`, `continue`, or `generic` explicitly; for `generic`, also pass `--target-app cline` or another actual client); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
 
 For Codex and Antigravity, **the GENERIC READY template can be copied and used for generic agent work without modifying shared roles/skills/scripts**. Then fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands for the **specific project**. Claude Code has its generic configuration prepared but needs host testing; Continue primarily needs provider/model mapping and host testing. Other platforms should adapt only necessary adapters following `project-template/SETUP.md` and `harness/specs/`, saving setup quota rather than rebuilding. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
 
@@ -213,12 +217,16 @@ MIT. See [LICENSE](LICENSE).
 | **Google Antigravity IDE** | **GENERIC READY — Human-tested** | Same as Codex; no generic rewrite required |
 | **Claude Code** | **Fully configured, not host-tested** | Smoke-test in Claude Code when available; configure the target project |
 | **Continue** | **Near GENERIC READY, not host-tested** | Select provider/models and role config; verify native host constraints |
-| **Copilot / Cline / Cursor / others** | **Template is a porting source** | Adapt only platform-specific files; do not rebuild shared harness |
+| **Cline / Qwen Code / DeepSeek-based client / Copilot / Cursor / others** | **`.generic/` portable role source (not host-tested)** | Copy tier-filtered roles and porting guide; adapt only the native adapter |
 
-Adapter files: Codex `.codex/` and `harness/codex/`; Antigravity `.agents/` and `.antigravity/`; Claude Code `.claude/` and `harness/claude/`; Continue `.continue/`. Shared Python is in `harness/common/`.
+Adapter files: Codex `.codex/` and `harness/codex/`; Antigravity `.agents/` and `.antigravity/`; Claude Code `.claude/` and `harness/claude/`; Continue `.continue/` plus shared Antigravity-like `.agents/roles`/`.agents/skills` (not Antigravity native hooks); other apps `.generic/`. Shared Python is in `harness/common/`.
 
 **Scope of READY here:** copy-and-use generic coding-agent configuration, **not** a claim that the signed-gate engine, authenticated approvals or host-level enforcement are fully operational. Product-specific setup is still required.
 
 ### Active development branch and frozen main
 
 Bootstrap includes `harness/common/branch_authority.py` in every Git-enabled tier. Human chooses the active development branch (e.g. `v5`), frozen branches (`main`) and registered work branches. Canonical policy is stored in the Git common directory, independent of checkout. Planner/Coder check it before coding, creating branches, merging and pushing; Git default `main` must never be assumed. Codex PreToolUse can deny observed direct apply_patch on wrong branches, but is not universal shell/MCP/API or server protection. See [BRANCH_AUTHORITY.md](project-template/harness/specs/BRANCH_AUTHORITY.md).
+
+### Generic adapter setup flow
+
+Run `python install.py --ask-first` to display all setup questions together for one AI chat message, never a sequence of terminal configuration dialogs. With the Human's answers, preview `python install.py --target PATH --tier Standard --runtime generic --target-app qwen-code` and use `--apply` only after approval. `.generic/` supplies portable role contracts and host porting instructions; it does **not** automatically register untested native agents. Continue receives the same shared `.agents/roles`, `.agents/skills`, and `harness/common` content as Antigravity, but uses `.continue/` for its native agent/model configurations; Antigravity `.agents/hooks.json` is not copied into Continue.

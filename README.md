@@ -8,7 +8,7 @@
 > - **Codex và Google Antigravity IDE — GENERIC READY:** Human đã cài và kiểm thử thực tế. Chọn đúng runtime/tier, **copy bộ template là có thể bắt đầu sử dụng workflow coding agent generic, không phải sửa lại code/cấu hình generic của package để chạy**.
 > - **Claude Code — CONFIGURED, CHƯA HOST-TEST:** Package đã có cấu hình role/skill, native settings/hook adapter; chưa kiểm thử trực tiếp vì Human không cài Claude Code. Đây là thiếu bằng chứng chạy trên host, **không phải thiếu phần cấu hình đã chuẩn bị**.
 > - **Continue — GẦN GENERIC READY, CHƯA HOST-TEST:** Đã có role configs/rules; chủ yếu cần chọn và cấu hình **model/provider** khả dụng của người dùng. Dù môi trường VS Code gần Antigravity, vẫn phải kiểm tra cách nạp role/hook thực tế trên Continue; không tự coi hai host có cơ chế native giống nhau.
-> - **Các coding agent khác:** Dùng template và hướng dẫn có sẵn để **modify adapter/định dạng theo nền tảng**, không viết lại toàn bộ harness.
+> - **Các coding agent khác:** Dùng **`.generic/` chứa sẵn role và hướng dẫn chuyển đổi** (Cline, Qwen Code, client dùng DeepSeek...) để modify adapter/định dạng đúng nền tảng, không viết lại toàn bộ harness.
 >
 > **Phân biệt:** GENERIC READY = template hoạt động ở mức workflow coding agent chung. **Sau khi copy vẫn phải cấu hình dữ kiện của dự án đích** (CRITERIA, stack/host/API, đường dẫn, build/test thực tế, Git branch, model nếu cần). GENERIC READY **không** đồng nghĩa dự án đã cấu hình xong, hay mọi gate/hook/isolation đều `ENFORCED`. `harness/common/status.py` báo trạng thái năng lực kỹ thuật chi tiết, không phải phép đo riêng của *generic template usability*.
 >
@@ -80,6 +80,10 @@ project-template/
     skills/
   .continue/                # khi chọn Continue
     agents/
+  .generic/                 # khi chọn app chưa có adapter native
+    agents/                 # role dùng chung, filter theo tier
+    platforms/              # Cline / Qwen Code / DeepSeek-client
+    PORTING.md
   harness/
     common/                   # verify + inventory cho mọi runtime
     codex/                    # Codex preflight
@@ -91,8 +95,8 @@ project-template/
 
 - **Codex và Google Antigravity IDE — GENERIC READY:** Human đã kiểm thử copy/cài trên máy có ứng dụng tương ứng. Giữ nguyên các role/skill và adapter generic; không cần viết lại hoặc sửa template chỉ để khởi động workflow chung. Codex dùng `.codex/agents/*.toml`, `.codex/hooks.json`; Antigravity dùng `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Cần bổ sung thông số dự án cụ thể sau khi cài.
 - **Claude Code — đã cấu hình, chưa thử trên Claude Code:** Có `.claude/agents/`, `.claude/settings.json`, `harness/claude/hook.py`, skill/rules đã chuẩn bị. Không yêu cầu agent viết lại adapter generic chỉ vì chưa có máy test; khi host có sẵn, chạy smoke-test để xác minh.
-- **Continue — gần READY:** Có `.continue/agents/`, role config/rules. Cấu hình provider/model thực tế và chọn role config; xác minh các giới hạn hook/subagent của Continue trong VS Code. Không tự coi plugin Continue và Antigravity có cùng native APIs.
-- **Copilot, Cline, Cursor và app khác:** Dựa trên file/contract có sẵn, đối chiếu tài liệu platform rồi chỉ chuyển đổi những adapter hoặc hook cần thiết. Báo rõ phần `UNVERIFIED` / `GUIDED_ONLY`; không biến thiếu smoke-test thành kết luận không hỗ trợ.
+- **Continue — gần READY:** Có `.continue/agents/`, role config/rules; **dùng chung `.agents/roles/`, `.agents/skills/` và Python helpers giống Antigravity**, khác phần cấu hình agent/model native. Cấu hình provider/model thực tế và chọn role config; xác minh các giới hạn hook/subagent của Continue trong VS Code. Không tự coi plugin Continue và Antigravity có cùng native APIs.
+- **Cline, Qwen Code, client dùng DeepSeek, Copilot, Cursor và app khác:** Cài `--runtime generic --target-app APP`; dùng `.generic/agents` cùng `.generic/PORTING.md` và `platforms/` để chuyển đổi native. DeepSeek có thể chỉ là provider/model, phải xác định app thực tế. Dựa trên file/contract có sẵn, đối chiếu tài liệu platform rồi chỉ chuyển đổi những adapter hoặc hook cần thiết. Báo rõ phần `UNVERIFIED` / `GUIDED_ONLY`; không biến thiếu smoke-test thành kết luận không hỗ trợ.
 
 ### Nguyên tắc cốt lõi (không được nới)
 
@@ -116,12 +120,12 @@ project-template/
 
 #### Bước 0. Pre-Ask — gom tất cả câu hỏi cấu hình vào một lần duy nhất
 
-**Trước khi khảo sát, lập kế hoạch hay hiển thị bất kỳ dialog nào**, AI hỏi toàn bộ thông tin cần thiết trong **một tin nhắn duy nhất**. Không tách ra hỏi dần theo bước — câu hỏi cấu hình xen vào giữa dialog xin quyền khiến người dùng nhấn nhầm theo thói quen.
+**Có thể lấy nguyên bộ câu hỏi bằng `python install.py --ask-first`; lệnh chỉ in câu hỏi, không ghi file hay hỏi lần lượt trong terminal.** Trước khi khảo sát, lập kế hoạch hay gọi lệnh yêu cầu quyền truy cập, AI hỏi toàn bộ thông tin cần thiết trong **một tin nhắn duy nhất**. Không tách ra hỏi dần theo bước — câu hỏi cấu hình xen vào giữa dialog xin quyền khiến người dùng nhấn nhầm theo thói quen.
 
 Các mục cần xác nhận (gộp gọn, bỏ những gì đã biết từ context):
 
 1. **Tầng:** Lite / Standard / Full (mặc định Standard).
-2. **Runtime:** Antigravity IDE / Codex / Claude Code / Continue — phiên bản, OS và shell (vd. PowerShell trên Windows).
+2. **Runtime:** Antigravity / Codex / Claude Code / Continue / **app khác (`generic`)**. Nếu app khác, hỏi tên client thực tế (Cline, Qwen Code, client dùng DeepSeek, ...) và phiên bản; DeepSeek là provider/model nếu chưa có client cụ thể. Hỏi OS/shell khi còn thiếu.
 3. **Git:** có dùng không? remote/nhánh phát triển chính và nhánh đóng băng?
 4. **Loại sản phẩm:** local/web/plugin/CLI/service — nền tảng/host cụ thể.
 5. **Đặc tả hiện có:** tài liệu đã được chấp thuận? Dự án đang chạy thế nào?
@@ -158,7 +162,7 @@ Gửi **Approval Request loại `HARNESS_PATCH`**, rồi dừng trước thay đ
 
 #### Bước 3. AI tự copy, tùy chỉnh và triển khai
 
-**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime RUNTIME` (chọn rõ `antigravity`, `codex`, `claude` hoặc `continue`) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
+**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime RUNTIME` (chọn rõ `antigravity`, `codex`, `claude`, `continue` hoặc `generic`). Với `generic`, **bắt buộc thêm `--target-app cline`** (hoặc `qwen-code`, `deepseek`, tên client khác) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
 
 Với Codex và Antigravity, **copy template generic đã READY là dùng được ngay ở mức generic, không cần chỉnh sửa role/skill/script chung**. Sau đó điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh để chạy đúng **dự án cụ thể**. Claude Code đã có cấu hình đầy đủ, cần kiểm tra trên host khi có điều kiện; Continue cần model/provider mapping rồi host smoke. App khác chỉ điều chỉnh phần adapter theo `project-template/SETUP.md` và `harness/specs/`, tránh tái tạo từ đầu để tiết kiệm quota. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Không biến NOT_CONFIGURED thành PASS.
 
@@ -216,12 +220,16 @@ MIT. Xem [LICENSE](LICENSE).
 | **Google Antigravity IDE** | **GENERIC READY — đã test trên máy Human** | Tương tự Codex; không cần viết lại template generic |
 | **Claude Code** | **Đã cấu hình đầy đủ; chưa có host test thực tế** | Test trên Claude Code khi có môi trường, bổ sung cấu hình dự án |
 | **Continue** | **Gần GENERIC READY; chưa có host test thực tế** | Chọn provider/model và role config, xác minh giới hạn native |
-| **Copilot / Cline / Cursor / khác** | **Dùng template làm nguồn để port** | Modify đúng phần adapter theo nền tảng; không viết lại toàn bộ |
+| **Cline / Qwen Code / client dùng DeepSeek / Copilot / Cursor / khác** | **`.generic/` portable source, chưa được host-test** | Copy role theo tier, xem `PORTING.md`, chỉ modify adapter native, không viết lại toàn bộ |
 
-Chi tiết adapter: Codex `.codex/` và `harness/codex/`; Antigravity `.agents/` và `.antigravity/`; Claude Code `.claude/` và `harness/claude/`; Continue `.continue/`. Core Python dùng chung ở `harness/common/`.
+Chi tiết adapter: Codex `.codex/` và `harness/codex/`; Antigravity `.agents/` và `.antigravity/`; Claude Code `.claude/` và `harness/claude/`; Continue `.continue/` và cùng core `.agents/roles`/`.agents/skills` với Antigravity (không copy hook Antigravity); app khác `.generic/`. Core Python dùng chung ở `harness/common/`.
 
 **Lưu ý:** mức READY ở bảng này là *copy/use generic coding-agent template*, không phải tuyên bố gate engine, phê duyệt có xác thực hay host-level enforcement đã hoàn chỉnh. Cấu hình riêng cho sản phẩm/host vẫn bắt buộc để coding chính xác.
 
 ### Nhánh phát triển chính và đóng băng main
 
 Bootstrap cung cấp `harness/common/branch_authority.py` cho **mọi tier có Git**. Human chọn nhánh phát triển chính (ví dụ `v5`), các nhánh đóng băng (như `main`) và work branch được phép; policy sống trong Git common directory nên không bị đổi theo checkout. Planner/Coder phải kiểm tra trước khi lập kế hoạch/sửa code và trước khi merge/push; không được tự suy luận `main`. Trong Codex, `PreToolUse` chặn direct apply_patch khi checkout không hợp lệ. Không bao phủ mọi shell/MCP/GitHub API hoặc ngăn push phía server; cần branch protection thực để khóa remote. Xem [BRANCH_AUTHORITY.md](project-template/harness/specs/BRANCH_AUTHORITY.md).
+
+### Luồng cài adapter generic
+
+`python install.py --ask-first` in một lần toàn bộ câu hỏi để AI đưa vào chat, không có prompt xin cấu hình trong terminal. Sau khi Human trả lời, AI chọn tier và client, chạy **preview** `python install.py --target PATH --tier Standard --runtime generic --target-app qwen-code`; sau khi Human duyệt mới thêm `--apply`. Bộ `.generic/` là **role source + hướng dẫn port**, chưa tự đăng ký native agent vào app chưa được test; việc chuyển đổi cần dựa trên native docs và host smoke. Với Continue, installer đã copy phần generic `.agents/roles`, `.agents/skills`, `harness/common` giống Antigravity, chỉ khác `.continue/` agent/model config; `.agents/hooks.json` của Antigravity không tự áp dụng cho Continue.
