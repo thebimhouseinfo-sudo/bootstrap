@@ -107,7 +107,7 @@ class HarnessRuntimeTests(unittest.TestCase):
 
     def test_pretool_snapshot_failure_denies_supported_apply_patch(self):
         denied = self.hook_call("PreToolUse", tool_name="apply_patch",
-            tool_input={"command":"*** Begin Patch\\n*** Update File: ../escape.md\\n*** End Patch"})
+            tool_input={"command":"*** Begin Patch\n*** Update File: ../escape.md\n*** End Patch"})
         self.assertEqual(denied["hookSpecificOutput"]["permissionDecision"], "deny")
 
     def test_runtime_files_and_status_match_installer(self):
