@@ -74,8 +74,8 @@ class InstallTests(unittest.TestCase):
             self.assertFalse((root / "AGENTS.bootstrap.md").exists())
             applied = run(INSTALLER, *flags, "--apply")
             self.assertEqual(applied.returncode, 2, applied.stdout + applied.stderr)
-            self.assertEqual((root / "AGENTS.md").read_text(), "HUMAN")
-            self.assertEqual((root / "README.md").read_text(), "PRODUCT README")
+            self.assertEqual((root / "AGENTS.md").read_text(encoding="utf-8"), "HUMAN")
+            self.assertEqual((root / "README.md").read_text(encoding="utf-8"), "PRODUCT README")
             self.assertTrue((root / "AGENTS.bootstrap.md").is_file())
             self.assertEqual(run(INSTALLER, *flags, "--apply").returncode, 2)
 
@@ -109,7 +109,7 @@ class InstallTests(unittest.TestCase):
         for rel in (".codex/agents/advisor.toml", ".claude/agents/advisor.md",
                     ".continue/agents/advisor/config.yaml"):
             self.assertTrue((SOURCE / rel).is_file(), rel)
-        instructions = (SOURCE / "AGENTS.md").read_text()
+        instructions = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("No standing Advisor loop", instructions)
 
     def test_technical_advisor_three_level_contract_and_native_parity(self):
@@ -160,7 +160,7 @@ class InstallTests(unittest.TestCase):
                 self.assertIn(label, value, rel)
 
     def test_manifest_and_native_configs(self):
-        manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text())
+        manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text(encoding="utf-8"))
         for tier in TIERS:
             names = set()
             current = tier
@@ -184,7 +184,7 @@ class InstallTests(unittest.TestCase):
             if p.stem in ("critic", "explorer"):
                 self.assertEqual(cfg.get("sandbox_mode"), "read-only")
         for p in (SOURCE / ".claude/agents").glob("*.md"):
-            front = p.read_text().split("---", 2)[1]
+            front = p.read_text(encoding="utf-8").split("---", 2)[1]
             self.assertIn("effort:", front)
             self.assertIn("model:", front)
         try:
