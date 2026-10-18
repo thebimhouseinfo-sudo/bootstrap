@@ -2,13 +2,15 @@
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-> **Release & Testing Status:** The template has **passed tests** when configured for **Google Antigravity IDE** (primary) and **Codex** (installer, baseline scripts, inventory, verify, snapshot, hooks/roles/skills have been verified). **Other coding agents (Claude Code, Continue, Copilot, Cline, etc.) have NOT yet reached READY status.** When setting up, the AI must **self-inspect and adapt/fix configuration following the template instructions** to fit its own platform. Check status using `python harness/common/status.py --tier Standard --runtime antigravity` (or `--runtime codex`). See `project-template/harness/specs/READINESS.md`.
+> **Release & Testing Status:** The template has **passed tests** when configured for **Google Antigravity IDE** and **Codex** (installer, baseline scripts, inventory, verify, snapshot, hooks/roles/skills have been verified). **Other coding agents (Claude Code, Continue, Copilot, Cline, etc.) have not been tested by the Human because those environments are not installed; compatibility is not ruled out.** When setting up, the AI must **self-inspect and adapt/fix configuration following the template instructions** to fit its own platform. Check status using `python harness/common/status.py --tier Standard --runtime antigravity` (or `--runtime codex`). See `project-template/harness/specs/READINESS.md`.
 
-This repository is a **ready-made harness template library** for coding agents. Currently, the template has **passed tests** when configured for **Google Antigravity IDE** (primary) and **Codex**; other coding agents are not yet ready and require the AI to self-inspect and adapt configuration according to its runtime. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
+This repository is a **ready-made harness template library** for coding agents. Currently, the template has **passed tests** when configured for **Google Antigravity IDE** and **Codex**; other coding agents have not yet been tested on the Human's machines and need runtime-specific verification and adaptation. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
 
 Do not redesign the harness from scratch or rewrite generic agents and skills. All claims of working functionality must be backed by actual tests. Protected decisions require a human-only **Approval Request with three choices: Agree / Disagree / Other**. The initial setup exception, when that channel has not yet been installed, must be explicitly disclosed.
 
 ---
+
+**No runtime is primary or selected by default.** The AI must identify the actual host in one pre-install configuration step and pass an explicit `--runtime` to the installer. Human testing on Codex and Antigravity does not automatically certify host hooks, signed gates or orchestration on every version.
 
 ## For users
 
@@ -72,7 +74,7 @@ project-template/
   lessons/
 ```
 
-- **Google Antigravity IDE (primary — test passed):** skills and roles are discovered natively from `.agents/skills/` and `.agents/roles/`; model assignments by role reside in `.antigravity/agents/*.md` (with Gemini 3.8 Flash High fallback); lifecycle hooks are in `.agents/hooks.json` (Stop dispatches to `harness/common/verify.py`).
+- **Google Antigravity IDE (human-tested on installed machine):** skills and roles are discovered natively from `.agents/skills/` and `.agents/roles/`; model assignments by role reside in `.antigravity/agents/*.md` (with Gemini 3.8 Flash High fallback); lifecycle hooks are in `.agents/hooks.json` (Stop dispatches to `harness/common/verify.py`).
 - **Codex (test passed):** native role TOMLs and model presets at `.codex/agents/*.toml` are preconfigured; native hook adapter in `.codex/hooks.json` dispatches to `harness/codex/hook.py`; verifier/inventory runs via `harness/common/`.
 - **Other coding agents (NOT yet READY):** Claude Code (adapter `.claude/` + `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline, etc., have not yet reached READY status. **AIs operating on these platforms must self-inspect the platform's actual capabilities and adapt/complete configuration following the instructions in the template** (see `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): adjusting agent registration, config format, skill paths, model mapping, native lifecycle hooks (or stating `GUIDED_ONLY` if the platform lacks enforcement hooks), and approval channels. File presence alone does not prove subagents are loaded or hooks are active. Verify runtime features with real tests before claiming readiness.
 
@@ -90,7 +92,7 @@ project-template/
 10. **Escalate template conflicts** in the adaptation table; do not choose arbitrarily.
 11. **Coder and Tester work with generic defaults** even without optional project-specific skill/knowledge packs. Mandatory host/dialect constraints still apply.
 12. **Report actual readiness.** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED and UNVERIFIED are different states.
-13. **AI self-inspection and platform adaptation:** The template is test-passed for Antigravity IDE and Codex. For other platforms (not yet READY), the AI is responsible for inspecting its own runtime mechanisms and adapting/fixing the configuration following the template instructions, without shifting technical configuration burdens to the user.
+13. **AI self-inspection and platform adaptation:** The template is test-passed for Antigravity IDE and Codex. For other platforms (not yet human-tested), the AI is responsible for inspecting its own runtime mechanisms and adapting/fixing the configuration following the template instructions, without shifting technical configuration burdens to the user.
 
 ### Setup workflow
 
@@ -120,9 +122,9 @@ Include the tier, a role → model/reasoning/permission matrix, the enforcement 
 
 #### Step 3. The AI installs and customizes
 
-**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime antigravity` (or `--runtime codex`, `claude`, `continue`); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
+**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME` (choose `antigravity`, `codex`, `claude` or `continue` explicitly); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
 
-Reuse generic agents and skills unchanged wherever possible. Fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands. For Antigravity IDE and Codex, configurations are test-passed and ready for use once project parameters are filled. For other coding agents not yet READY, the AI must self-inspect and adapt configuration following `project-template/SETUP.md` and `harness/specs/` to suit its platform. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
+Reuse generic agents and skills unchanged wherever possible. Fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands. For Antigravity IDE and Codex, configurations are test-passed and ready for use once project parameters are filled. For other coding agents not yet human-tested, the AI must self-inspect and adapt configuration following `project-template/SETUP.md` and `harness/specs/` to suit its platform. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
 
 #### Step 4. Validate
 
@@ -192,7 +194,7 @@ Git, rerun the installer after repository initialization to verify actual rules.
 
 MIT. See [LICENSE](LICENSE).
 
-**Google Antigravity IDE (primary) & Codex (test passed):**
+**Codex and Google Antigravity IDE (human-tested):**
 - **Antigravity IDE:** `.agents/hooks.json` declares Stop hook → `harness/common/verify.py`; roles and skills natively loaded from `.agents/roles/` and `.agents/skills/`; role model assignments in `.antigravity/agents/*.md` (Gemini 3.8 Flash High fallback).
 - **Codex:** `.codex/hooks.json` dispatches to `harness/codex/hook.py`; subagents loaded from `.codex/agents/*.toml`.
 - Shared Python lives in `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
