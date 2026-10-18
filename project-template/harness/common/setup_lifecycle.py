@@ -29,7 +29,7 @@ def read_state():
 
 def stage_active():
     state = read_state()
-    return state is not None and state.get("phase") != "READY"
+    return state is not None and state.get("phase") not in ("READY", "HANDOFF_COMPLETE")
 
 
 def run(args, cwd=ROOT, data=None):
@@ -160,12 +160,122 @@ def smoke():
     return 0
 
 
+
+def locked_files(runtime):
+    """Local change detection, not OS-level immutability or authenticated locking."""
+    names = ["harness/hook-policy.json", "harness/common/setup_lifecycle.py"]
+    names += {
+        "codex": [".codex/hooks.json", "harness/codex/hook.py"],
+        "claude": [".claude/settings.json", "harness/claude/hook.py"],
+        "antigravity": [".agents/hooks.json", "harness/common/setup_hook.py"],
+    }.get(runtime, [])
+    return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+            for name in names if (ROOT / name).is_file()}
+
+
+def check_lock(state):
+    expected = state.get("locked_files", {})
+    if not isinstance(expected, dict) or not expected:
+        print("LOCK_INTEGRITY: UNVERIFIED (no recorded hashes)")
+        return False
+    actual = locked_files(state.get("runtime"))
+    if actual != expected:
+        print("LOCK_INTEGRITY: DRIFT; do not call setup complete, request reviewed maintenance")
+        for name in sorted(set(actual) | set(expected)):
+            if actual.get(name) != expected.get(name):
+                print("DRIFT:", name)
+        return False
+    print("LOCK_INTEGRITY: HASHES_MATCH (not host enforcement)")
+    return True
+
+
+def host_test():
+    state = read_state()
+    if state is None:
+        print("BLOCK: no staged setup; follow legacy host-specific instructions")
+        return 2
+    runtime = state.get("runtime")
+    print("WARNING: DO NOT CLOSE THE ORIGINAL SETUP TAB.")
+    print("Keep setup session open. Open a NEW coding agent tab in a safe temporary COPY,")
+    print("never a production branch when testing forbidden writes. Return FAIL/BLOCK logs")
+    print("to the setup tab, not to a new repair agent.")
+    if runtime == "codex":
+        print("CODEX: in fresh tab run /hooks and check registered SessionStart/PreToolUse/Stop.")
+        print("Test one harmless allowed patch and one explicitly disallowed patch against")
+        print("a DISPOSABLE Git worktree with branch authority and trusted native hooks.")
+    elif runtime == "claude":
+        print("CLAUDE: in fresh session check UserPromptSubmit and PreToolUse native hook events.")
+        print("Use Edit on a safe test file; attempt a blocked Edit ONLY in disposable clone.")
+    elif runtime == "antigravity":
+        print("ANTIGRAVITY: inspect installed .agents/hooks.json and test actual Stop dispatch")
+        print("with configured passing and failing verification in a disposable clone.")
+    else:
+        print("GENERIC/CONTINUE: native hooks are not registered by this portable setup.")
+        print("Verify real roles/skills and configured checks; report native guard UNVERIFIED.")
+    print("Staged project hooks intentionally defer blocking until lock. For negative")
+    print("pre-lock tests, inspect a DISPOSABLE fixture with the staged marker absent;")
+    print("do not remove/change setup-state.json in the actual project.")
+    print("Report host version, exact observed allow/deny events and logs. Supply evidence")
+    print("in harness/setup-live-evidence.json (state/private), not in an approved plan.")
+    print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
+    print(' "host_version": "observed-version", "fresh_session": true,')
+    print(' "hook_dispatched": true, "allow_observed": true,')
+    print(' "deny_observed": true, "notes": "actual event evidence"}')
+    print("Never claim real native verification from this printed checklist.")
+    return 0
+
+
+def finalize(evidence):
+    state = read_state()
+    if state is None or state.get("phase") != "READY":
+        print("BLOCK: finalization requires completed final lock and post-lock checks")
+        return 2
+    if not check_lock(state):
+        return 2
+    path = pathlib.Path(evidence).resolve()
+    if not path.is_file() or not path.is_relative_to(ROOT) or path == STATE:
+        print("BLOCK: post-lock evidence must be an existing in-project file")
+        return 2
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        print("BLOCK: post-lock evidence is invalid JSON")
+        return 2
+    if (not isinstance(record, dict) or record.get("runtime") != state.get("runtime") or
+            not isinstance(record.get("host_version"), str) or not record["host_version"].strip()
+            or any(record.get(k) is not True for k in
+                   ("fresh_session", "hook_dispatched", "post_lock_allow", "post_lock_deny"))
+            or not isinstance(record.get("notes"), str) or not record["notes"].strip()):
+        print("BLOCK: post-lock native allow/deny evidence incomplete")
+        return 2
+    updated = dict(state, phase="HANDOFF_COMPLETE",
+                   post_lock_evidence_path=str(path.relative_to(ROOT)),
+                   post_lock_evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    temp = STATE.with_name("setup-state.json.new")
+    if temp.exists() or temp.is_symlink():
+        print("BLOCK: setup state transaction already pending")
+        return 2
+    try:
+        temp.write_text(json.dumps(updated, indent=2) + "\n", encoding="utf-8")
+        temp.replace(STATE)
+    finally:
+        if temp.exists():
+            temp.unlink()
+    print("HANDOFF_COMPLETE: manual observations recorded, NOT independently authenticated")
+    print("PLANNER START PROMPT: Invoke Planner. Read approved CRITERIA, ARCHITECTURE,")
+    print("PROJECT_PROFILE and codebase; create/review Implementation Plan and GOALMAP.")
+    print("Start EVERY Plan section with a GOAL: why does this code exist and what")
+    print("observable product result will it achieve? Link approved CRITERIA IDs,")
+    print("acceptance and tests. Derive milestones; ask Human to approve before tasks.")
+    return 0
+
+
 def activate(evidence):
     state = read_state()
     if state is None or state.get("invalid"):
         print("BLOCK: no valid staged setup state")
         return 2
-    if state.get("phase") == "READY":
+    if state.get("phase") in ("READY", "HANDOFF_COMPLETE"):
         print("READY: already activated; do not rewrite lock evidence")
         return 0
     if audit() or smoke():
@@ -190,7 +300,9 @@ def activate(evidence):
         print("BLOCK: provide concrete observation notes")
         return 2
     updated = dict(state, phase="READY", evidence_path=str(path.relative_to(ROOT)),
-                   evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+                   evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                   locked_files=locked_files(state.get("runtime")))
+
     temp = STATE.with_name("setup-state.json.new")
     if temp.exists() or temp.is_symlink():
         print("BLOCK: unfinished state transaction")
@@ -212,21 +324,32 @@ def main(argv=None):
     choices.add_parser("status")
     choices.add_parser("audit")
     choices.add_parser("smoke")
+    choices.add_parser("host-test")
     act = choices.add_parser("activate")
     act.add_argument("--evidence", required=True, help="Manual real-host observation JSON inside the project")
     act.add_argument("--human-approved", action="store_true", help="Affirm an explicit user instruction, not an authenticated signature")
+    done = choices.add_parser("finalize")
+    done.add_argument("--post-lock-evidence", required=True)
+    done.add_argument("--human-approved", action="store_true")
     a = p.parse_args(argv)
     if a.action == "status":
-        print(json.dumps(read_state() or {"phase": "LEGACY_NO_STAGED_STATE"}, indent=2))
+        state = read_state()
+        print(json.dumps(state or {"phase": "LEGACY_NO_STAGED_STATE"}, indent=2))
+        if state and state.get("phase") in ("READY", "HANDOFF_COMPLETE"):
+            return 0 if check_lock(state) else 2
         return 0
     if a.action == "audit":
         return audit()
     if a.action == "smoke":
         return smoke()
+    if a.action == "host-test":
+        return host_test()
     if not a.human_approved:
         print("BLOCK: require explicit human-approved final lock instruction")
         return 2
-    return activate(a.evidence)
+    if a.action == "activate":
+        return activate(a.evidence)
+    return finalize(a.post_lock_evidence)
 
 
 if __name__ == "__main__":
