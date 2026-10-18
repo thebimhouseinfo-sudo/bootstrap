@@ -76,7 +76,7 @@ project-template/
 
 - **Google Antigravity IDE (human-tested on installed machine):** skills and roles are discovered natively from `.agents/skills/` and `.agents/roles/`; model assignments by role reside in `.antigravity/agents/*.md` (with Gemini 3.8 Flash High fallback); lifecycle hooks are in `.agents/hooks.json` (Stop dispatches to `harness/common/verify.py`).
 - **Codex (test passed):** native role TOMLs and model presets at `.codex/agents/*.toml` are preconfigured; native hook adapter in `.codex/hooks.json` dispatches to `harness/codex/hook.py`; verifier/inventory runs via `harness/common/`.
-- **Other coding agents (NOT yet READY):** Claude Code (adapter `.claude/` + `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline, etc., have not yet reached READY status. **AIs operating on these platforms must self-inspect the platform's actual capabilities and adapt/complete configuration following the instructions in the template** (see `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): adjusting agent registration, config format, skill paths, model mapping, native lifecycle hooks (or stating `GUIDED_ONLY` if the platform lacks enforcement hooks), and approval channels. File presence alone does not prove subagents are loaded or hooks are active. Verify runtime features with real tests before claiming readiness.
+- **Other coding agents (not yet tested on the Human's machines):** Claude Code (adapter `.claude/` + `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline, etc., still require real-host verification; this does not mean they are unsupported. **AIs operating on these platforms must self-inspect the platform's actual capabilities and adapt/complete configuration following the instructions in the template** (see `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): adjusting agent registration, config format, skill paths, model mapping, native lifecycle hooks (or stating `GUIDED_ONLY` if the platform lacks enforcement hooks), and approval channels. File presence alone does not prove subagents are loaded or hooks are active. Verify runtime features with real tests before claiming readiness.
 
 ### Core rules
 
@@ -199,7 +199,7 @@ MIT. See [LICENSE](LICENSE).
 - **Codex:** `.codex/hooks.json` dispatches to `harness/codex/hook.py`; subagents loaded from `.codex/agents/*.toml`.
 - Shared Python lives in `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
 
-**Other coding agents (NOT yet READY):**
+**Other coding agents (not yet tested on the Human's machines):**
 - **Claude Code:** `.claude/settings.json` + `harness/claude/hook.py` (baseline adapter).
 - **Continue, Copilot, Cline, Cursor...:** native configs not finalized or unverified.
 - **Requirement for AI:** When deploying on these platforms, the AI must self-inspect and adapt configurations according to the template instructions (`project-template/SETUP.md`, `project-template/harness/README.md`, `project-template/harness/specs/READINESS.md`) to suit its own platform, then verify with smoke tests before declaring READY.

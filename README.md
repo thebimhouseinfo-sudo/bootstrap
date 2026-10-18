@@ -204,7 +204,7 @@ MIT. Xem [LICENSE](LICENSE).
 - **Codex:** `.codex/hooks.json` gọi `harness/codex/hook.py`; subagents nạp từ `.codex/agents/*.toml`.
 - Python chung nằm tại `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
 
-**Các coding agent khác (chưa đạt trạng thái READY):**
+**Các coding agent khác (chưa được Human kiểm thử trên máy):**
 - **Claude Code:** `.claude/settings.json` + `harness/claude/hook.py` (adapter sơ bộ).
 - **Continue, Copilot, Cline, Cursor...:** chưa hoàn thiện cấu hình native hoặc chưa smoke-test thực tế.
 - **Yêu cầu đối với AI:** Khi triển khai trên các platform này, AI cần tự kiểm tra và sửa đổi cấu hình theo hướng dẫn trong template (`project-template/SETUP.md`, `project-template/harness/README.md`, `project-template/harness/specs/READINESS.md`) để thích ứng với nền tảng của mình, sau đó chạy smoke-test xác minh trước khi tuyên bố READY.
