@@ -171,10 +171,10 @@ class LocalIgnoreTests(unittest.TestCase):
         result = self.install('--config-git', 'tracked', '--apply')
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn('LOCAL_STATE_NOT_IGNORED: harness/approvals.jsonl', result.stdout)
-        self.assertIn('.gitignore was already updated', result.stdout)
+        self.assertIn('ROLLBACK_RESTORED: .gitignore', result.stdout)
         self.assertFalse((self.root / 'AGENTS.md').exists())
         self.assertFalse((self.root / '.agents').exists())
-        self.assertIn('# mode: tracked', (self.root / '.gitignore').read_text(encoding='utf-8'))
+        self.assertFalse((self.root / '.gitignore').exists())
 
     def test_tracked_mode_rejects_pretracked_local_state_without_index_changes(self):
         state = self.root / 'harness/approvals.jsonl'
