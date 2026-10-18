@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import pathlib
+import re
 import os
 import shutil
 import subprocess
@@ -14,12 +15,12 @@ REPO = pathlib.Path(__file__).resolve().parent
 SOURCE = REPO / "project-template"
 MANIFEST = SOURCE / "harness/specs/TIER_MANIFEST.json"
 TIERS = ("Lite", "Standard", "Full")
-RUNTIMES = ("antigravity", "codex", "claude", "continue")
+RUNTIMES = ("antigravity", "codex", "claude", "continue", "generic")
 SKIP = {"README.md", "SETUP.md"}
 # Restrict copied artifacts to packaged template sources, never test/build/editor output.
 # This explicit filter is applied BEFORE tier/runtime filtering and is independent
 # of whether tests ran in this checkout.
-RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", "docs", "harness", "lessons"}
+RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", ".generic", "docs", "harness", "lessons"}
 RELEASE_FILES = {"AGENTS.md", "CLAUDE.md", "README.md", "SETUP.md", "TASKS.md", ".gitignore"}
 RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".gitkeep"}
 CACHE_DIRS = {
@@ -33,7 +34,7 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 # Applied to installed projects only. Do not put these rules in the canonical
 # template's own .gitignore: the template is distributable source in this repo.
 LOCAL_SETUP_PATHS = (
-    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", "harness/", "lessons/",
+    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/", "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
     "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
@@ -180,6 +181,10 @@ def eligible(rel, tier, runtime, roles):
         return False
     if name.startswith(".antigravity/agents/") and rel.stem not in roles:
         return False
+    if name.startswith(".generic/") and runtime != "generic":
+        return False
+    if name.startswith(".generic/agents/") and rel.stem not in roles:
+        return False
     if name.startswith(".antigravity/") and runtime != "antigravity":
         return False
     if name.startswith(".codex/") and runtime != "codex":
@@ -277,140 +282,79 @@ def safe_copy(root, source, target):
     with target.open("xb") as output, source.open("rb") as input_file:
         shutil.copyfileobj(input_file, output)
 
-def pre_ask_summary(dest, tier, runtime):
-    """Return structured pre-ask configuration summary."""
-    try:
-        is_git = git_worktree(dest) if dest.is_dir() else False
-        git_desc = "Git worktree verified" if is_git else "No Git worktree (local-only directory)"
-    except Exception:
-        git_desc = "Git repository inspection unverified or corrupt"
-    try:
-        roles = role_names(tier)
-        roles_str = f"{tier} ({', '.join(sorted(roles))})"
-    except Exception:
-        roles_str = tier
-    model_policy = "Antigravity native (all fallbacks -> Gemini 3.8 Flash High)" if runtime == "antigravity" else f"{runtime} role presets"
-    return {
-        "target": dest.as_posix(),
-        "tier": roles_str,
-        "runtime": f"{runtime} ({'Google Antigravity IDE' if runtime == 'antigravity' else runtime})",
-        "git_status": git_desc,
-        "model_policy": model_policy,
-        "local_protection": "Managed .gitignore block for .agents, .antigravity, harness",
-        "report_language": "Vietnamese documentation, English commands/IDs",
-        "approval_channel": "UI buttons / terminal commands (no silent execution)",
-    }
+def print_setup_questions():
+    """A single batch of questions for the AI to present in chat, NEVER install."""
+    print("PRE-ASK / ONE-BATCH SETUP QUESTIONS (COPY TO CHAT; NO COMMAND EXECUTION)")
+    print("1. Target project directory and existing/new code? [required]")
+    print("2. Tier: Lite / Standard (default) / Full?")
+    print("3. Coding host: Codex / Antigravity / Claude Code / Continue / Other (generic)?")
+    print("   If Other: exact app/client + version? e.g. Cline, Qwen Code, DeepSeek-based client.")
+    print("   DeepSeek model/provider alone is NOT an IDE; identify the actual client.")
+    print("4. OS, shell, Git remote, HUMAN-selected active development and frozen branches?")
+    print("5. Product type, actual host/SDK/dialect, existing approved CRITERIA and stack?")
+    print("6. Verified build/test/host tools, accounts/devices? No invented commands.")
+    print("7. Provider/model: retain working native presets, or choose available model?")
+    print("   Continue: provider/model selection needed; native role configs already exist.")
+    print("8. Reporting language and approval channel/preferences?")
+    print("Reply ONCE in the chat with known answers. Agent fills known facts,")
+    print("previews with explicit --runtime/--target-app, requests ONE install approval,")
+    print("then calls --apply. Host command-permission dialogs are SEPARATE.")
+    print("No files have been inspected or changed.")
 
 
-def print_pre_ask_block(dest, tier, runtime):
-    """Display the pre-ask configuration block (Step 0 / Buoc 0) before plan and install."""
-    info = pre_ask_summary(dest, tier, runtime)
+def print_pre_ask_block(dest, tier, runtime, target_app):
+    """Display confirmed CLI package selection, not invented project answers."""
     print("=" * 72)
-    print("PRE-ASK CONFIGURATION / KHOI CAU HINH TRUOC (Buoc 0)")
+    print("INSTALL PREVIEW CONFIGURATION (EXPLICIT CLI CHOICES)")
+    print("  Target Directory :", dest)
+    print("  Tier             :", tier)
+    print("  Runtime          :", runtime)
+    if runtime == "generic":
+        print("  Target app/client:", target_app)
+        print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
+    if runtime == "continue":
+        print("  Continue model   : must configure actual provider/models")
+        print("  Shared core      : same .agents roles/skills and Python helpers as Antigravity")
+        print("  Native differences: Continue configs/rules, not Antigravity agent/hooks files")
+    print("  Product settings : NOT_CONFIGURED by template; verify per-project facts")
+    print("  Apply            : explicit --apply after approval (no terminal survey)")
     print("=" * 72)
-    print(f"  [1] Target Directory : {info['target']}")
-    print(f"  [2] Tier             : {info['tier']}")
-    print(f"  [3] Runtime          : {info['runtime']}")
-    print(f"  [4] Git Status       : {info['git_status']}")
-    print(f"  [5] Model Policy     : {info['model_policy']}")
-    print(f"  [6] Local Protection : {info['local_protection']}")
-    print(f"  [7] Report Language  : {info['report_language']}")
-    print(f"  [8] Approval Channel : {info['approval_channel']}")
-    print("=" * 72)
-
-
-def prompt_choice(prompt_text, choices, default):
-    choice_str = "/".join(f"[{c}]" if c == default else c for c in choices)
-    while True:
-        try:
-            val = input(f"{prompt_text} ({choice_str}): ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nAborted.")
-            sys.exit(1)
-        if not val:
-            if default is not None:
-                return default
-            print("Please select a runtime explicitly.")
-            continue
-        for c in choices:
-            if val.lower() == c.lower():
-                return c
-        print(f"Invalid choice '{val}'. Choose from: {', '.join(choices)}")
-
-
-def prompt_target(default=None):
-    prompt_str = f"Target project directory [{default}]: " if default else "Target project directory: "
-    while True:
-        try:
-            val = input(prompt_str).strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nAborted.")
-            sys.exit(1)
-        if not val and default:
-            val = default
-        if val:
-            dest = pathlib.Path(val).expanduser().resolve()
-            if not dest.is_dir():
-                print(f"Directory does not exist: {dest}")
-                continue
-            if dest == REPO or REPO in dest.parents or dest in REPO.parents:
-                print("Target must be an existing project outside the bootstrap checkout.")
-                continue
-            return dest
-
-
-def prompt_confirm(prompt_text, default=False):
-    suffix = "[Y/n]" if default else "[y/N]"
-    try:
-        val = input(f"{prompt_text} {suffix}: ").strip().lower()
-    except (EOFError, KeyboardInterrupt):
-        print("\nAborted.")
-        sys.exit(1)
-    if not val:
-        return default
-    return val in ("y", "yes")
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Safe template install, dry-run by default.")
-    ap.add_argument("--target", help="Target project directory")
-    ap.add_argument("--tier", choices=TIERS, default="Standard", help="Template tier (Lite, Standard, Full)")
-    ap.add_argument("--runtime", choices=RUNTIMES, default=None, help="Agent runtime (antigravity, codex, claude, continue)")
-    ap.add_argument("--ask-first", action="store_true", help="Run interactive pre-ask configuration block before installing")
-    ap.add_argument("--apply", action="store_true", help="Apply template installation (write files)")
-    ap.add_argument("-y", "--yes", action="store_true", help="Skip interactive confirmation on apply")
+    ap = argparse.ArgumentParser(description="Safe tier/runtime package install (preview by default).")
+    ap.add_argument("--target", help="Existing target project directory")
+    ap.add_argument("--tier", choices=TIERS, default="Standard")
+    ap.add_argument("--runtime", choices=RUNTIMES, help="Explicit coding client or portable generic")
+    ap.add_argument("--target-app", help="With --runtime generic: actual target host name, e.g. cline/qwen-code/deepseek/other")
+    ap.add_argument("--ask-first", action="store_true", help="Print ALL one-batch setup questions for the AI/chat; no prompts or install")
+    ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
+    ap.add_argument("-y", "--yes", action="store_true", help="Compatibility alias; --apply is already explicit")
     args = ap.parse_args()
 
-    is_interactive = sys.stdin.isatty()
-    ask_first_mode = args.ask_first or (is_interactive and not args.target and not args.apply)
-
+    # No interactive prompts: setup questions are gathered in chat before any
+    # host tool permission dialogs; --ask-first never inspects or modifies files.
+    if args.ask_first:
+        if args.apply:
+            ap.error("--ask-first is questions-only and cannot be combined with --apply")
+        print_setup_questions()
+        return 0
     if not args.target:
-        if ask_first_mode or is_interactive:
-            dest = prompt_target()
-        else:
-            ap.error("the following arguments are required: --target")
-    else:
-        dest = pathlib.Path(args.target).expanduser().resolve()
+        ap.error("--target is required; run --ask-first for all setup questions")
+    if not args.runtime:
+        ap.error("--runtime is required; run --ask-first to select a coding client")
+    if args.runtime == "generic":
+        if not args.target_app or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}", args.target_app):
+            ap.error("--runtime generic requires --target-app <client-name> (letters, digits, ._-)")
+    elif args.target_app:
+        ap.error("--target-app is only valid with --runtime generic")
 
-    if args.ask_first and not is_interactive:
-        ap.error("--ask-first requires an interactive terminal; pass --runtime explicitly for automation")
-
+    dest = pathlib.Path(args.target).expanduser().resolve()
     if not dest.is_dir() or dest == REPO or REPO in dest.parents or dest in REPO.parents:
         ap.error("target must be an existing project outside the bootstrap checkout")
-
     tier = args.tier
     runtime = args.runtime
-
-    if ask_first_mode and is_interactive:
-        print("\n--- CAU HINH CAI DAT (PRE-ASK CONFIGURATION) ---")
-        tier = prompt_choice("Chon Tang (Tier)", TIERS, default=args.tier)
-        runtime = prompt_choice("Chon Runtime", RUNTIMES, default=args.runtime)
-
-    if runtime is None:
-        ap.error("select --runtime explicitly (antigravity/codex/claude/continue) or use --ask-first")
-
-    # Print the pre-ask configuration block upfront before any inspection or changes
-    print_pre_ask_block(dest, tier, runtime)
+    print_pre_ask_block(dest, tier, runtime, args.target_app)
 
     try:
         ops = plan(dest, tier, runtime)
@@ -423,27 +367,17 @@ def main():
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
     merge = (dest / "AGENTS.md") in conflicts and (dest / "AGENTS.md").is_file()
     summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "CONFLICT")}
-    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, **summary), sort_keys=True))
-    if merge:
-        print("MERGE_REQUIRED: existing AGENTS.md retained; review AGENTS.bootstrap.md")
+    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, target_app=args.target_app, **summary), sort_keys=True))
+    if runtime == "generic":
+        print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
     for name in tracked:
         print("TRACKED_LOCAL_SETUP:", name)
     if tracked:
         print("PRIVACY_REVIEW_REQUIRED: .gitignore does not untrack existing index entries; no files/index entries removed")
 
-    if not args.apply and not ask_first_mode:
+    if not args.apply:
         return 2 if conflicts or tracked else 0
 
-    if ask_first_mode:
-        if conflicts or tracked:
-            print("\nCANH BAO: Phat hien xung dot hoac file da duoc Git theo doi.")
-        if not prompt_confirm(f"Tien hanh cai dat (apply) vao thu muc '{dest}'?", default=False):
-            print("ABORTED: Qua trinh cai dat bi huy boi nguoi dung.")
-            return 2 if conflicts or tracked else 0
-    elif args.apply and is_interactive and not args.yes:
-        if not prompt_confirm(f"Xac nhan cai dat template vao '{dest}'?", default=True):
-            print("ABORTED: Cai dat bi huy.")
-            return 2 if conflicts or tracked else 0
 
     # Preflight every destination before any write, including AGENTS merge candidate.
     try:
