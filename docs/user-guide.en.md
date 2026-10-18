@@ -4,15 +4,17 @@
 
 Bootstrap is a reusable harness of agent roles, skills, workflows, scripts and hooks for Codex, Google Antigravity, Claude Code, Continue and other coding agents. Give your agent **one of the setup prompts below**.
 
-## Choose a first-time setup
+## Choose one of two short setup prompts
+
+**Copy one prompt and replace only the project folder path.** The AI follows [For AI](FOR_AI.md) to handle discovery, configuration, testing and handoff; you provide missing information and approve decisions when requested.
 
 ### A. New project (no code yet)
 
-> Read [Bootstrap's For AI guide](https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md) and use `project-template/`. My new project is `<idea, goal, target folder>`. Perform a safe staged setup, then use Planner Discovery to brainstorm and settle CRITERIA with me. Only after approval propose language/framework/architecture, ask for my technical decision, configure project-specific Coder and Tester skills/knowledge, audit remaining placeholders and run positive/negative smoke tests. Request a real fresh-session host test when needed. Lock verified hooks only at the end and hand off. Preview changes before writing; do not implement product features during bootstrap.
+> Set up Bootstrap for my **new project** at `<PROJECT_FOLDER_PATH>`. Follow the complete AI instructions: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Run setup and Discovery autonomously; ask me only for missing information or decisions requiring approval.
 
 ### B. Existing project (has code)
 
-> Read [Bootstrap's For AI guide](https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md) and use `project-template/`. Project: `<folder/repository and purpose>`. Inspect existing code, tests, Git and verified behavior without rewriting product code. Safely install the preliminary harness, check whether CRITERIA is approved; if not, have Planner reconstruct current behavior from code, discuss my actual desired changes and request approval. Propose a grounded continuation/refactor direction for my decision. After approval customize Coder/Tester skills, complete configuration audit, run safe positive/negative and real-host smoke tests, then lock hooks and hand off. Batch missing questions and preview all writes.
+> Set up Bootstrap for my **existing codebase** at `<PROJECT_FOLDER_PATH>`. Follow the complete AI instructions: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Inspect and preserve the current code; manage setup autonomously and ask me only for missing information or decisions requiring approval.
 
 The AI needs a local checkout of Bootstrap, separate from your project: `git clone --depth 1 https://github.com/thebimhouseinfo-sudo/bootstrap.git <temporary-folder>`. A raw documentation URL alone cannot run the installer. Clone only after approval (or ask the user to run it when no terminal access is available).
 
@@ -26,7 +28,7 @@ Preliminary setup → CRITERIA discovery and approval → technical direction an
 
 ## Prompt after successful handoff
 
-> Invoke **Planner** according to the installed harness. Read approved CRITERIA, ARCHITECTURE, PROJECT_PROFILE and the codebase. Draft or revise the **Implementation Plan with GOALMAP inside it**. Begin **each Plan section with its GOAL**, stating what user-observable result the code will deliver, which CRITERIA requirement it serves, and how acceptance will be tested. Derive milestones with dependencies and acceptance criteria. Run the applicable plan reviews and ask for my approval before creating Tasks or writing product code. Never silently change approved CRITERIA.
+> Invoke Planner following `AGENTS.md`. Read approved CRITERIA, create/review the Implementation Plan (GOALMAP and a GOAL at the start of every section), derive Milestones and ask for my approval before creating Tasks or coding.
 
 Open future sessions in the installed project folder and follow `AGENTS.md`. You do not need to run the Bootstrap installer again.
 

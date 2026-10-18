@@ -4,15 +4,17 @@
 
 **Bootstrap** cung cấp template role, skill, workflow, script và hook cho Codex, Google Antigravity, Claude Code, Continue và các coding agent khác. AI tự khảo sát và cấu hình cho dự án, không yêu cầu bạn tự copy từng file.
 
-## Chọn loại dự án và copy một prompt
+## Chọn một trong hai prompt để bắt đầu
+
+Chỉ cần **copy một prompt và thay đường dẫn thư mục dự án**. Các bước thiết lập, đọc code, CRITERIA, skills, smoke test và bàn giao do AI tự điều phối theo [For AI](docs/FOR_AI.md).
 
 ### A. Dự án mới — chưa có code
 
-> Đọc hướng dẫn **For AI** tại https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án của tôi: `<ý tưởng, mục đích, thư mục dự án>` (chưa có code). Hãy setup Bootstrap theo quy trình staged: khảo sát và cài sơ bộ an toàn, rồi gọi Planner cùng tôi brainstorm và chốt CRITERIA trước khi đề xuất ngôn ngữ/framework/kiến trúc. Sau khi tôi duyệt phương hướng kỹ thuật, cấu hình skill/knowledge chuyên ngành cho Coder và Tester; kiểm tra hết placeholder cần thiết; tự tạo smoke test hai chiều và nhờ tôi xác minh host thực tế nếu cần. Chỉ khóa hook sau khi test PASS, rồi bàn giao. Đề xuất và xin duyệt các thao tác ghi file trước khi thực hiện. Không tự viết sản phẩm trong lúc setup.
+> Thiết lập Bootstrap cho **dự án mới** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo toàn bộ hướng dẫn AI: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Tự điều phối setup và Discovery; chỉ hỏi tôi về thông tin còn thiếu hoặc quyết định cần duyệt.
 
-### B. Dự án đã có code — tích hợp vào codebase
+### B. Dự án đã có code
 
-> Đọc hướng dẫn **For AI** tại https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án hiện có: `<thư mục/link repo và mô tả>`. Hãy khảo sát source, tài liệu, cấu hình build/test, Git và các chức năng đang hoạt động; tuyệt đối không ghi đè hoặc refactor code sản phẩm trong bước setup. Cài harness sơ bộ an toàn, kiểm tra trạng thái CRITERIA; nếu chưa được duyệt, Planner tái dựng hiện trạng từ code, hỏi mong muốn của tôi, soạn CRITERIA và xin duyệt. Sau đó đề xuất hướng phát triển/refactor; chỉ khi tôi duyệt mới cấu hình skill/knowledge Coder/Tester, hoàn thiện audit, test hook/script hai chiều trên runtime thực, khóa hook và bàn giao. Hỏi gộp thông tin còn thiếu, trình preview trước khi ghi file.
+> Thiết lập Bootstrap cho **dự án đã có code** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo toàn bộ hướng dẫn AI: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Khảo sát và bảo toàn code hiện tại; tự điều phối setup, chỉ hỏi tôi về thông tin còn thiếu hoặc quyết định cần duyệt.
 
 **Để AI thực sự chạy installer**, phải có bản clone Bootstrap trên máy, trong thư mục tạm riêng **ngoài dự án đích**: `git clone --depth 1 https://github.com/thebimhouseinfo-sudo/bootstrap.git <thu-muc-tam>`. Nếu agent có quyền shell, sau khi được duyệt nó tự clone và thực hiện; nếu chỉ đọc web, nó phải cung cấp lệnh chính xác cho Human. Link `raw` chỉ giúp đọc tài liệu, không thay thế bản clone.
 
@@ -32,9 +34,9 @@
 
 **Giữ nguyên tab/phiên coding agent đang thiết lập Bootstrap khi được yêu cầu mở tab mới để test.** Tab mới chỉ dùng kiểm thử. Nếu bị BLOCK hoặc hook lỗi, quay về tab setup để sửa; không tự vô hiệu hóa cơ chế bảo vệ. Chỉ đóng tab setup sau khi AI xác nhận bàn giao xong và đã lưu checkpoint/đường recovery.
 
-## Sau khi bàn giao: prompt khởi đầu luồng chính
+## Sau khi bàn giao: bắt đầu luồng phát triển
 
-> Hãy gọi **Planner** theo harness vừa được bàn giao. Đọc CRITERIA đã duyệt, ARCHITECTURE, PROJECT_PROFILE và codebase. Tạo hoặc rà soát **Implementation Plan** và **GOALMAP trong Plan**: ở đầu **mỗi mục Plan** phải ghi rõ GOAL — sửa/viết phần code đó để sản phẩm đạt được kết quả gì, liên kết yêu cầu CRITERIA nào, chấp nhận và kiểm thử ra sao. Dựa trên Plan, lập Milestones theo quan hệ phụ thuộc và tiêu chí nghiệm thu. Thực hiện review theo workflow, trình tôi duyệt trước khi lập Tasks hay code. Không tự sửa CRITERIA đã duyệt.
+> Gọi Planner theo `AGENTS.md` để đọc CRITERIA đã duyệt, lập/rà soát Implementation Plan (GOALMAP và GOAL ở đầu mỗi mục), sau đó lập Milestones và trình tôi duyệt trước khi tạo Tasks hoặc code.
 
 Sau lần đầu, mở agent trong thư mục dự án và làm việc bình thường theo `AGENTS.md`. Không cần chạy Bootstrap lại.
 
