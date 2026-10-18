@@ -33,8 +33,11 @@ def stage_active():
 
 
 def run(args, cwd=ROOT, data=None):
-    return subprocess.run(args, cwd=str(cwd), input=data, text=True, capture_output=True,
-                          encoding="utf-8", errors="replace", timeout=45, check=False)
+    try:
+        return subprocess.run(args, cwd=str(cwd), input=data, text=True, capture_output=True,
+                              encoding="utf-8", errors="replace", timeout=45, check=False)
+    except (OSError, subprocess.TimeoutExpired) as err:
+        return subprocess.CompletedProcess(args, 127, "", str(err))
 
 
 def configured_checks():
