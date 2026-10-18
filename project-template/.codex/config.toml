@@ -1,6 +1,6 @@
-# Codex project configuration: permission-neutral and model-neutral defaults.
-# Explicit model/effort presets are documented in MODEL_PRESETS.md and applied
-# only after confirming availability and user selection. Do not silently fallback.
+# Main chat model/effort and host sandbox/approval remain user-selected.
+# Native subagent models/effort are already in .codex/agents/*.toml.
+# Project-local hooks are defined in .codex/hooks.json and require Codex trust review.
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 2

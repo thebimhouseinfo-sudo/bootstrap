@@ -1,13 +1,7 @@
-# Trace and stale propagation contract (Standard+)
+# Trace and stale propagation — implementation boundary (Standard+)
 
-This is a spec, not a runnable generator. Generate `docs/TRACE.md` from live data; never edit generated trace by hand.
+**Implemented**: `python harness/common/task.py --stage plan|delivery` checks one explicitly `ACTIVE` goal from `harness/active-task.json`, with approved theory IDs present in `docs/CRITERIA.md`, planned tests, and (delivery) existing in-project test/evidence files. No task / empty links / missing files → `NOT_CONFIGURED` (exit 2), not PASS. It does **not** certify test semantics or human approval.
 
-Links: approved theory ID → GOAL → milestone → exactly one goal per task → file/test → evidence → status.
+**Not yet implemented**: full graph ID → GOAL → milestone → task → files/tests/evidence, `docs/TRACE.md` generation, automatic STALE propagation, signed gate expiry and affected-goal dependency update. Those must remain NOT_CONFIGURED.
 
-Check:
-- IDs and version references resolve; OPEN/PENDING_APPROVAL do not authorize dependent tasks.
-- Approved IDs have goal coverage; scoped goal IDs have task/test links.
-- Changes to theory IDs mark affected goal, milestone, task and test STALE; unrelated entries remain current.
-- No DONE while in-scope evidence or gate is STALE.
-- Unknown or absent approved GOALMAP → NOT_CONFIGURED.
-- Link checks do not prove product behavior; tester and reviewer must verify semantics.
+When implementing, do not edit generated `docs/TRACE.md` by hand; scope stale propagation to truly affected approved IDs and mark unsourced goals OPEN, not silently approved.

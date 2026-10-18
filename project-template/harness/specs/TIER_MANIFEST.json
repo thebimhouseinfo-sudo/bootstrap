@@ -74,5 +74,7 @@
     },
     "G14": "Full only",
     "G12": "Full and Git only"
-  }
+  },
+  "reference_runtime": "codex",
+  "portability": "Python common scripts may be reused; other runtimes need native adapter and equivalent observed behavior"
 }

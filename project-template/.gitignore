@@ -11,3 +11,11 @@ harness/requests/
 harness/snapshots/
 harness/state.json
 harness/last-block.json
+
+# Local task state and generated Python files
+harness/active-task.json
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

@@ -268,7 +268,7 @@ class InstallTests(unittest.TestCase):
             self.assertNotIn("sandbox_mode", agent, config.name)
             self.assertNotIn("approval_policy", agent, config.name)
         policy = (SOURCE / "harness/specs/READINESS.md").read_text(encoding="utf-8")
-        self.assertIn("inherit the parent sandbox", policy)
+        self.assertIn("inherit effective parent permission policy", policy)
         self.assertIn("GUIDED_ONLY", policy)
 
     def test_manual_coordination_is_not_authenticated_gate_approval(self):
@@ -286,8 +286,10 @@ class InstallTests(unittest.TestCase):
         report = SOURCE / "harness/common/status.py"
         caps = json.loads((SOURCE / "harness/common/capabilities.json").read_text(encoding="utf-8"))
         self.assertEqual(caps["release_claim"], "INSTALLABLE_BASELINE_NOT_AUTOMATED_HARNESS")
-        for missing in ("snapshot", "native_hooks", "gate_engine", "trace",
-                        "orchestration", "authenticated_approval"):
+        self.assertEqual(caps["capabilities"]["snapshot"], "SCRIPT_TESTED")
+        self.assertEqual(caps["capabilities"]["codex_hook_bridge"], "SCRIPT_TESTED")
+        self.assertEqual(caps["capabilities"]["native_hooks"], "READY_CONTENT")
+        for missing in ("gate_engine", "trace", "orchestration", "authenticated_approval"):
             self.assertEqual(caps["capabilities"][missing], "NOT_CONFIGURED")
         for tier in TIERS:
             for runtime in RUNTIMES:

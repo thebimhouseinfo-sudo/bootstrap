@@ -10,4 +10,4 @@ This is a reusable workflow. `docs/CRITERIA.md` is the **only approved product-t
 
 Give a vibe-coder outcome-focused summary: **what works, what is intentionally not built, cost/maintenance/risks, and what choosing changes**. Do not require human to read diffs or detailed engineering P1/P2/P3 plans. Preserve unrelated work. No unapproved product features, destructive Git, secret leaks, dependency installs or fabricated tests/approvals.
 
-Shared verification: `harness/common/checks.json` and `harness/common/verify.py` only run configured commands. Missing genuine native hooks, approval channel, gates or orchestration is NOT_CONFIGURED/GUIDED_ONLY, never ENFORCED without actual host tests.
+Shared verification: `harness/common/checks.json` and `harness/common/verify.py` only run configured commands. Codex hooks and Python snapshot/Stop scripts are installed but require live native trust/event verification. Full signed gates, authenticated approvals, full TRACE and automatic orchestration remain NOT_CONFIGURED. An ACTIVE approved task and verified checks are required for Stop verification; never invent goal IDs or claim ENFORCED without actual host tests.

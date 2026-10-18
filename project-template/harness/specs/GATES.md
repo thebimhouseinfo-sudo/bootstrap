@@ -48,7 +48,8 @@ A specification, not a gate engine. PLAN, CODE and TEST are evaluated against ex
 
 - Trigger fields: event, scope, profile/gate, responsible role, PASS condition, max rounds (default 2 per pair), action when it cannot run.
 - Events must be ones the runtime can really observe (e.g. `plan_ready`, `task_code_ready`, `task_verified`, `feature_complete`, `milestone_complete`, `risk_escalated`). Do not fire on every file save; do not repeat a trigger already PASS for the same hash.
-- Hooks (if supported): session start / prompt submit inject `gate status`; Stop runs `gate check` and blocks at most 3 times per task, then stops and reports; pre-tool guard blocks hand edits of state, task done-status, hook config, CRITERIA, journal, decisions and approvals, and blocks agents from signing G0/G11 or answering requests.
+- **Current Codex hook implementation:** SessionStart injects short context; direct apply_patch PreToolUse attempts scoped snapshots and warns on protected paths (not an authorization guard); Stop validates an ACTIVE task's limited trace/evidence links and runs configured script verify, requesting at most ONE continuation. It does NOT run the gate engine, authenticate humans, block Bash/MCP protected writes, sign G0/G11 or dispatch review agents.
+- **Future gate engine requirement (NOT_CONFIGURED):** true `gate check` with target hashes, human-only G0/G11 answers, defended policy edits and bounded retry; activation only after real Codex native hook trust and negative tests. Never present this future mechanism as already installed.
 - Hooks only block and name the next step; the main agent (or an external orchestrator) calls the sub-agents.
 - Without hooks use a `next_step` tool, a rule to call it first and before declaring done, and `gate check` in pre-commit/CI. Mark what is `GUIDED_ONLY`.
 - Call it "automatic" only with real orchestration; prove it with a fake milestone on a disposable copy.

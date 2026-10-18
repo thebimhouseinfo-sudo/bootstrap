@@ -48,8 +48,8 @@ def main(args=None):
         print("REQUIRED:", name, state)
         if state not in SATISFIED:
             missing.append(name)
-    print("UNIMPLEMENTED: native_hooks, authenticated_approval, gate_engine, "
-          "snapshot, trace, orchestration unless separately implemented and tested.")
+    unresolved = [k for k, state in states.items() if state in ("NOT_CONFIGURED", "GUIDED_ONLY")]
+    print("REMAINING_CAPABILITIES:", ", ".join(sorted(unresolved)))
     if missing or runtime != "RUNTIME_VERIFIED":
         print("NOT_CONFIGURED: not a fully operational automated harness")
         return 2

@@ -1,13 +1,7 @@
-# Verification runner contract (implement per OS/runtime)
+# Python verify — supported contract
 
-This file is a **specification**, not an executable verifier.
+`harness/common/verify.py` implements verified argv commands from `checks.json` without shell execution. Empty/invalid checks → NOT_CONFIGURED exit 2; failure/timeout → 1; all configured checks succeed → 0. Actual host acceptance and product behavior are separate.
 
-Sequence (stop on actual failure, exit nonzero): dependencies → lint/typecheck → build → tests → changed-file scope → changed-file secret scan → trace (Standard+) → outcome.
+Codex `Stop` calls the one-task `harness/common/task.py` validator and script verify **only** for a configured ACTIVE goal; a failing check requests **one bounded continuation**, not an indefinite retry. The `stop_hook_active` event flag prevents repeat. Python CI tests are SCRIPT_TESTED; native Codex hook loading/trust must still be smoke-tested.
 
-- Print failing step, source location when known, reproduction and remediation.
-- Missing command or unavailable host → UNVERIFIED/NOT_CONFIGURED, never PASS.
-- Only include checks supported by the confirmed project stack.
-- Snapshot before edits and demonstrate restore in a disposable test.
-- Runtime hook integration and Stop retry cap (max 3) require implementation and positive/negative tests.
-- Check no hard-coded network execution or unsafe destructive commands.
-- Separate build success from real-host integration success.
+Check lists must be written from verified target project commands and approved scope. Optional dependency/secret scans or full trace must not be claimed unless genuinely configured and tested. Snapshot covers recognized direct apply_patch edits, not Bash/MCP/hosted edits.

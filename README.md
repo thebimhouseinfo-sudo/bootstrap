@@ -2,7 +2,7 @@
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-> **Trạng thái phát hành:** Hiện là **template agent + installer + các script nền**, chưa phải harness Codex tự động hoàn chỉnh. Các engine snapshot/hook/gate/approval có xác thực/trace/orchestration còn NOT_CONFIGURED. Kiểm tra bằng `python harness/common/status.py --tier Standard --runtime codex` sau khi cài. Role Codex kế thừa sandbox/approval của phiên cha; yêu cầu chỉ-đọc trong prompt chưa phải quyền được cưỡng chế. Xem `project-template/harness/specs/READINESS.md`.
+> **Trạng thái phát hành:** Hiện là **template agent + installer + các script nền**, chưa phải harness Codex tự động hoàn chỉnh. Đã có script Python cho snapshot và adapter hook Codex ở mức SCRIPT_TESTED; gate có chữ ký, approval có xác thực, trace đầy đủ và orchestration vẫn NOT_CONFIGURED; host Codex chưa smoke-test. Kiểm tra bằng `python harness/common/status.py --tier Standard --runtime codex` sau khi cài. Role Codex kế thừa sandbox/approval của phiên cha; yêu cầu chỉ-đọc trong prompt chưa phải quyền được cưỡng chế. Xem `project-template/harness/specs/READINESS.md`.
 
 Repo này là **bộ template harness có sẵn**, hướng tới **Codex**, hiện chỉ ở mức bộ khung và script nền đã kiểm thử. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
 
@@ -135,7 +135,7 @@ Nêu thành phần đã copy/cấu hình và mục đích chống lỗi; enforce
 
 | Tầng | Dành cho | Thành phần dự kiến |
 | --- | --- | --- |
-| **Lite** | Dự án nhỏ, một người | AGENTS, CRITERIA + GOALMAP, verify, snapshot, Stop hook khi runtime hỗ trợ, lessons, evidence, journal, approval inbox, Coder + Reviewer |
+| **Lite** | Dự án nhỏ, một người | Mục tiêu: AGENTS, CRITERIA, verify, snapshot, evidence, Stop (nếu native được trust), các quy trình duyệt phù hợp. **Hiện có** script snapshot/verify; journal/approval inbox có xác thực chưa được triển khai. |
 | **Standard** | Dự án vừa | Lite + Planner/Tester/CR, milestone + G0–G11, review/repair loop theo trigger, G13 trace, decision log đầy đủ |
 | **Full** | Dự án lớn/rủi ro cao | Standard + G14, G12 Git Admin, harness-fixer, doctor/selftest, weakening detector |
 
@@ -166,3 +166,5 @@ Nếu thay đổi cấp thêm quyền hoặc làm yếu ranh giới bảo vệ, 
 ## Giấy phép
 
 MIT. Xem [LICENSE](LICENSE).
+
+**Codex-first:** `.codex/hooks.json` gọi `harness/codex/hook.py`; Python chung nằm tại `harness/common/`. Claude Code/IDE khác sẽ chuyển đổi hook theo cơ chế native, không nhân bản cả harness. Trước khi chốt READY phải kiểm tra `/hooks` trên Codex thật và test chặn/tiếp tục; script CI PASS chưa thay được bước này.

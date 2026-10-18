@@ -2,7 +2,7 @@
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-> **Release status:** Current product is an **agent template + installer + baseline scripts**, not a complete automated Codex harness. Snapshot/hook/gate/authenticated approval/trace/orchestration engines remain NOT_CONFIGURED. Run `python harness/common/status.py --tier Standard --runtime codex` after install. Codex subagent sandbox/approval inherit the parent; read-only prompt instructions are not enforcement. See `project-template/harness/specs/READINESS.md`.
+> **Release status:** Current product is an **agent template + installer + baseline scripts**, not a complete automated Codex harness. Scoped snapshots and Codex native hook adapter are SCRIPT_TESTED; signed gate/authenticated approval/full trace/orchestration are NOT_CONFIGURED; native Codex host smoke is UNVERIFIED. Run `python harness/common/status.py --tier Standard --runtime codex` after install. Codex subagent sandbox/approval inherit the parent; read-only prompt instructions are not enforcement. See `project-template/harness/specs/READINESS.md`.
 
 This repository is a **ready-made harness template library**, designed for **Codex**, currently shipped as a tested baseline rather than a complete enforced harness. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
 
@@ -133,7 +133,7 @@ Report installed components and why they exist; actual enforcement versus guidan
 
 | Tier | Suitable for | Intended scope |
 | --- | --- | --- |
-| **Lite** | Small, single-user projects | AGENTS, CRITERIA + GOALMAP framework, verify, snapshot, Stop hook where supported, lessons, evidence, journal, approval inbox, Coder + Reviewer |
+| **Lite** | Small, single-user projects | Target: AGENTS, CRITERIA, verify, snapshot, evidence, trusted native Stop and proportional approvals. **Currently shipped**: snapshot/verify scripts and Codex hook files; authenticated journal/approval inbox remains unimplemented. |
 | **Standard** | Most projects | Lite + Planner/Tester/Critic, milestones and G0–G11, trigger-based review/repair, G13 trace, full decision log |
 | **Full** | Larger or higher-risk projects | Standard + G14, G12 Git Admin, harness-fixer, doctor/self-tests, weakening detection |
 
@@ -164,3 +164,5 @@ Read the `BLOCK` code, rule, definition location, reason, evidence and authorize
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+**Codex-first:** `.codex/hooks.json` invokes `harness/codex/hook.py`; reusable Python lives in `harness/common/`. Claude/other IDEs should adapt native events while reusing compatible Python. Actual Codex `/hooks` trust and event smoke remain required before declaring host-ready.
