@@ -16,6 +16,14 @@ def call(*args, cwd=None, payload=None):
                           errors="replace", timeout=45)
 
 
+
+def fixture_action(tool, action, evidence, cwd):
+    """Exercise internal transitions in CI, without claiming human confirmation."""
+    code = ("import runpy,sys; m=runpy.run_path(sys.argv[1]);"
+            "sys.exit(m[sys.argv[2]](sys.argv[3]))")
+    return call(sys.executable, "-c", code, tool, action, evidence, cwd=cwd)
+
+
 class StagedSetupTests(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -111,8 +119,7 @@ class StagedSetupTests(unittest.TestCase):
         command = self.root / "harness/common/setup_lifecycle.py"
         blocked = call(sys.executable, command, "activate", "--evidence", evidence, cwd=self.root)
         self.assertEqual(blocked.returncode, 2)
-        locked = call(sys.executable, command, "activate", "--evidence", evidence,
-                      "--human-approved", cwd=self.root)
+        locked = fixture_action(command, "activate", evidence, self.root)
         self.assertEqual(locked.returncode, 0, locked.stdout + locked.stderr)
         self.assertIn("POST-LOCK", locked.stdout)
         self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"], "READY")
@@ -125,8 +132,7 @@ class StagedSetupTests(unittest.TestCase):
             "fresh_session": True, "hook_dispatched": True,
             "post_lock_allow": True, "post_lock_deny": True,
             "notes": "Synthetic CI fixture, not attested host"}), encoding="utf-8")
-        handoff = call(sys.executable, command, "finalize", "--post-lock-evidence",
-                       post, "--human-approved", cwd=self.root)
+        handoff = fixture_action(command, "finalize", post, self.root)
         self.assertEqual(handoff.returncode, 0, handoff.stdout + handoff.stderr)
         self.assertIn("GOALMAP", handoff.stdout)
         self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"],
@@ -151,8 +157,7 @@ class StagedSetupTests(unittest.TestCase):
             "runtime": "continue", "host_version": "CI fixture",
             "fresh_session": True, "roles_loaded": True, "checks_executed": True,
             "native_hook_available": False, "notes": "Synthetic observations only"}), encoding="utf-8")
-        active = call(sys.executable, tool, "activate", "--evidence", evidence,
-                      "--human-approved", cwd=self.root)
+        active = fixture_action(tool, "activate", evidence, self.root)
         self.assertEqual(active.returncode, 0, active.stdout + active.stderr)
         self.assertIn("READY_WITH_LIMITATIONS", active.stdout)
         status = call(sys.executable, tool, "status", cwd=self.root)
@@ -163,10 +168,23 @@ class StagedSetupTests(unittest.TestCase):
             "runtime": "continue", "host_version": "CI fixture",
             "fresh_session": True, "roles_loaded": True, "checks_executed": True,
             "post_lock_allow": True, "notes": "Synthetic observations only"}), encoding="utf-8")
-        handoff = call(sys.executable, tool, "finalize",
-                       "--post-lock-evidence", post, "--human-approved", cwd=self.root)
+        handoff = fixture_action(tool, "finalize", post, self.root)
         self.assertEqual(handoff.returncode, 0, handoff.stdout + handoff.stderr)
         self.assertIn("GUIDED_ONLY", handoff.stdout)
+
+
+    def test_activation_refuses_agent_run_even_with_human_approved_flag(self):
+        self.install()
+        tool = self.root / "harness/common/setup_lifecycle.py"
+        evidence = self.root / "harness/setup-live-evidence.json"
+        evidence.write_text('{"runtime":"codex"}', encoding="utf-8")
+        for action, name in (("activate", "--evidence"),
+                             ("finalize", "--post-lock-evidence")):
+            for flags in ([], ["--human-approved"]):
+                result = call(sys.executable, tool, action, name, evidence,
+                              *flags, cwd=self.root)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("interactive terminal", result.stdout)
 
     def test_host_test_prints_keep_setup_tab_open(self):
         self.install()
