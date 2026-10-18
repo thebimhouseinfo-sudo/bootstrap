@@ -291,7 +291,7 @@ def finalize(evidence):
             temp.unlink()
     print("HANDOFF_COMPLETE: manual observations recorded, NOT independently authenticated")
     if limited:
-        print("LIMITATION: native blocking hooks NOT CONFIGURED, guided workflows only")
+        print("LIMITATION: native blocking hooks NOT_CONFIGURED, GUIDED_ONLY workflows")
     print("PLANNER START PROMPT: Invoke Planner. Read approved CRITERIA, ARCHITECTURE,")
     print("PROJECT_PROFILE and codebase; create/review Implementation Plan and GOALMAP.")
     print("Start EVERY Plan section with a GOAL: why does this code exist and what")
