@@ -117,7 +117,7 @@ def pretool(payload):
         relpath = pathlib.Path(p)
         if relpath.is_absolute():
             try:
-                relpath = relpath.relative_to(ROOT)
+                relpath = relpath.resolve().relative_to(ROOT.resolve())
             except ValueError:
                 continue  # Snapshot validation below handles out-of-project paths.
         rel = relpath.as_posix()

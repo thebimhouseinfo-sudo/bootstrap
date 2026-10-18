@@ -104,7 +104,7 @@ project-template/
 
 #### Step 1. Collect only missing information
 
-Inspect known information first. Determine: Lite/Standard/Full tier (Standard is the typical default), agent runtime/version (Codex by default), OS and shell, Git/remote/branch, product type and host, existing stack, real integration test availability, models/tools actually supported, language dialect and API version requirements, reporting language, and the available human approval channel.
+Inspect known information first. Determine: Lite/Standard/Full tier (Standard is the typical default), agent runtime/version (chosen from the actual installed app, never presumed), OS and shell, Git/remote/branch, product type and host, existing stack, real integration test availability, models/tools actually supported, language dialect and API version requirements, reporting language, and the available human approval channel.
 
 For case C, collect only what is necessary to begin Discovery. If a runtime has no hooks or human-only approval controls, disclose any journal and authorization integrity that remains `GUIDED_ONLY`.
 

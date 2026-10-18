@@ -17,7 +17,7 @@ class LocalIgnoreTests(unittest.TestCase):
         self.git('init', '-q')
 
     def git(self, *args):
-        result = subprocess.run(['git', '-C', str(self.root), *([] if '--runtime' in args else ['--runtime', 'codex']), *args], capture_output=True,
+        result = subprocess.run(['git', '-C', str(self.root), *args], capture_output=True,
                                 text=True, encoding='utf-8', errors='replace', timeout=20)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout
