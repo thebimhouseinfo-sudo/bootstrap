@@ -67,8 +67,10 @@ class StagedSetupTests(unittest.TestCase):
         bridge = call(sys.executable, self.root / "harness/common/setup_hook.py", cwd=self.root)
         self.assertEqual(bridge.returncode, 0, bridge.stdout + bridge.stderr)
         self.assertIn("BOOTSTRAPPING", bridge.stdout)
-        self.assertEqual(call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
-                              "smoke", cwd=self.root).returncode, 2)
+        result = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
+                      "smoke", cwd=self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SMOKE_DENY: PASS", result.stdout)
 
     def test_audit_and_activation_block_when_not_verified(self):
         self.install()
