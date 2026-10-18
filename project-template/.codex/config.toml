@@ -1,5 +1,3 @@
-# Codex project defaults; effective parent/managed overrides may take precedence.
-# Models must be checked for account availability; no silent fallback.
 model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 approval_policy = "on-request"
