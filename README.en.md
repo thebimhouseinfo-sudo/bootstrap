@@ -166,3 +166,7 @@ Read the `BLOCK` code, rule, definition location, reason, evidence and authorize
 MIT. See [LICENSE](LICENSE).
 
 **Codex-first:** `.codex/hooks.json` invokes `harness/codex/hook.py`; reusable Python lives in `harness/common/`. Claude/other IDEs should adapt native events while reusing compatible Python. Actual Codex `/hooks` trust and event smoke remain required before declaring host-ready.
+
+### Active development branch and frozen main
+
+Bootstrap includes `harness/common/branch_authority.py` in every Git-enabled tier. Human chooses the active development branch (e.g. `v5`), frozen branches (`main`) and registered work branches. Canonical policy is stored in the Git common directory, independent of checkout. Planner/Coder check it before coding, creating branches, merging and pushing; Git default `main` must never be assumed. Codex PreToolUse can deny observed direct apply_patch on wrong branches, but is not universal shell/MCP/API or server protection. See [BRANCH_AUTHORITY.md](project-template/harness/specs/BRANCH_AUTHORITY.md).

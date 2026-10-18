@@ -14,3 +14,6 @@
 | Full trace generator/stale propagation | `specs/TRACE.md` | NOT_CONFIGURED |
 
 Do not add a VM, server, background daemon or another framework. `specs/` defines what remains to be implemented for the approved tier, not automatic features simply because an instruction exists. The Python hook cannot substitute for real host trust/sandbox/user authentication. Run `python harness/common/status.py` and record actual CLI smoke results before claiming RUNTIME_VERIFIED or ENFORCED.
+
+### Active Git development branch
+`harness/common/branch_authority.py` works across every tier and runtime as an explicit Git branch/merge/push **preflight**; `harness/specs/BRANCH_AUTHORITY.md` explains freeze, `v5` integration and local common-dir authority. Codex PreToolUse additionally checks the active branch before recognized patches. This does not provide universal shell/MCP/remote Git enforcement.

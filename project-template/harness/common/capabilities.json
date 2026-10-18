@@ -25,7 +25,9 @@
     "orchestration": "NOT_CONFIGURED",
     "trace_links": "SCRIPT_TESTED",
     "codex_hook_bridge": "SCRIPT_TESTED",
-    "stop_hook": "SCRIPT_TESTED"
+    "stop_hook": "SCRIPT_TESTED",
+    "branch_authority": "SCRIPT_TESTED",
+    "git_remote_protection": "NOT_CONFIGURED"
   },
   "runtime_smoke": {
     "codex": "UNVERIFIED",

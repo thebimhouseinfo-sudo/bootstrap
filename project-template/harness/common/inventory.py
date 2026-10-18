@@ -45,6 +45,7 @@ def main(args=None):
     needed = [
         "AGENTS.md", "docs/CRITERIA.md", "docs/PROJECT_PROFILE.md", "TASKS.md",
         "harness/common/verify.py", "harness/common/checks.json",
+        "harness/common/branch_authority.py", "harness/config/branch-authority.example.json",
     ]
     needed += [".agents/roles/" + role + ".md" for role in sorted(roles)]
     if options.runtime == "codex":
