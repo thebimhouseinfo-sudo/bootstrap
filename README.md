@@ -4,7 +4,7 @@
 
 **Bootstrap** là bộ **harness template** giúp thiết lập môi trường dự án chuẩn mực, nhất quán cho các AI coding agent như **Codex, Google Antigravity, Claude Code, Continue, Cline, Qwen Code, Cursor và Copilot**.
 
-Template cung cấp sẵn **vai trò agent, skill, workflow, script và hook** để AI tái sử dụng, chỉ tùy chỉnh theo từng dự án thay vì xây dựng lại từ đầu. Mức độ hỗ trợ và kiểm thử của từng nền tảng được nêu ở phần dưới.
+Template cung cấp sẵn **vai trò agent, skill, workflow, script và hook** để AI tái sử dụng, chỉ tùy chỉnh theo từng dự án thay vì xây dựng lại từ đầu.
 
 ---
 
