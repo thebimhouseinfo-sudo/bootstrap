@@ -2,9 +2,17 @@
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-> **Release & Testing Status:** The template has **passed tests** when configured for **Google Antigravity IDE** and **Codex** (installer, baseline scripts, inventory, verify, snapshot, hooks/roles/skills have been verified). **Other coding agents (Claude Code, Continue, Copilot, Cline, etc.) have not been tested by the Human because those environments are not installed; compatibility is not ruled out.** When setting up, the AI must **self-inspect and adapt/fix configuration following the template instructions** to fit its own platform. Check status using `python harness/common/status.py --tier Standard --runtime antigravity` (or `--runtime codex`). See `project-template/harness/specs/READINESS.md`.
-
-This repository is a **ready-made harness template library** for coding agents. Currently, the template has **passed tests** when configured for **Google Antigravity IDE** and **Codex**; other coding agents have not yet been tested on the Human's machines and need runtime-specific verification and adaptation. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
+> **Goal:** Bootstrap is a **reusable project-setup template for popular coding agents**, designed to **reduce setup token/quota consumption and time**. Reuse prepared roles, skills, scripts, hooks and instructions instead of rediscovering or rebuilding an agent harness for every project or IDE.
+>
+> **Generic template readiness (distinct from project-specific setup):**
+> - **Codex and Google Antigravity IDE — GENERIC READY:** The Human has installed and tested both on real machines. Choose the correct runtime and tier, **copy the template and start the generic coding-agent workflow without modifying the generic package**.
+> - **Claude Code — CONFIGURED, NOT HOST-TESTED:** Role/skill configuration, native settings and hook adapter are prepared. The Human has not installed Claude Code for a real-host smoke test; **this does not mean its generic configuration is missing**.
+> - **Continue — NEAR GENERIC READY, NOT HOST-TESTED:** Role configurations and rules are prepared. Its provider/**model mapping** must be set for the user's VS Code environment. Similarity to Antigravity does not prove identical native hook or subagent behavior; verify on the actual host.
+> - **Other coding agents:** Follow the existing guides to **adapt only platform-specific adapters/config formats**, not to rebuild the complete harness.
+>
+> **Two separate notions of ready:** GENERIC READY means the reusable coding-agent template is usable without rewriting its generic files. **The target project still needs its own configuration** (CRITERIA, stack/host/API, paths, verified build/tests, Git branch and any required model choices). This does **not** certify all gates, hooks or isolation as `ENFORCED`. `harness/common/status.py` reports technical capability states; it is not the standalone measure of *generic template usability*.
+>
+This repo is **runtime-neutral**, with no primary app. Users supply a repo link and brief project context. The AI chooses the matching package, gathers only missing information, obtains approval, then copies and **configures project-specific facts or the adapter gaps of an as-yet unsupported host**. When it lacks filesystem/terminal access, it provides exact OS/shell/path-specific commands rather than making the human locate files.
 
 Do not redesign the harness from scratch or rewrite generic agents and skills. All claims of working functionality must be backed by actual tests. Protected decisions require a human-only **Approval Request with three choices: Agree / Disagree / Other**. The initial setup exception, when that channel has not yet been installed, must be explicitly disclosed.
 
@@ -74,13 +82,14 @@ project-template/
   lessons/
 ```
 
-- **Google Antigravity IDE (human-tested on installed machine):** skills and roles are discovered natively from `.agents/skills/` and `.agents/roles/`; model assignments by role reside in `.antigravity/agents/*.md` (with Gemini 3.8 Flash High fallback); lifecycle hooks are in `.agents/hooks.json` (Stop dispatches to `harness/common/verify.py`).
-- **Codex (test passed):** native role TOMLs and model presets at `.codex/agents/*.toml` are preconfigured; native hook adapter in `.codex/hooks.json` dispatches to `harness/codex/hook.py`; verifier/inventory runs via `harness/common/`.
-- **Other coding agents (not yet tested on the Human's machines):** Claude Code (adapter `.claude/` + `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline, etc., still require real-host verification; this does not mean they are unsupported. **AIs operating on these platforms must self-inspect the platform's actual capabilities and adapt/complete configuration following the instructions in the template** (see `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): adjusting agent registration, config format, skill paths, model mapping, native lifecycle hooks (or stating `GUIDED_ONLY` if the platform lacks enforcement hooks), and approval channels. File presence alone does not prove subagents are loaded or hooks are active. Verify runtime features with real tests before claiming readiness.
+- **Codex and Google Antigravity IDE — GENERIC READY:** The Human has tested installation and generic use on machines with the respective apps. Copy the matching runtime package; do not rewrite prepared generic roles, skills or scripts merely to start using it. Codex: `.codex/agents/*.toml` and `.codex/hooks.json`; Antigravity: `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Configure target-project facts separately.
+- **Claude Code — configured, not tested inside Claude Code:** `.claude/agents/`, `.claude/settings.json`, `harness/claude/hook.py` and reused skills/rules are included. Lack of a host test is not a reason to rebuild the adapter. Smoke-test when Claude Code is available.
+- **Continue — nearly ready:** `.continue/agents/` includes role configs/rules. Configure the actual provider/models, select a role config, and check Continue's own hook/subagent limitations in VS Code; do not assume Antigravity exposes identical APIs.
+- **Copilot, Cline, Cursor and others:** Start from the prepared contracts/files, consult the platform's documentation, and port only the necessary adapters or hooks. Report any `UNVERIFIED` / `GUIDED_ONLY` boundaries without treating absent host tests as lack of support.
 
 ### Core rules
 
-1. **Copy and adapt, never rebuild generic content.** Add a new file only if the reusable template genuinely lacks a needed component; explain why.
+1. **Maximize reuse to save quota.** Copy the Codex/Antigravity generic package as-is and configure project-specific facts. For Claude/Continue and other apps, change only genuine adapter or model-mapping gaps, not shared roles/skills/scripts; add files only when the template is missing a necessary component.
 2. **Do not modify this source repository** when working on another project.
 3. **Single source of product theory:** `docs/CRITERIA.md`; GOALMAP is inside it. Do not create competing specifications.
 4. **Human-only approvals:** agents cannot answer their own requests or write protected journals, decisions and approval ledgers. Chat “OK” is not formal authorization.
@@ -88,13 +97,15 @@ project-template/
 6. **Minimalism:** every retained component must prevent a specific failure.
 7. **No default push or network access in hooks.** Avoid unauthorized `git init`, forced push, destructive reset, history rewrite, unknown-branch deletion or third-party dependency/MCP installation.
 8. **No silent model substitutions.** Report missing choices as `UNAVAILABLE`.
-9. **Verify official documentation** for the actual runtime, OS, host and version. Never mix Codex, Claude Code, Copilot or Cline schemas.
+9. **Do not spend setup quota re-researching already generic-ready presets without an actual issue.** On Codex/Antigravity, copy first and verify project-specific settings. Consult official runtime/host/API documentation when the version differs, errors appear or an untested platform needs adaptation; never mix native schemas.
 10. **Escalate template conflicts** in the adaptation table; do not choose arbitrarily.
 11. **Coder and Tester work with generic defaults** even without optional project-specific skill/knowledge packs. Mandatory host/dialect constraints still apply.
 12. **Report actual readiness.** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED and UNVERIFIED are different states.
-13. **AI self-inspection and platform adaptation:** The template is test-passed for Antigravity IDE and Codex. For other platforms (not yet human-tested), the AI is responsible for inspecting its own runtime mechanisms and adapting/fixing the configuration following the template instructions, without shifting technical configuration burdens to the user.
+13. **Evidence-specific compatibility:** Codex and Antigravity are GENERIC READY and Human-tested; Claude Code is fully configured but lacks host testing; Continue is nearly ready pending provider/model selection and host testing; other runtimes should port only necessary adapters. Never equate this generic readiness with `ENFORCED` or claim `RUNTIME_VERIFIED` without corresponding evidence.
 
 ### Setup workflow
+
+**One-message Pre-Ask:** before running setup tools or mixing in host tool-permission dialogs, gather all genuinely missing choices (project path, tier, runtime, Git branch, model, host/testing needs and approval channel) **in one chat message**, reusing context already known. After the human responds, inspect and install; do not drip-feed setup questions across command authorization prompts. This saves interaction time and quota.
 
 #### Step 0. Classify the project
 
@@ -124,7 +135,7 @@ Include the tier, a role → model/reasoning/permission matrix, the enforcement 
 
 **The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME` (choose `antigravity`, `codex`, `claude` or `continue` explicitly); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
 
-Reuse generic agents and skills unchanged wherever possible. Fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands. For Antigravity IDE and Codex, configurations are test-passed and ready for use once project parameters are filled. For other coding agents not yet human-tested, the AI must self-inspect and adapt configuration following `project-template/SETUP.md` and `harness/specs/` to suit its platform. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
+For Codex and Antigravity, **the GENERIC READY template can be copied and used for generic agent work without modifying shared roles/skills/scripts**. Then fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands for the **specific project**. Claude Code has its generic configuration prepared but needs host testing; Continue primarily needs provider/model mapping and host testing. Other platforms should adapt only necessary adapters following `project-template/SETUP.md` and `harness/specs/`, saving setup quota rather than rebuilding. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
 
 #### Step 4. Validate
 
@@ -194,15 +205,19 @@ Git, rerun the installer after repository initialization to verify actual rules.
 
 MIT. See [LICENSE](LICENSE).
 
-**Codex and Google Antigravity IDE (human-tested):**
-- **Antigravity IDE:** `.agents/hooks.json` declares Stop hook → `harness/common/verify.py`; roles and skills natively loaded from `.agents/roles/` and `.agents/skills/`; role model assignments in `.antigravity/agents/*.md` (Gemini 3.8 Flash High fallback).
-- **Codex:** `.codex/hooks.json` dispatches to `harness/codex/hook.py`; subagents loaded from `.codex/agents/*.toml`.
-- Shared Python lives in `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
+### Generic runtime adapter readiness
 
-**Other coding agents (not yet tested on the Human's machines):**
-- **Claude Code:** `.claude/settings.json` + `harness/claude/hook.py` (baseline adapter).
-- **Continue, Copilot, Cline, Cursor...:** native configs not finalized or unverified.
-- **Requirement for AI:** When deploying on these platforms, the AI must self-inspect and adapt configurations according to the template instructions (`project-template/SETUP.md`, `project-template/harness/README.md`, `project-template/harness/specs/READINESS.md`) to suit its own platform, then verify with smoke tests before declaring READY.
+| Coding agent | Generic template readiness | After copying to a project |
+| --- | --- | --- |
+| **Codex** | **GENERIC READY — Human-tested** | Use the generic package; fill in target-project settings and verification |
+| **Google Antigravity IDE** | **GENERIC READY — Human-tested** | Same as Codex; no generic rewrite required |
+| **Claude Code** | **Fully configured, not host-tested** | Smoke-test in Claude Code when available; configure the target project |
+| **Continue** | **Near GENERIC READY, not host-tested** | Select provider/models and role config; verify native host constraints |
+| **Copilot / Cline / Cursor / others** | **Template is a porting source** | Adapt only platform-specific files; do not rebuild shared harness |
+
+Adapter files: Codex `.codex/` and `harness/codex/`; Antigravity `.agents/` and `.antigravity/`; Claude Code `.claude/` and `harness/claude/`; Continue `.continue/`. Shared Python is in `harness/common/`.
+
+**Scope of READY here:** copy-and-use generic coding-agent configuration, **not** a claim that the signed-gate engine, authenticated approvals or host-level enforcement are fully operational. Product-specific setup is still required.
 
 ### Active development branch and frozen main
 

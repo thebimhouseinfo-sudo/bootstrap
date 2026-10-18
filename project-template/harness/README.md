@@ -1,6 +1,6 @@
 # Harness — multi-runtime Python scripts and contracts
 
-**No primary runtime.** Codex and Google Antigravity IDE have been tested on the Human's installed machines; other app runtimes still need real-host testing. Shared scripts in `harness/common/` are ordinary Python >=3.9. Runtime-native role and hook adapters are selected deliberately during installation. Distinguish user-observed installation success from native hook/gate enforcement tests.
+**No primary runtime.** Codex and Google Antigravity IDE are **GENERIC READY**: the Human tested copy/use on installed machines without rewriting the generic agent template. Claude Code is configured but lacks Human host testing; Continue is near generic ready but requires model/provider mapping and host testing. Other apps can port the adapter instructions. Shared scripts in `harness/common/` are ordinary Python >=3.9. Runtime-native role and hook adapters are selected deliberately during installation. All projects still need project-specific configuration. Distinguish user-observed generic usability from independent native hook/gate enforcement tests; a reusable setup's READY label does not make a gate engine READY.
 
 | Area | Actual executable | State |
 |---|---|---|
