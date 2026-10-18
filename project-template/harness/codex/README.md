@@ -1,12 +1,13 @@
-# Codex adapter — current release
+# Codex — reference adapter for the Python harness
 
-Preconfigured `.codex/agents/*.toml` includes role prompts and per-role models/effort. Main chat model remains user-selected. No subagent TOML overrides the parent session's `sandbox_mode` or `approval_policy`. Advisor/Critic/Explorer **request read-only behavior in instructions**, but there is **no independent read-only sandbox** in the shipped adapter; do not claim isolation or an enforced read-only role. A separate isolated read-only environment needs an actual implemented and tested runtime mechanism.
+The main chat model/effort and effective sandbox/approval are chosen by the user/host. `.codex/agents/*.toml` already contains role presets; no independent sandbox is promised for Advisor/Critic/Explorer.
 
-`python harness/codex/preflight.py` checks local version/config and asks for effective session policy/trust evidence; this is NOT proof that hooks or agent permissions were activated.
+**Executable project-local native hooks:** `.codex/hooks.json` → `harness/codex/hook.py`. The hooks discover the project root even when Codex starts in a subfolder; Python 3.9+ must be available as `python` on PATH. Project hooks and each changed definition need the user's review/trust in Codex `/hooks`. Do NOT bypass hook trust automatically.
 
-Portable scripts installed for all runtimes:
-- `python harness/common/inventory.py --tier Standard --runtime codex`: file/skill inventory
-- `python harness/common/verify.py`: approved configured commands; empty configuration returns NOT_CONFIGURED (exit 2)
-- `python harness/common/status.py --tier Standard --runtime codex`: reports release capability gaps and returns exit 2 until automated tier+host requirements are verified
+- `SessionStart` supplies short project instructions.
+- `PreToolUse` snapshots recognized direct `apply_patch` file changes. No all-shell/MCP prevention.
+- `Stop` checks `harness/active-task.json` and `harness/common/checks.json`; if ACTIVE and tests fail, asks Codex for one bounded repair turn. No goal or no checks → does not fake PASS. It does not sign user gates or automatically call reviewers.
 
-**Release scope:** basic installer, inventory, verifier, preflight, role files. Native hooks, snapshot, authenticated approval, journal, gate engine, trace and review orchestration are currently **specifications, not implemented runtime code**. `harness/common/capabilities.json` is the machine-readable declaration. Process-tree timeout cleanup for verifier is best effort.
+Run `python harness/common/snapshot.py capture <relative-file>`, `python harness/common/task.py --stage delivery`, and `python harness/common/status.py --tier Standard --runtime codex`. Snapshot restore is preview-only until `--apply --expect-current path=sha256` is supplied.
+
+Python CI regression verifies the adapter contract, not that a signed-in Codex CLI has trusted and actually executed the native events; record real CLI smoke separately. Authenticated approvals, full gate engine, full STALE trace, review orchestration remain NOT_CONFIGURED.
