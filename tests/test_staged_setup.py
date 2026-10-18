@@ -224,6 +224,30 @@ class StagedSetupTests(unittest.TestCase):
         self.assertFalse(backups.exists())
 
 
+
+    def test_manual_recovery_mechanics_with_synthetic_confirmation(self):
+        """CI bypass is ONLY for testing the mechanics, never human authentication."""
+        self.install()
+        hook = self.root / ".codex/hooks.json"
+        before = hook.read_bytes()
+        script = self.root / "harness/common/recover.py"
+        code = (
+            "import runpy,sys\n"
+            "m=runpy.run_path(sys.argv[1])\n"
+            "g=m['main'].__globals__\n"
+            "g['confirm']=lambda action: None\n"
+            "sys.exit(m['main'](sys.argv[2:]))\n"
+        )
+        disabled = call(sys.executable, "-c", code, script, "--runtime", "codex",
+                        "disable", cwd=self.root)
+        self.assertEqual(disabled.returncode, 0, disabled.stdout + disabled.stderr)
+        self.assertFalse(hook.exists())
+        backup_id = disabled.stdout.split("RECOVERY_BACKUP: ")[1].splitlines()[0].split("/")[-1]
+        restored = call(sys.executable, "-c", code, script, "--runtime", "codex",
+                        "restore", "--backup", backup_id, cwd=self.root)
+        self.assertEqual(restored.returncode, 0, restored.stdout + restored.stderr)
+        self.assertEqual(hook.read_bytes(), before)
+
     def test_explicit_upgrade_preserves_user_modified_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             checkout = pathlib.Path(tmp) / "bootstrap-copy"
