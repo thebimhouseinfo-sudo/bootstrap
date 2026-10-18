@@ -8,15 +8,35 @@ It provides reusable **agent roles, skills, workflows, scripts, and hooks**, so 
 
 ---
 
-**No runtime is primary or selected by default.** The AI must identify the actual host in one pre-install configuration step and pass an explicit `--runtime` to the installer. Human testing on Codex and Antigravity does not automatically certify host hooks, signed gates or orchestration on every version.
+**No runtime is primary or selected by default.** The AI must identify the actual host in one pre-install configuration step and pass an explicit `--runtime` to the installer. Testing on Codex and Antigravity does not automatically certify host hooks, signed gates or orchestration on every version.
 
-## For users
+## How to use Bootstrap
 
-Give your AI assistant the repository link and say:
+### 1. First time: copy the setup prompt into your coding agent
 
-> Read the README at `https://github.com/thebimhouseinfo-sudo/bootstrap`. Set up the coding-agent harness for my project using the ready-made templates. Copy and configure the files yourself if you have access; otherwise give me the exact terminal commands. Project: `<short description or path>`.
+Open the coding agent you want to use and **paste the following prompt into its chat**. Replace `<...>` with your project details, or let the AI ask about anything you do not know yet. You don't have to find or copy the individual files in `project-template/`.
 
-The AI inventories the project, asks only for missing information, presents an **adaptation and enforcement table** for your approval, then installs the selected components. You do not need to locate or copy files yourself.
+> Read `https://github.com/thebimhouseinfo-sudo/bootstrap` and use `project-template/` to set up a harness for `<project name, folder or repository link, and short description>`. Inspect the project, ask for missing choices together (runtime, tier, Git branch, local/tracked config, build/test environment), and show me the proposed changes for approval. Once approved, install and verify them yourself if you have access; otherwise give me exact commands to run. Do not write product code during bootstrap. Finish by reporting what was installed, what was tested, and what remains unverified.
+
+The AI previews changes before `--apply`, preserves existing files and reports the results. **Harness installation comes before product development**; copying the template does not mean that the project's CRITERIA, tasks or testing environment are already configured.
+
+### 2. After setup: clarify requirements, plan, then build
+
+Continue in the same chat or open a new one in the configured project directory:
+
+> Read `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md`, `TASKS.md` and the Git branch configuration. If CRITERIA is not yet approved, use Planner Discovery to brainstorm, research options and draft requirements for my decision. If CRITERIA is approved, use Planner Delivery to prepare GOALMAP, milestones and tasks. Do not write product code before the scope and task are approved.
+
+After you approve the requirements and a task, assign the work:
+
+> Implement the approved task in `TASKS.md` using the harness. Use the available Coder, Tester and Reviewer workflow; fix and retest problems, record evidence and report results. Do not claim PASS or ENFORCED without real verification.
+
+### 3. Later sessions: resume without bootstrapping again
+
+Open your coding agent **in the project directory where Bootstrap was installed**. You do not need to paste the installation prompt every time. Start with:
+
+> Read `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md` and `TASKS.md`; check the declared active development branch and task status. Briefly summarize progress, blockers and the next step, then continue the approved work using the harness.
+
+If CRITERIA is still a draft, continue Discovery rather than assuming implementation is authorized. Roles, hooks and gates are only as operational as their runtime verification demonstrates.
 
 ---
 
@@ -76,7 +96,7 @@ project-template/
   lessons/
 ```
 
-- **Codex and Google Antigravity IDE — GENERIC READY:** The Human has tested installation and generic use on machines with the respective apps. Copy the matching runtime package; do not rewrite prepared generic roles, skills or scripts merely to start using it. Codex: `.codex/agents/*.toml` and `.codex/hooks.json`; Antigravity: `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Configure target-project facts separately.
+- **Codex and Google Antigravity IDE — GENERIC READY:** Installation and generic use have been tested. Copy the matching runtime package; do not rewrite prepared generic roles, skills or scripts merely to start using it. Codex: `.codex/agents/*.toml` and `.codex/hooks.json`; Antigravity: `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Configure target-project facts separately.
 - **Claude Code — configured, not tested inside Claude Code:** `.claude/agents/`, `.claude/settings.json`, `harness/claude/hook.py` and reused skills/rules are included. Lack of a host test is not a reason to rebuild the adapter. Smoke-test when Claude Code is available.
 - **Continue — nearly ready:** `.continue/agents/` includes role configs/rules; it reuses the **same `.agents/roles/`, `.agents/skills/` and shared Python helpers as Antigravity**, differing only in native agent/model registration. Configure the actual provider/models, select a role config, and check Continue's own hook/subagent limitations in VS Code; do not assume Antigravity exposes identical APIs.
 - **Cline, Qwen Code, DeepSeek-based clients, Copilot, Cursor and others:** Select `--runtime generic --target-app APP` to copy `.generic/agents` and porting guides. DeepSeek may be a model/provider, not the client; identify the actual host first. Start from the prepared contracts/files, consult the platform's documentation, and port only the necessary adapters or hooks. Report any `UNVERIFIED` / `GUIDED_ONLY` boundaries without treating absent host tests as lack of support.
@@ -95,7 +115,7 @@ project-template/
 10. **Escalate template conflicts** in the adaptation table; do not choose arbitrarily.
 11. **Coder and Tester work with generic defaults** even without optional project-specific skill/knowledge packs. Mandatory host/dialect constraints still apply.
 12. **Report actual readiness.** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED and UNVERIFIED are different states.
-13. **Evidence-specific compatibility:** Codex and Antigravity are GENERIC READY and Human-tested; Claude Code is fully configured but lacks host testing; Continue is nearly ready pending provider/model selection and host testing; other runtimes should port only necessary adapters. Never equate this generic readiness with `ENFORCED` or claim `RUNTIME_VERIFIED` without corresponding evidence.
+13. **Evidence-specific compatibility:** Codex and Antigravity are GENERIC READY and Tested; Claude Code is fully configured but lacks host testing; Continue is nearly ready pending provider/model selection and host testing; other runtimes should port only necessary adapters. Never equate this generic readiness with `ENFORCED` or claim `RUNTIME_VERIFIED` without corresponding evidence.
 
 ### Setup workflow
 
@@ -206,8 +226,8 @@ MIT. See [LICENSE](LICENSE).
 
 | Coding agent | Generic template readiness | After copying to a project |
 | --- | --- | --- |
-| **Codex** | **GENERIC READY — Human-tested** | Use the generic package; fill in target-project settings and verification |
-| **Google Antigravity IDE** | **GENERIC READY — Human-tested** | Same as Codex; no generic rewrite required |
+| **Codex** | **GENERIC READY — Tested** | Use the generic package; fill in target-project settings and verification |
+| **Google Antigravity IDE** | **GENERIC READY — Tested** | Same as Codex; no generic rewrite required |
 | **Claude Code** | **Fully configured, not host-tested** | Smoke-test in Claude Code when available; configure the target project |
 | **Continue** | **Near GENERIC READY, not host-tested** | Select provider/models and role config; verify native host constraints |
 | **Cline / Qwen Code / DeepSeek-based client / Copilot / Cursor / others** | **`.generic/` portable role source (not host-tested)** | Copy tier-filtered roles and porting guide; adapt only the native adapter |
