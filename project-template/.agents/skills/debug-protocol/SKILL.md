@@ -1,11 +1,18 @@
 ---
 name: debug-protocol
-description: Use when reproducible failure or blocked verification.
+description: Use for debug protocol work when the task calls for this repeatable workflow.
 ---
 
 # debug-protocol
 
-Trigger: reproducible failure or blocked verification. Capture exact failure and environment, minimize reproduction, list hypotheses, test one at a time, fix root cause, add regression proof and re-run affected checks. Do not bypass a guard or weaken assertions.
+## Procedure
+1. Capture exact failure, environment and log.
+2. minimize reproduction.
+3. distinguish code/test/config/host hypotheses.
+4. run one discriminating experiment at a time.
+5. fix root cause minimally.
+6. rerun focused and regression tests.
+7. stop after bounded no-progress loops with evidence.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

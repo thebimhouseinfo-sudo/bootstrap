@@ -1,10 +1,16 @@
 ---
 name: brainstorm-theory
-description: Use when the project has unclear or missing approved product theory and the user wants to develop ideas.
+description: Use for brainstorm theory work when the task calls for this repeatable workflow.
 ---
 
-# Brainstorming
+# brainstorm-theory
 
-Clarify the problem, users, scope, desired outcomes and constraints. Suggest a small set of meaningful approaches, each with tradeoffs and concrete input-to-output examples. Examine edge cases and what the product should not do. Ask focused questions and challenge unsupported assumptions.
+## Procedure
+1. Understand user problem and non-goals.
+2. propose 2–3 distinct options with tradeoffs.
+3. show realistic input/output and failure cases.
+4. mark open questions in CRITERIA as OPEN.
+5. request actual user approval, never infer it from recommendation.
 
-Record ideas in docs/CRITERIA.md as OPEN with their provenance, options and unresolved questions. Never create a second theory source. User-approved choices move into approved criteria only through the authorized approval mechanism. No implementation plan before sufficient theory is approved.
+## Output
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

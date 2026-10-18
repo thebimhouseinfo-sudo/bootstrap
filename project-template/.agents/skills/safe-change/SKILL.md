@@ -1,11 +1,17 @@
 ---
 name: safe-change
-description: Use when before editing repository/configuration.
+description: Use for safe change work when the task calls for this repeatable workflow.
 ---
 
 # safe-change
 
-Trigger: before editing repository/configuration. Confirm allowed paths and approval status, snapshot changed files with recovery instructions, limit diff to task scope, inspect status afterward; never assume pushing or deleting branches is permitted.
+## Procedure
+1. Inspect status and allowed paths.
+2. preserve user changes.
+3. snapshot scoped files and a tested restore path.
+4. make small isolated edit.
+5. inspect diff and unsafe changes.
+6. no destructive reset, secret exposure, unauthorized push.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

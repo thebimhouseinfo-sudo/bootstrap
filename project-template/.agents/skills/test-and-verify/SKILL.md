@@ -1,11 +1,17 @@
 ---
 name: test-and-verify
-description: Use when code or configuration changes ready to test.
+description: Use for test and verify work when the task calls for this repeatable workflow.
 ---
 
 # test-and-verify
 
-Trigger: code or configuration changes ready to test. Map acceptance condition to actual positive/negative cases, run available tests and relevant real host integration, preserve logs. UNVERIFIED if tooling/host is unavailable. Distinguish simulation from production result.
+## Procedure
+1. Build AC-ID to concrete cases.
+2. include positive/negative/edge/recovery.
+3. run permitted test commands and host integration.
+4. keep expected/actual/evidence.
+5. mark unrun tests UNVERIFIED.
+6. rerun affected regression after repair, never weaken assertions.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

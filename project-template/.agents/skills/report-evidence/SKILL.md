@@ -1,11 +1,16 @@
 ---
 name: report-evidence
-description: Use when task review or completion.
+description: Use for report evidence work when the task calls for this repeatable workflow.
 ---
 
 # report-evidence
 
-Trigger: task review or completion. Summarize changed behavior, checks actually run, environment, failures, unverified assumptions and a short human smoke test. Never state PASS without observed evidence.
+## Procedure
+1. State task/goal/version and changed paths.
+2. list exact checks run with real outcomes.
+3. identify real-host vs mocked evidence.
+4. include gaps, risks and 3–5 step smoke test.
+5. avoid PASS without measurement.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

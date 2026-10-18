@@ -1,15 +1,16 @@
 ---
 name: context-reload
-description: Use at session start, task start, or verified project context change to select and reload relevant worker skills and technical knowledge.
+description: Use for context reload work when the task calls for this repeatable workflow.
 ---
 
-# Context reload for Coder and Tester
+# context-reload
 
-1. Read project profile and optional worker-context manifest, if present.
-2. Select relevant trusted SKILL.md files and verified knowledge sources for the current role, host/version and task; do not preload unrelated packs.
-3. Refresh changed references by version/hash when available. Keep original role invariants, approval permissions and independence of Tester.
-4. If optional skill/knowledge is absent or fails to load, proceed with generic code investigation, official-doc checks as available, test/debug iterations and clear uncertainty. Never claim unavailable material was loaded.
-5. Obey explicit host/compatibility requirements in PROJECT_PROFILE even when optional knowledge packs are unavailable. Unknown API → investigate or test; do not knowingly substitute a different language's constructs.
-6. Record what was loaded, provenance/version and any unavailable sources in evidence when relevant.
+## Procedure
+1. Read project profile and optional worker manifest on session/task/profile change.
+2. select only version/host-relevant verified skills and knowledge.
+3. load sources while recording provenance.
+4. on absent optional packs continue generic workflow.
+5. never waive mandatory compatibility or fake having read unavailable files.
 
-Example: a verified Visual LISP pack can prevent accidental Common Lisp constructs and shorten review/test cycles, but lack of that pack is not itself a blocker. The agent must still discover the host dialect and verify the actual implementation.
+## Output
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

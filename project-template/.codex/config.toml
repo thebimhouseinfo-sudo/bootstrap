@@ -1,0 +1,4 @@
+# Codex project configuration (loaded for trusted project directories).
+# Reusable safe defaults: do not pin model ID, provider, shell, OS or credentials.
+# Agent configuration and protection mechanisms remain subject to runtime validation.
+# Customize this file only when target Codex CLI/version is verified.

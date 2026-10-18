@@ -1,11 +1,16 @@
 ---
 name: trace-impact
-description: Use when theory IDs or goal definitions change.
+description: Use for trace impact work when the task calls for this repeatable workflow.
 ---
 
 # trace-impact
 
-Trigger: theory IDs or goal definitions change. Compute affected goal, milestone, task and test chain; mark only affected entries STALE, never update approved theory through derived files. If trace engine absent, report GUIDED_ONLY/UNVERIFIED.
+## Procedure
+1. Read approved theory ID changes.
+2. compute affected goal/milestone/task/test edges.
+3. mark only affected entries STALE.
+4. regenerate trace through authorized engine.
+5. report uncovered/OPEN links and leave independent work untouched.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

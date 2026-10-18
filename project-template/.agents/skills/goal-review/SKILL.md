@@ -1,11 +1,16 @@
 ---
 name: goal-review
-description: Use when review of plan, code or test for an approved goal.
+description: Use for goal review work when the task calls for this repeatable workflow.
 ---
 
 # goal-review
 
-Trigger: review of plan, code or test for an approved goal. Match observed change to goal acceptance and diff. Report only reproducible blocking findings with IDs; move other ideas to backlog. PASS is valid with no finding.
+## Procedure
+1. Confirm object, goal/version and evidence.
+2. compare target with goal and acceptance.
+3. independently check omissions, invented behavior, integration and tests.
+4. give reproducible blocking findings with AC/ID or PASS.
+5. backlog unrelated ideas.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

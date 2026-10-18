@@ -1,19 +1,9 @@
-# SETUP — Instructions for Bootstrap and Planner
+# Setup contract — Codex-first, reuse by default
 
-This folder is the **actual target project root**. Copy its contents to the project root (preserve tree; do not create an extra nested project-template directory). Never blindly overwrite existing project files: inspect, merge and get authorization for protected changes.
-
-READY-TO-USE CONTENT: portable role prompts in .agents/roles, common .agents/skills/*/SKILL.md, report/lesson formats, .gitignore starter. These are immediately readable instructions/formats, though runtime activation still requires configuration.
-
-NEEDS PROJECT WRITING: root AGENTS.md and README.md; docs/CRITERIA.md, ARCHITECTURE.md, PROJECT_PROFILE.md, MILESTONES.md, root TASKS.md, and generated trace. **Planner rewrites AGENTS.md and project-specific planning after inspecting actual goals and repo**. Bootstrap handles verified environment/profile/harness scaffolding; Planner cannot invent product logic or bypass approval.
-
-IMPLEMENT AFTER RUNTIME DISCOVERY: harness/specs/ documents are implementation guides for hooks, gates, review loop, snapshot, verify, approvals, trace, etc. Choose scripts, native configuration and policies for the actual platform, OS, host and agent runtime. Do not ship dummy executable scripts.
-
-Coder & Tester default to generic operation. Optional project skills/knowledge from .agents/config/worker-context.yaml can improve first-pass accuracy; absence should lead to normal testing/debugging, not an automatic task failure.
-
-Before claiming READY, test native agent/skill activation and relevant harness allow/deny scenarios. Mark NOT_CONFIGURED or GUIDED_ONLY honestly.
-
-## Empty project — Discovery Mode
-When no product theory exists, do not stop Planner. Install only the minimal Planner agent with brainstorm-theory and research-evidence skills, the CRITERIA placeholder and an available user dialogue/approval channel. Planner explores options and research with the user, recording OPEN hypotheses only in CRITERIA. Full harness setup, final stack selection, production milestones and coder tasks follow sufficient approved theory. Do not falsely claim approval mechanisms or native agents work before tested.
-
-## Harness implementation contract
-The canonical destination is this already-laid-out project tree. There must be no competing second installation tree. Read `harness/specs/GATES.md`, `TESTS.md`, `APPROVAL.md`, `FIXER.md` and `HARNESS_SPEC_TEMPLATE.md` for the more detailed platform-neutral contracts before implementing. These files are specifications: implement only the approved tier for the verified runtime/host, then execute permitted and denied self-tests. Discovery Mode remains supported for projects without approved logic; it does not pretend that a full harness exists.
+1. Copy the **contents** of project-template into target project root, never overwrite existing user files without review.
+2. Codex is the default: root AGENTS.md and generic .agents/skills are already populated. Reuse .agents/roles instructions; native named-subagent binding requires version verification.
+3. For existing code, inventory repo/OS/host/runtime/model/test commands; populate PROFILE and tailor only project-specific instructions. For blank projects, Planner starts Discovery with brainstorm/research and records OPEN decisions in CRITERIA.
+4. Do not rewrite generic role/skill workflows per project. Add optional specialist skill/knowledge packs separately for Coder/Tester when user approves.
+5. Read harness/specs and implement the runtime-specific hooks/approval/gate/snapshot/trace/loop mechanisms for the selected tier; scripts are NOT universally portable. Codex adapters may be supplied but must not be represented as verified without tests.
+6. Test generic agent workflows and both allowed/blocked guard scenarios in a disposable copy. Distinguish READY (portable content), CONFIGURE (target facts/native mapping), IMPLEMENT (runtime scripts), and ENFORCED (actual tested guard).
+7. For Claude Code/Copilot/Cline translate only runtime interfaces, not product theory or reusable role logic.

@@ -1,11 +1,15 @@
 ---
 name: critical-review
-description: Use when outside-in audit after runnable artifact or plan is provided.
+description: Use for critical review work when the task calls for this repeatable workflow.
 ---
 
 # critical-review
 
-Trigger: outside-in audit after runnable artifact or plan is provided. Use only the limited critic inputs. Probe unexpected inputs, user-visible contradictions and fragility; supply reproducible raw observations, no scope judgement.
+## Procedure
+1. Access only public artifact and README.
+2. probe contradictions, missing steps, empty/invalid/repeated inputs and false-positive tests.
+3. record exact reproduction and actual evidence.
+4. forward raw observations without interpreting private requirements.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

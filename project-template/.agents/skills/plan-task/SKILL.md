@@ -1,11 +1,16 @@
 ---
 name: plan-task
-description: Use when approved goal ready for implementation.
+description: Use for plan task work when the task calls for this repeatable workflow.
 ---
 
 # plan-task
 
-Trigger: approved goal ready for implementation. Read the approved goal, its covered theory IDs and current milestone. Produce a single task with observable acceptance conditions, scope, expected files, dependencies and test strategy. Return THEORY_GAP for missing behavior; do not add product requirements.
+## Procedure
+1. Read approved CRITERIA GOALMAP/version.
+2. choose one goal and explicit exclusions.
+3. create one-goal tasks with acceptance, dependencies, likely paths and test method.
+4. detect OPEN/STALE gaps.
+5. submit for goal-scoped review, no new theory.
 
 ## Output
-Short actionable result with scope, evidence and unresolved blockers. Do not change role permissions or product theory.
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.

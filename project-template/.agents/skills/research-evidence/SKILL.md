@@ -1,10 +1,16 @@
 ---
 name: research-evidence
-description: Use when project discovery or design choices require factual investigation, platform compatibility checks or comparison of alternatives.
+description: Use for research evidence work when the task calls for this repeatable workflow.
 ---
 
-# Research with evidence
+# research-evidence
 
-Identify the specific decision to inform. Prefer official documentation and reliable, version-relevant sources where available. Distinguish verified facts, hypotheses and uncertainty. Summarize sources, competing approaches, tradeoffs, risks and decisions for the user in accessible language.
+## Procedure
+1. State a narrow research question and exact version/host scope.
+2. consult primary official or reproducible sources.
+3. separate fact/inference/unknown.
+4. compare feasible options with source links and confidence.
+5. report remaining decision; research does not approve theory.
 
-Research informs brainstorming but never authorizes or changes approved product theory by itself. Keep unresolved theory OPEN in docs/CRITERIA.md. If sources cannot be checked, mark UNVERIFIED and never fabricate citations.
+## Output
+Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.
