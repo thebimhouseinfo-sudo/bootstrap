@@ -75,6 +75,9 @@ class HarnessRuntimeTests(unittest.TestCase):
         self.assertEqual(self.command("harness/common/task.py").returncode, 2)
         criteria = self.root / "docs/CRITERIA.md"
         criteria.write_text(criteria.read_text(encoding="utf-8")+"\nREQ-123 approved scope\n", encoding="utf-8")
+        (self.root / "docs/IMPLEMENTATION_PLAN.md").write_text(
+            "## GOALMAP\nG-001: observable behavior linked to REQ-123\n"
+            "### PLAN-001 — GOAL: deliver observable result\n", encoding="utf-8")
         task = self.root / "harness/active-task.json"
         value = dict(status="ACTIVE", goal_id="G-001", theory_ids=["REQ-123"],
                      tests=["tests/test_sample.py"], evidence=["docs/reports/proof.txt"])
@@ -156,6 +159,9 @@ class HarnessRuntimeTests(unittest.TestCase):
         source.write_text(source.read_text(encoding="utf-8")+"\nREQ-123\n", encoding="utf-8")
         evidence = self.root / "docs/reports/proof.txt"
         evidence.write_text("observed", encoding="utf-8")
+        (self.root / "docs/IMPLEMENTATION_PLAN.md").write_text(
+            "## GOALMAP\nG-001: observable behavior linked to REQ-123\n"
+            "### PLAN-001 — GOAL: deliver observable result\n", encoding="utf-8")
         task = dict(status="ACTIVE", goal_id="G-001", theory_ids=["REQ-123"],
                     tests=["docs/CRITERIA.md"], evidence=["docs/reports/proof.txt"])
         (self.root / "harness/active-task.json").write_text(json.dumps(task), encoding="utf-8")

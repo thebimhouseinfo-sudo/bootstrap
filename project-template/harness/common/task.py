@@ -24,6 +24,12 @@ def validate(path=CONFIG, stage="delivery"):
         raise ValueError("approved goal ID missing")
     if not isinstance(theory, list) or not theory or not all(isinstance(x, str) and x.strip() for x in theory):
         raise ValueError("approved theory IDs missing")
+    plan = ROOT / "docs/IMPLEMENTATION_PLAN.md"
+    if not plan.is_file():
+        raise ValueError("Implementation Plan/GOALMAP missing")
+    text = plan.read_text(encoding="utf-8")
+    if not re.search(r"(?<![\\w-])" + re.escape(goal) + r"(?![\\w-])", text):
+        raise ValueError("goal ID not found in Implementation Plan/GOALMAP: " + goal)
     if not isinstance(tests, list) or not tests or not all(isinstance(x, str) and x.strip() for x in tests):
         raise ValueError("planned test links missing")
     criteria = (ROOT / "docs/CRITERIA.md").read_text(encoding="utf-8")
