@@ -177,7 +177,7 @@ def is_release_source(relative):
         return False
     if len(parts) == 1:
         return relative.name in RELEASE_FILES
-    return parts[0] in RELEASE_ROOTS and relative.suffix.lower() in RELEASE_SUFFIXES
+    return parts[0] in RELEASE_ROOTS and (relative.name == ".gitkeep" or relative.suffix.lower() in RELEASE_SUFFIXES)
 
 LITE_SKILL_EXCLUSIONS = {
     "critical-review", "goal-review", "trace-impact", "plan-task",
@@ -421,6 +421,10 @@ def main():
             print("BLOCK: staged state malformed; repair using independent maintenance")
             return 2
     print_pre_ask_block(dest, tier, runtime, args.target_app, mode)
+    if not args.staged and not staged_state.exists():
+        print("WARNING_UNSTAGED_INSTALL: blocking hooks can run immediately with incomplete")
+        print("branch setup and prevent repair in a fresh session. RECOMMENDED: --staged.")
+        print("This mode is retained for existing CLI compatibility; do not use for first setup.")
     if args.staged:
         print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
@@ -458,7 +462,9 @@ def main():
         print("BLOCK: unsafe destination:", exc)
         return 2
     try:
-        ignore_op = next(op for op in ops if op[2].name == ".gitignore")
+        ignore_op = next((op for op in ops if op[2].name == ".gitignore"), None)
+        if ignore_op is None:
+            raise ValueError("template is missing required .gitignore source")
         if ignore_op[0] == "CONFLICT":
             raise ValueError("cannot safely install local-only .gitignore policy")
         write_ignore(dest, ignore_op[1], mode)
