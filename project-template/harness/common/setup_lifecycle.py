@@ -91,9 +91,30 @@ def smoke():
         print("SMOKE: LEGACY mode; use installed native preflight and host tests")
         return 2
     runtime = state.get("runtime")
+    if runtime == "antigravity":
+        with tempfile.TemporaryDirectory(prefix="bootstrap-antigravity-smoke-") as d:
+            dest = pathlib.Path(d)
+            common = dest / "harness/common"
+            common.mkdir(parents=True)
+            for relative in ("setup_hook.py", "setup_lifecycle.py", "verify.py"):
+                shutil.copyfile(ROOT / "harness/common" / relative, common / relative)
+            checks = common / "checks.json"
+            checks.write_text(json.dumps({"checks": [{"name": "allow",
+                "argv": [sys.executable, "-c", "pass"]}]}), encoding="utf-8")
+            allowed = run([sys.executable, str(common / "setup_hook.py")], cwd=dest)
+            checks.write_text(json.dumps({"checks": [{"name": "deny",
+                "argv": [sys.executable, "-c", "raise RuntimeError('fixture reject')"]}]}), encoding="utf-8")
+            denied = run([sys.executable, str(common / "setup_hook.py")], cwd=dest)
+            good, bad = allowed.returncode == 0, denied.returncode != 0
+            print("SMOKE_ALLOW:", "PASS" if good else "FAIL")
+            print("SMOKE_DENY:", "PASS" if bad else "FAIL")
+            if not (good and bad):
+                return 1
+        print("SMOKE: SCRIPT_TESTED Antigravity Stop wrapper, native dispatch UNVERIFIED")
+        return 0
     if runtime not in ("codex", "claude"):
-        print("SMOKE: native positive/negative fixtures not provided for", runtime,
-              "- host-specific live tests required; no fake PASS")
+        print("SMOKE: portable adapter lacks a native blocking hook for", runtime,
+              "; manual role/skill checks are required before limited handoff")
         return 2
     hook_rel = "harness/" + runtime + "/hook.py"
     hook = ROOT / hook_rel
