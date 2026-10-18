@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Bootstrap staged first-install and split-doc regressions (no native host claims)."""
 import json
+import runpy
 import pathlib
 import shutil
 import subprocess
@@ -362,15 +363,15 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("<PROJECT_FOLDER_PATH>", english_a)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_b)
 
-    def test_staged_audit_requires_native_dialog_trace(self):
+    def test_staged_audit_requires_interactive_intake_trace(self):
         self.install()
         tool = self.root / "harness/common/setup_lifecycle.py"
         absent = call(sys.executable, tool, "audit", cwd=self.root)
         self.assertEqual(absent.returncode, 2)
-        self.assertIn("native-dialog setup-intake trace missing", absent.stdout)
+        self.assertIn("IDE-dialog/CLI-menu setup-intake trace missing", absent.stdout)
         self.record_native_dialog_fixture()
         valid = call(sys.executable, tool, "audit", cwd=self.root)
-        self.assertIn("DIALOG_INTAKE: RECORDED", valid.stdout)
+        self.assertIn("SETUP_INTAKE: RECORDED", valid.stdout)
         # Other intentionally unconfigured components still prevent final readiness.
         self.assertEqual(valid.returncode, 2)
         path = self.root / "harness/setup-intake.json"
@@ -385,9 +386,9 @@ class StagedSetupTests(unittest.TestCase):
             path.write_text(json.dumps(corruption), encoding="utf-8")
             invalid = call(sys.executable, tool, "audit", cwd=self.root)
             self.assertEqual(invalid.returncode, 2)
-            self.assertIn("native-dialog setup-intake trace missing", invalid.stdout)
+            self.assertIn("IDE-dialog/CLI-menu setup-intake trace missing", invalid.stdout)
 
-    def test_permission_notice_and_native_dialog_only_docs(self):
+    def test_permission_notice_and_ide_cli_documentation(self):
         vi = (REPO / "README.md").read_text(encoding="utf-8")
         en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
         ai = (REPO / "docs/FOR_AI.md").read_text(encoding="utf-8")
@@ -395,10 +396,67 @@ class StagedSetupTests(unittest.TestCase):
         for guide in (vi, en):
             self.assertIn("dialog", guide.lower())
             self.assertIn("raw.githubusercontent.com", guide)
-        self.assertIn("ONE ordinary chat notice", ai)
-        self.assertIn("native structured", ai)
+        self.assertIn("chat notification", ai)
+        self.assertIn("CLI numbered", ai)
         self.assertIn("setup-intake.json", spec)
-        self.assertIn("No native dialog available?", ai)
+        self.assertIn("INTERACTIVE_INTAKE_UNAVAILABLE", ai)
+
+    def test_cli_numbered_menu_records_real_choice_values_in_local_trace(self):
+        self.install("codex")
+        path = self.root / "harness/common/setup_intake.py"
+        self.assertTrue(path.is_file())
+        no_tty = call(sys.executable, path, cwd=self.root)
+        self.assertEqual(no_tty.returncode, 2)
+        self.assertIn("INTERACTIVE_INTAKE_UNAVAILABLE", no_tty.stdout)
+        self.assertFalse((self.root / "harness/setup-intake.json").exists())
+        module = runpy.run_path(str(path))
+        answers = iter(["2", "1", "2", "upgrade/v5"])
+        output = []
+        result = module["collect"]("codex", input_fn=lambda prompt: next(answers),
+                                    output_fn=output.append)
+        self.assertEqual(result["channel"], "cli_menu")
+        self.assertEqual([r["value"] for r in result["responses"]],
+                         ["Standard", "local", "upgrade/v5"])
+        self.assertTrue(any("1) Lite" in row for row in output))
+        self.assertTrue(any("2) Standard" in row for row in output))
+        created = module["write_trace"](self.root, result)
+        self.assertEqual(json.loads(created.read_text(encoding="utf-8")), result)
+        with self.assertRaises(ValueError):
+            module["write_trace"](self.root, result)
+        audit = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
+                     "audit", cwd=self.root)
+        self.assertIn("SETUP_INTAKE: RECORDED", audit.stdout)
+        self.assertNotIn("setup-intake trace missing", audit.stdout)
+        self.assertEqual(audit.returncode, 2)  # Other mandatory choices still OPEN
+
+    def test_cli_menu_invalid_answers_or_cancel_are_not_saved(self):
+        self.install("codex")
+        path = self.root / "harness/common/setup_intake.py"
+        module = runpy.run_path(str(path))
+        answers = iter(["invalid", "4", "q"])
+        with self.assertRaises(ValueError):
+            module["collect"]("codex", input_fn=lambda prompt: next(answers),
+                              output_fn=lambda msg: None)
+        self.assertFalse((self.root / "harness/setup-intake.json").exists())
+        self.assertFalse(module["branch_name"]("../escape"))
+        self.assertTrue(module["branch_name"]("upgrade/v5"))
+
+    def test_cli_menu_rejects_invalid_source_and_mismatched_runtime(self):
+        self.install("codex")
+        path = self.root / "harness/setup-intake.json"
+        for channel, source, runtime in (
+            ("cli_menu", "permission_dialog", "codex"),
+            ("cli_menu", "cli_menu", "claude"),
+            ("chat", "chat", "codex"),
+        ):
+            path.write_text(json.dumps({
+                "schema_version": 1, "channel": channel, "runtime": runtime,
+                "responses": [{"id": "git_mode", "value": "local", "source": source}],
+            }), encoding="utf-8")
+            audit = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
+                         "audit", cwd=self.root)
+            self.assertIn("setup-intake trace missing", audit.stdout)
+            self.assertEqual(audit.returncode, 2)
 
     def test_one_root_readme_and_plan_ownership(self):
         self.assertFalse((REPO / "README.en.md").exists())
