@@ -47,11 +47,12 @@ class InstallTests(unittest.TestCase):
                         path = {"codex": ".codex/agents", "claude": ".claude/agents",
                                 "continue": ".continue/agents"}[other]
                         self.assertEqual((root / path).exists(), other == runtime)
-                    native = {
-                        "codex": {x.stem for x in (root / ".codex/agents").glob("*.toml")},
-                        "claude": {x.stem for x in (root / ".claude/agents").glob("*.md")},
-                        "continue": {x.name for x in (root / ".continue/agents").iterdir()},
-                    }[runtime]
+                    if runtime == "codex":
+                        native = {x.stem for x in (root / ".codex/agents").glob("*.toml")}
+                    elif runtime == "claude":
+                        native = {x.stem for x in (root / ".claude/agents").glob("*.md")}
+                    else:
+                        native = {x.name for x in (root / ".continue/agents").iterdir()}
                     self.assertEqual(native, EXPECTED[tier])
                     if runtime == "claude":
                         generic = {x.parent.name for x in (root / ".agents/skills").glob("*/SKILL.md")}
