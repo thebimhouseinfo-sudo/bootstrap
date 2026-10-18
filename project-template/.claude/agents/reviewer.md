@@ -2,6 +2,7 @@
 name: reviewer
 description: Reusable reviewer agent for project-scoped work.
 model: fable
+effort: high
 ---
 
 # reviewer — reusable role instructions

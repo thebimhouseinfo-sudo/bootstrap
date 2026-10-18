@@ -2,6 +2,7 @@
 name: explorer
 description: Reusable explorer agent for project-scoped work.
 model: haiku
+effort: low
 ---
 
 # explorer — portable role contract

@@ -15,11 +15,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: TOML parser for Python 3.9
-        run: python -m pip install tomli
-      - name: Regression suite
-        run: python project-template/harness/codex/test_baseline.py
-      - name: Installer and tier regression
+      - name: Test-only parsers
+        run: python -m pip install tomli PyYAML
+      - name: Shared verifier regression
+        run: python project-template/harness/common/test_verify.py
+      - name: Tier/runtime installer and adapter regression
         run: python tests/test_installer.py
-      - name: Inventory smoke
-        run: python project-template/harness/codex/doctor.py
+      - name: Template inventory smoke
+        run: python project-template/harness/common/inventory.py --tier Standard --runtime codex

@@ -18,7 +18,7 @@ This file is a **specification**, not an operational approval system.
 
 | Type | Replaces |
 |---|---|
-| THEORY_CHANGE | change to `docs/CRITERIA.md` (needs a CONFIRMED decision) |
+| THEORY_CHANGE | change to `docs/CRITERIA.md` after Advisor's outcome/complexity/impact analysis and user's informed decision |
 | THEORY_GAP | choosing an option where theory is silent; batch several gaps into one request |
 | COVERAGE_MAP | approval of GOALMAP (goal to theory-ID coverage) |
 | MILESTONE_SET / MILESTONE_ACCEPT | approving milestones and triggers / accepting a finished milestone |
@@ -27,7 +27,7 @@ This file is a **specification**, not an operational approval system.
 | BREAK_GLASS | one-time unlock for exactly one BLOCK; never changes config |
 | DEP_ADD, MODEL_CHOICE | adding a dependency, choosing a model |
 
-## Answer channel (choose at intake, in order of preference)
+## Theory decisions and Advisor\n\nBefore first approval of CRITERIA or a THEORY_CHANGE, request Advisor's concise review of original outcome vs proposed solution, smaller viable implementation, side effects on theory IDs/goals/tasks/tests, risks and uncertainty. Human remains free to accept any option or override advice. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.\n\n## Answer channel (choose at intake, in order of preference)
 
 1. Real buttons in the target tool's UI.
 2. A command only the human types, e.g. `harness answer REQ-0012 agree|disagree|other --note "..."`.

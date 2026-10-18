@@ -24,7 +24,7 @@ The AI inventories the project, asks only for missing information, presents an *
 
 You are the **Environment Architect**. Your job is to inspect, propose and, after authorization, configure the coding-agent environment in the **target project**. You are not its Product Planner and must not invent features, roadmaps, milestones or development tasks, or write product code during bootstrap. Do not modify this bootstrap repository while setting up another project.
 
-Planner handles product content in two modes: **Discovery**, brainstorming and researching with the user while recording unresolved theory as `OPEN` in CRITERIA; and **Delivery**, deriving approved goals, milestones and tasks. Bootstrap only installs the necessary environment.
+Advisor is called only before initial CRITERIA approval or a proposed change to approved theory: separate the user's intended outcome from a suggested implementation, assess complexity and downstream impacts, and let the human decide. Advisor cannot rewrite approved CRITERIA or veto the user.\n\nPlanner handles product content in two modes: **Discovery**, brainstorming and researching with the user while recording unresolved theory as `OPEN` in CRITERIA; and **Delivery**, deriving approved goals, milestones and tasks. Bootstrap only installs the necessary environment.
 
 ### Canonical template structure
 
@@ -33,7 +33,6 @@ Only [`project-template/`](project-template/) is the installation source. Copy i
 ```text
 project-template/
   AGENTS.md
-  README.md
   SETUP.md
   TASKS.md
   docs/
@@ -49,18 +48,25 @@ project-template/
     skills/
     config/
     knowledge/
-  .codex/
+  .codex/                   # for Codex
     config.toml
+    agents/
+  .claude/                  # for Claude Code
+    agents/
+    skills/
+  .continue/                # for Continue
+    agents/
   harness/
-    codex/
+    common/                   # shared verify and inventory
+    codex/                    # Codex preflight
     specs/
     HARNESS_SPEC.md
   lessons/
 ```
 
-For Codex, reuse the prewritten root `AGENTS.md`, generic role instructions, skill files and baseline `doctor.py` and `verify.py`. Their presence does **not** mean native named subagents, enforcement hooks, gate engines, approval channels or review loops are activated. Verify runtime features before claiming they work.
+For Codex, the native role TOMLs and per-role model presets are already supplied, and verification/inventory are in `harness/common/`. File presence is **not** proof that subagents were loaded or that hooks, approvals, gates and review loops are active. Verify runtime features before claiming they work.
 
-For Claude Code, GitHub Copilot, Cline and other runtimes, preserve the generic role/skill logic and adapt the specific agent registration, skill discovery, config files, models, permissions, hooks, shell commands and approval channel to the supported runtime.
+Claude Code agent and native skill layouts are prepackaged; Continue includes role-specific configs awaiting actual provider/model selection. For GitHub Copilot, Cline and other runtimes, preserve the generic role/skill logic and adapt the specific agent registration, skill discovery, config files, models, permissions, hooks, shell commands and approval channel to the supported runtime.
 
 ### Core rules
 
@@ -105,7 +111,7 @@ Include the tier, a role → model/reasoning/permission matrix, the enforcement 
 
 #### Step 3. The AI installs and customizes
 
-**The AI does the copying, not the user.** With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
+**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime codex`; after approval add `--apply`. Valid runtimes: `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
 
 Reuse generic agents and skills unchanged wherever possible. Fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Apply existing Codex scripts where appropriate; implement missing native mechanisms from `harness/specs/`. Do not mark NOT_CONFIGURED as PASS.
 
@@ -147,7 +153,7 @@ A change that grants additional agent authority or weakens a guard must not be d
 
 ## When blocked
 
-Read the `BLOCK` code, rule, definition location, reason, evidence and authorized unlock requirement. When configuration seems defective, run the doctor or Full-tier harness-fixer, reproduce the issue and test the repair. **Fix the mechanism to match approved intent; do not weaken rules to bypass the block.** Exceptional one-time unlocks require a scoped `BREAK_GLASS` request.
+Read the `BLOCK` code, rule, definition location, reason, evidence and authorized unlock requirement. When configuration seems defective, run the inventory/preflight or Full-tier harness-fixer, reproduce the issue and test the repair. **Fix the mechanism to match approved intent; do not weaken rules to bypass the block.** Exceptional one-time unlocks require a scoped `BREAK_GLASS` request.
 
 ---
 
