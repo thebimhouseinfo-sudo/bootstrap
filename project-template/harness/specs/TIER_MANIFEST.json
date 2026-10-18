@@ -22,7 +22,8 @@
       "agents": [
         "planner",
         "tester",
-        "critic"
+        "critic",
+        "explorer"
       ],
       "gates": [
         "G0",
@@ -67,8 +68,8 @@
   },
   "stage_rules": {
     "G13": {
-      "plan": "validate references and planned tests; do not demand produced files",
-      "delivery": "validate actual paths, tests, evidence and no unresolved OPEN/STALE"
+      "plan": "validate planned goal ID/test links",
+      "delivery": "validate real files/tests/evidence and no OPEN/STALE"
     },
     "G14": "Full only",
     "G12": "Full and Git only"
