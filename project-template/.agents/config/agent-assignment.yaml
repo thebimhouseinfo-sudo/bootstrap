@@ -1,0 +1,8 @@
+# PLUGIN/AGENT ASSIGNMENT PLACEHOLDER. Not native runtime config.
+roles:
+  planner: {contract: .agents/roles/planner.md, model: UNVERIFIED, discovery_skills: [brainstorm-theory, research-evidence], delivery_skills: [plan-task, trace-impact]}
+  reviewer: {contract: .agents/roles/reviewer.md, model: UNVERIFIED}
+  critic: {contract: .agents/roles/critic.md, model: UNVERIFIED}
+  coder: {contract: .agents/roles/coder.md, model: UNVERIFIED}
+  tester: {contract: .agents/roles/tester.md, model: UNVERIFIED}
+# Bootstrap maps into runtime-native format after version/model verification.
