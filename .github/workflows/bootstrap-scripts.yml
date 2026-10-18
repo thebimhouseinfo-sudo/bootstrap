@@ -21,5 +21,7 @@ jobs:
         run: python project-template/harness/common/test_verify.py
       - name: Tier/runtime installer and adapter regression
         run: python tests/test_installer.py
-      - name: Codex Python hook and snapshot integration regression\n        run: python tests/test_harness_runtime.py\n      - name: Template inventory smoke
+      - name: Codex Python hook and snapshot integration regression
+        run: python tests/test_harness_runtime.py
+      - name: Template inventory smoke
         run: python project-template/harness/common/inventory.py --tier Standard --runtime codex
