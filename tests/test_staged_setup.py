@@ -2,6 +2,7 @@
 """Bootstrap staged first-install and split-doc regressions (no native host claims)."""
 import json
 import pathlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -221,6 +222,64 @@ class StagedSetupTests(unittest.TestCase):
         self.assertEqual(hook.read_bytes(), before)
         backups = self.root / "harness/recovery-backups"
         self.assertFalse(backups.exists())
+
+
+    def test_explicit_upgrade_preserves_user_modified_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            checkout = pathlib.Path(tmp) / "bootstrap-copy"
+            checkout.mkdir()
+            shutil.copy2(REPO / "install.py", checkout / "install.py")
+            shutil.copytree(REPO / "project-template", checkout / "project-template")
+            installer = checkout / "install.py"
+            flags = [sys.executable, installer, "--target", self.root, "--runtime",
+                     "codex", "--config-git", "tracked", "--staged"]
+            first = call(*flags, "--apply")
+            self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            source = checkout / "project-template/docs/ARCHITECTURE.md"
+            target = self.root / "docs/ARCHITECTURE.md"
+            modified_source = source.read_text(encoding="utf-8") + "\n# Compatible update\n"
+            source.write_text(modified_source, encoding="utf-8")
+            without = call(*flags)
+            self.assertIn("CONFLICT docs/ARCHITECTURE.md", without.stdout)
+            preview = call(*flags, "--upgrade")
+            self.assertIn("UPGRADE docs/ARCHITECTURE.md", preview.stdout)
+            upgraded = call(*flags, "--upgrade", "--apply")
+            self.assertEqual(upgraded.returncode, 0, upgraded.stdout + upgraded.stderr)
+            self.assertEqual(target.read_text(encoding="utf-8"), modified_source)
+            target.write_text("HUMAN EDIT\n", encoding="utf-8")
+            source.write_text(modified_source + "further change\n", encoding="utf-8")
+            rejected = call(*flags, "--upgrade", "--apply")
+            self.assertEqual(rejected.returncode, 2, rejected.stdout + rejected.stderr)
+            self.assertEqual(target.read_text(encoding="utf-8"), "HUMAN EDIT\n")
+
+    def test_mid_install_failure_rolls_back_files_and_gitignore(self):
+        with tempfile.TemporaryDirectory() as temp:
+            checkout = pathlib.Path(temp) / "checkout"
+            checkout.mkdir()
+            shutil.copy2(REPO / "install.py", checkout / "install.py")
+            shutil.copytree(REPO / "project-template", checkout / "project-template")
+            program = (
+                "import runpy,sys\n"
+                "ns=runpy.run_path(sys.argv[1])\n"
+                "g=ns['main'].__globals__\n"
+                "orig=g['safe_copy']\n"
+                "counter=[0]\n"
+                "def fail_after_one(root,source,target):\n"
+                "    counter[0]+=1\n"
+                "    if counter[0]==2: raise OSError('fixture injected failure')\n"
+                "    return orig(root,source,target)\n"
+                "g['safe_copy']=fail_after_one\n"
+                "sys.argv=[sys.argv[1]]+sys.argv[2:]\n"
+                "sys.exit(ns['main']())\n"
+            )
+            result = call(sys.executable, "-c", program, checkout / "install.py",
+                          "--target", self.root, "--runtime", "codex", "--staged", "--apply")
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("ROLLBACK", result.stdout)
+            self.assertFalse((self.root / ".gitignore").exists())
+            self.assertFalse((self.root / "harness/setup-state.json").exists())
+            self.assertFalse((self.root / "harness/.bootstrap-manifest.json").exists())
+            self.assertFalse((self.root / "AGENTS.md").exists())
 
     def test_one_root_readme_and_plan_ownership(self):
         self.assertFalse((REPO / "README.en.md").exists())
