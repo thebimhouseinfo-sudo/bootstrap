@@ -1,37 +1,37 @@
-# Setup intake — Host-native dialog and trace contract
+# Setup intake — IDE dialog and CLI menu contract
 
-## Two separate interactions
+**Purpose:** prevent the user from confusing command/tool permission requests with project-configuration questions, while preserving selected answers in an auditable, local trace. The host is responsible for any native dialogs; the Bootstrap CLI provides a terminal wizard where needed.
 
-1. Before the installer tool-permission dialog, the agent sends **one short chat notice** explaining the difference between command permission and the setup questionnaire. The notice contains **no questions**.
-2. The Human approves the actual command permission to obtain/preview the installer.
-3. The agent uses a separate **host-native structured question dialog** to collect missing setup choices. A tool authorization click is NEVER an answer to a configuration question. Do not ask or accept setup answers in ordinary chat, shell `input()`, a terminal survey or `install.py --ask-first`.
-4. After the native dialog returns, keep the host tool response in the session trace and persist only non-secret answers locally in `harness/setup-intake.json` once filesystem access is available.
-5. If native input tools are missing, explicitly report `DIALOG_UNAVAILABLE` and stop before reporting setup audit or handoff success. Do not fabricate the dialog or automatically select the choices.
+## UX sequence
 
-## Common fields (only if not already known)
+1. Emit one short **chat notice only** before invoking a command that may require permission. It explains that **after the command is authorized** the user will answer separate configuration questions. The notice contains no questions.
+2. The host asks permission to run the command. **Never** treat permission-button selection as a setup answer.
+3. In an **IDE**, use a genuine host-native structured dialog for unresolved settings. In a **CLI**, use its native numbered/text choice UI; if unavailable, the packaged terminal wizard `python harness/common/setup_intake.py` prints selectable numbered choices and reads responses from a **real TTY**. Do not redirect or spoof stdin/TTY, or ask the user to paste choices into chat.
+4. Store each non-secret response in private local `harness/setup-intake.json`; the question IDs, exact values, `channel`, `source`, and optional session/event reference make choices traceable.
+5. The staged setup audit validates presence and shape of this trace. If none of these interactive input routes is possible, report `INTERACTIVE_INTAKE_UNAVAILABLE` and keep setup unfinished.
 
-- Tier: Lite / Standard / Full (recommend Standard when Planner/Tester are required)
-- Harness Git configuration: local / tracked
-- Human-selected active development branch and protected/frozen branches
-- Missing product/technical context that cannot be determined from the workspace
-- Runtime/provider details only when genuinely unresolved
-
-The initial prompt already gives the project folder and identifies a new or existing project; do not re-ask either. Use native host tool output and the session trace as provenance for each question. Do not store credentials/secrets in the intake trace.
-
-## Saved trace example — NOT real proof
+## Trace schema
 
 ```json
 {
   "schema_version": 1,
-  "channel": "native_dialog",
+  "channel": "cli_menu",
   "runtime": "codex",
   "host_event_ref": null,
   "responses": [
-    {"id": "git_mode", "value": "local", "source": "native_dialog"}
+    {"id": "tier", "value": "Standard", "source": "cli_menu"},
+    {"id": "git_mode", "value": "local", "source": "cli_menu"}
   ]
 }
 ```
 
-When the host supplies a native dialog event ID, record it in `host_event_ref` for correlation. Otherwise use null, not a fabricated identifier. `setup_lifecycle.py audit` checks required fields and runtime consistency for staged installs, but does **not** independently authenticate the user, guarantee a dialog occurred or replace Human approvals.
+For an IDE, use `channel: "native_dialog"` and `source: "native_dialog"`. The `host_event_ref` is an observed session/event ID when the host exposes one; otherwise use null, not an invented ID. Both forms support `setup_lifecycle.py audit`. The audit checks structure/runtime consistency, **not real user identity or independent proof of the host interaction**.
 
-`harness/setup-intake.json` is always local/private, including with `--config-git tracked`. Any CRITERIA / technical-direction / final-lock approvals remain separate Human Gates.
+## Only ask unresolved questions
+
+- Tier (Lite / Standard / Full, Standard recommended for Planner/Tester)
+- Git mode (local / tracked)
+- Human-selected active development branch and any frozen branches, if applicable
+- Other genuine choices not discoverable from verified workspace context
+
+The short user prompt already states project directory and new/existing mode. Do not re-ask. Never store credentials, API keys or other secrets as intake answers. CRITERIA, technical direction, Final Lock and final handoff have independent Human Gates. The CLI wizard deliberately refuses noninteractive execution and refuses to overwrite prior intake without an explicit reviewed reconciliation; a replayed or synthetic CI fixture is not an approval.

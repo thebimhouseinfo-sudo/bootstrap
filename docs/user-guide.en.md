@@ -14,7 +14,7 @@ Bootstrap helps **Codex, Claude Code, Antigravity**, and compatible coding agent
 
 > Set up Bootstrap for my **existing codebase** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Inspect and preserve current code, orchestrate setup, and ask me only for missing information or decisions requiring approval.
 
-**Dialog UX:** Before setup, your host may show a **command permission dialog**. After you grant access, a **separate configuration questionnaire dialog** will appear. Read and answer it carefully: it is not another permission request. Answers are retained as trace; **configuration Q&A never happens in ordinary chat**.
+**Permission and setup questions are different:** The AI gives a short advance notice. After command permission, **IDE users get a configuration dialog**, while **CLI users see numbered choices in their terminal**. Read the question before selecting 1/2: these are setup answers, **not further permission approvals**. Answers are saved as trace; setup questions are not collected in ordinary chat.
 
 ## What the coding agent handles
 
