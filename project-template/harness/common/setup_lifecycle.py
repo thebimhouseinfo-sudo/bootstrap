@@ -240,8 +240,12 @@ def host_test():
     print("in harness/setup-live-evidence.json (state/private), not in an approved plan.")
     print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
     print(' "host_version": "observed-version", "fresh_session": true,')
-    print(' "hook_dispatched": true, "allow_observed": true,')
-    print(' "deny_observed": true, "notes": "actual event evidence"}')
+    if runtime in ("continue", "generic"):
+        print(' "roles_loaded": true, "checks_executed": true,')
+        print(' "native_hook_available": false, "notes": "actual observed results"}')
+    else:
+        print(' "hook_dispatched": true, "allow_observed": true,')
+        print(' "deny_observed": true, "notes": "actual event evidence"}')
     print("Never claim real native verification from this printed checklist.")
     return 0
 
@@ -301,7 +305,7 @@ def activate(evidence):
     if state is None or state.get("invalid"):
         print("BLOCK: no valid staged setup state")
         return 2
-    if state.get("phase") in ("READY", "HANDOFF_COMPLETE"):
+    if state.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
         print("READY: already activated; do not rewrite lock evidence")
         return 0
     limited = state.get("runtime") in ("continue", "generic")
@@ -371,7 +375,7 @@ def main(argv=None):
     if a.action == "status":
         state = read_state()
         print(json.dumps(state or {"phase": "LEGACY_NO_STAGED_STATE"}, indent=2))
-        if state and state.get("phase") in ("READY", "HANDOFF_COMPLETE"):
+        if state and state.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
             return 0 if check_lock(state) else 2
         return 0
     if a.action == "audit":
