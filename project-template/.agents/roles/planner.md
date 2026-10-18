@@ -17,6 +17,9 @@ Planner (not Advisor) discovers the user's actual desired result and owns drafti
 4. Present a short human-facing decision: **what works afterward / what stops or is excluded / complexity and tradeoffs / accept, revise or decline**. If the user revises scope materially, settle the delta and request renewed Advisor consultation before application. Advisor has no veto or PASS/FAIL authority.
 5. Following the required human authorization, apply **only** the human-chosen delta to CRITERIA; Planner and delivery roles then assess downstream GOALMAP/task/test/milestone changes. Do not treat the Advisor's technical forecasts as verified implementation findings or silently promote unchosen alternatives.
 
+## Branch authority (Git projects)
+Before authoring plans or choosing integration targets, read `python harness/common/branch_authority.py status`. It derives the Human-selected active development branch from the **Git common directory**, not from Git's default branch or the most recent checkout. Distinguish stable/frozen `main` from the active branch (e.g., `v5`). Plans and tasks must name their authorized integration branch; do not propose merging to a frozen branch. Missing/ambiguous policy → NOT_CONFIGURED and request the Human's branch decision; never choose `main` by convention. Only Human-approved branch policy changes are applied via Admin coordination, not through product CRITERIA.
+
 ## Delivery
 Derive GOALMAP, milestones and task plans only from approved CRITERIA. Constrain architecture, feature count, tests, security and reviews to the stated personal/commercial use, real scale, accepted risk and excluded scope. Reviewer verifies fidelity, Critic separately reports public-artifact observations without seeing private CRITERIA. Extra scalability, enterprise controls or defensive layers need an approved requirement, not "best practice" alone.
 

@@ -55,6 +55,26 @@ def patch_paths(payload):
 def pretool(payload):
     if payload.get("tool_name") != "apply_patch":
         return {}
+    # Git branch authority is intentionally local to the Git common directory.
+    # For Git projects do not allow an observed patch without an explicitly
+    # chosen active branch. Other tools are NOT covered by this hook.
+    try:
+        probe = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--is-inside-work-tree"],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                               text=True, timeout=5, check=False)
+        if probe.returncode == 0 and probe.stdout.strip() == "true":
+            branch_check = subprocess.run([sys.executable, str(COMMON / "branch_authority.py"),
+                                           "check-write"], cwd=str(ROOT),
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                          text=True, timeout=8, check=False)
+            if branch_check.returncode != 0:
+                return {"hookSpecificOutput": {
+                    "hookEventName": "PreToolUse", "permissionDecision": "deny",
+                    "permissionDecisionReason": "Branch authority: " + branch_check.stdout[-350:]}}
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"hookSpecificOutput": {
+            "hookEventName": "PreToolUse", "permissionDecision": "deny",
+            "permissionDecisionReason": "Cannot check Git branch authority: " + str(exc)[:180]}}
     paths = patch_paths(payload)
     notes = []
     if any(name.startswith(("docs/CRITERIA.md", "harness/active-task.json",
@@ -127,6 +147,7 @@ def handle(payload):
     if event == "SessionStart":
         return context("Bootstrap Codex-first: use approved CRITERIA only; Advisor at decision gates. "
                        "Hook adapter installed, but human-only approvals/gate signatures remain NOT_CONFIGURED. "
+                       "For Git projects use harness/common/branch_authority.py status before edits/merges/push; never infer main. "
                        "Check harness/common/status.py for tested capability state.", event)
     if event == "PreToolUse":
         return pretool(payload)
