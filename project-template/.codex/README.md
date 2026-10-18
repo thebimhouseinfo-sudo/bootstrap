@@ -1,11 +1,10 @@
-# Codex native adapter
+# Codex adapter — actual behavior and limits
 
-Native named agents are prepackaged in `.codex/agents/*.toml` using the documented required fields `name`, `description` and `developer_instructions`; read-only roles specify `sandbox_mode`. No agent model is pinned: the effective model comes from the verified parent/runtime configuration. Model/approval/sandbox constraints imposed by the parent cannot be escalated by role files.
+- Native role TOML files live in `.codex/agents/`. They **inherit the parent model**; optional Sol/Astra/Luna/effort presets are in `MODEL_PRESETS.md` and must be applied only after account/model availability is confirmed.
+- `.codex/config.toml` enables agents and sets a concurrency limit. It **does not set approval_policy, approvals_reviewer or permissions**. Parent-session and managed overrides remain authoritative.
+- Critic and Explorer have `sandbox_mode = "read-only"` requested in their TOML. Verify that the installed Codex version recognizes this and that the **effective session sandbox** enforces it. Prompt-only isolation (Critic restricted document context) is still `GUIDED_ONLY` until tested.
+- Bootstrap installer: `python install.py --target PATH --tier Standard --runtime codex` previews changes; add `--apply` only after review and authorization. The installer never overwrites existing files. Existing AGENTS conflicts export `AGENTS.bootstrap.md` for manual merge. Project product README is NOT installed.
+- `python harness/codex/doctor.py` is an **inventory check**, not a runtime doctor.
+- `python harness/codex/test_baseline.py` tests verifier behavior only.
 
-Project-local `.codex/config.toml` is intentionally privilege-neutral. The user's trusted-project state and effective parent CLI flags/overrides can suppress project configuration or interaction. Run `python harness/codex/preflight.py` to see non-sensitive evidence and warnings; parent effective approval must be supplied only from direct runtime observation.
-
-Installer: from this bootstrap checkout, `python install.py --target <existing-project-path>` previews additions/conflicts; after review/approval, `python install.py --target <path> --apply` copies only missing files, preserving existing source/config. Repeat is idempotent for unchanged files. Conflicts are not overwritten.
-
-Native hook definitions are not installed by default because version-specific lifecycle mapping, trust review and failure semantics require verified runtime testing; do not claim hook enforcement. Project hooks may require explicit human trust. See `harness/specs/READINESS.md` and `harness/specs/APPROVAL_MAINTENANCE.md`.
-
-Official references: https://learn.chatgpt.com/docs/agent-configuration/subagents and https://learn.chatgpt.com/docs/hooks
+**Working baseline:** installer, inventory check, preflight report and configured command verification. Snapshot/Stop hook/journal/authenticated approvals/gates/trace/orchestration are not active merely because contract files exist. Mark them NOT_CONFIGURED until independently implemented and tested.

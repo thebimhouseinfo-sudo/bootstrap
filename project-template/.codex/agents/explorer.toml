@@ -1,3 +1,4 @@
+sandbox_mode = "read-only"
 model = "gpt-6-luna"
 model_reasoning_effort = "high"
 name = "explorer"
