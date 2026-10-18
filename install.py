@@ -176,6 +176,10 @@ def eligible(rel, tier, runtime, roles):
     name = rel.as_posix()
     if name in SKIP:
         return False
+    if name in {".agents/hooks.json", ".agents/MODEL_SELECTION.md"} and runtime != "antigravity":
+        return False
+    if name.startswith(".antigravity/agents/") and rel.stem not in roles:
+        return False
     if name.startswith(".antigravity/") and runtime != "antigravity":
         return False
     if name.startswith(".codex/") and runtime != "codex":
@@ -324,7 +328,10 @@ def prompt_choice(prompt_text, choices, default):
             print("\nAborted.")
             sys.exit(1)
         if not val:
-            return default
+            if default is not None:
+                return default
+            print("Please select a runtime explicitly.")
+            continue
         for c in choices:
             if val.lower() == c.lower():
                 return c
@@ -368,7 +375,7 @@ def main():
     ap = argparse.ArgumentParser(description="Safe template install, dry-run by default.")
     ap.add_argument("--target", help="Target project directory")
     ap.add_argument("--tier", choices=TIERS, default="Standard", help="Template tier (Lite, Standard, Full)")
-    ap.add_argument("--runtime", choices=RUNTIMES, default="antigravity", help="Agent runtime (antigravity, codex, claude, continue)")
+    ap.add_argument("--runtime", choices=RUNTIMES, default=None, help="Agent runtime (antigravity, codex, claude, continue)")
     ap.add_argument("--ask-first", action="store_true", help="Run interactive pre-ask configuration block before installing")
     ap.add_argument("--apply", action="store_true", help="Apply template installation (write files)")
     ap.add_argument("-y", "--yes", action="store_true", help="Skip interactive confirmation on apply")
@@ -385,6 +392,9 @@ def main():
     else:
         dest = pathlib.Path(args.target).expanduser().resolve()
 
+    if args.ask_first and not is_interactive:
+        ap.error("--ask-first requires an interactive terminal; pass --runtime explicitly for automation")
+
     if not dest.is_dir() or dest == REPO or REPO in dest.parents or dest in REPO.parents:
         ap.error("target must be an existing project outside the bootstrap checkout")
 
@@ -395,6 +405,9 @@ def main():
         print("\n--- CAU HINH CAI DAT (PRE-ASK CONFIGURATION) ---")
         tier = prompt_choice("Chon Tang (Tier)", TIERS, default=args.tier)
         runtime = prompt_choice("Chon Runtime", RUNTIMES, default=args.runtime)
+
+    if runtime is None:
+        ap.error("select --runtime explicitly (antigravity/codex/claude/continue) or use --ask-first")
 
     # Print the pre-ask configuration block upfront before any inspection or changes
     print_pre_ask_block(dest, tier, runtime)

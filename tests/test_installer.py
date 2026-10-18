@@ -12,7 +12,7 @@ SOURCE = ROOT / "project-template"
 INSTALLER = ROOT / "install.py"
 INVENTORY = SOURCE / "harness/common/inventory.py"
 TIERS = ("Lite", "Standard", "Full")
-RUNTIMES = ("codex", "claude", "continue")
+RUNTIMES = ("codex", "antigravity", "claude", "continue")
 EXPECTED = {
     "Lite": {"coder", "reviewer", "advisor"},
     "Standard": {"coder", "reviewer", "advisor", "planner", "tester", "critic", "explorer"},
@@ -24,7 +24,7 @@ def run(script, *args):
                           capture_output=True, text=True, timeout=40)
 
 class InstallTests(unittest.TestCase):
-    def test_all_nine_tier_runtime_installations(self):
+    def test_all_twelve_tier_runtime_installations(self):
         for tier in TIERS:
             for runtime in RUNTIMES:
                 with self.subTest(tier=tier, runtime=runtime), tempfile.TemporaryDirectory() as d:
@@ -49,16 +49,20 @@ class InstallTests(unittest.TestCase):
                     installed = {x.stem for x in (root / ".agents/roles").glob("*.md")}
                     self.assertEqual(installed, EXPECTED[tier])
                     for other in RUNTIMES:
-                        path = {"codex": ".codex/agents", "claude": ".claude/agents",
+                        path = {"codex": ".codex/agents", "antigravity": ".antigravity/agents", "claude": ".claude/agents",
                                 "continue": ".continue/agents"}[other]
                         self.assertEqual((root / path).exists(), other == runtime)
-                    if runtime == "codex":
+                    if runtime == "antigravity":
+                        native = {x.stem for x in (root / ".antigravity/agents").glob("*.md")}
+                    elif runtime == "codex":
                         native = {x.stem for x in (root / ".codex/agents").glob("*.toml")}
                     elif runtime == "claude":
                         native = {x.stem for x in (root / ".claude/agents").glob("*.md")}
                     else:
                         native = {x.name for x in (root / ".continue/agents").iterdir()}
                     self.assertEqual(native, EXPECTED[tier])
+                    self.assertEqual((root / ".agents/hooks.json").exists(), runtime == "antigravity")
+                    self.assertEqual((root / ".agents/MODEL_SELECTION.md").exists(), runtime == "antigravity")
                     if runtime == "claude":
                         generic = {x.parent.name for x in (root / ".agents/skills").glob("*/SKILL.md")}
                         native_skills = {x.parent.name for x in (root / ".claude/skills").glob("*/SKILL.md")}
@@ -67,6 +71,19 @@ class InstallTests(unittest.TestCase):
                     self.assertEqual(doctor.returncode, 0, doctor.stdout + doctor.stderr)
                     verifier = run(root / "harness/common/verify.py")
                     self.assertEqual(verifier.returncode, 2, verifier.stdout + verifier.stderr)
+
+    def test_explicit_runtime_required_without_interactive_terminal(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = pathlib.Path(d)
+            for flags in ((), ("--apply",), ("--ask-first",), ("--ask-first", "--apply")):
+                with self.subTest(flags=flags):
+                    p = run(INSTALLER, "--target", root, *flags)
+                    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertFalse((root / "AGENTS.md").exists())
+                    self.assertFalse((root / ".antigravity").exists())
+            for rel in ("harness/common/inventory.py", "harness/common/status.py"):
+                result = run(SOURCE / rel)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
     def test_dirty_project_merge(self):
         with tempfile.TemporaryDirectory() as d:
@@ -87,7 +104,7 @@ class InstallTests(unittest.TestCase):
     def test_reject_source_repo_and_nested_target(self):
         for target in (ROOT, SOURCE, ROOT / "tests"):
             with self.subTest(target=str(target)):
-                result = run(INSTALLER, "--target", target, "--apply")
+                result = run(INSTALLER, "--target", target, "--runtime", "codex", "--apply")
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("outside the bootstrap checkout", result.stderr)
 
@@ -101,7 +118,7 @@ class InstallTests(unittest.TestCase):
                 (root / "docs").symlink_to(outside, target_is_directory=True)
             except (NotImplementedError, OSError):
                 self.skipTest("Symlink privilege unavailable")
-            applied = run(INSTALLER, "--target", root, "--apply")
+            applied = run(INSTALLER, "--target", root, "--runtime", "codex", "--apply")
             self.assertEqual(applied.returncode, 2, applied.stdout + applied.stderr)
             self.assertEqual(list(outside.iterdir()), [])
             self.assertFalse((root / "AGENTS.md").exists())

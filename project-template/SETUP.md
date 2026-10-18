@@ -1,6 +1,6 @@
-# Bootstrap project setup — reuse first
+# Bootstrap project setup — runtime-neutral
 
-AI installs from repo root using `python install.py --target PATH --tier Standard --runtime codex --apply` **after preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
+AI installs from repo root using `python install.py --target PATH --tier Standard --runtime RUNTIME --apply` **after explicitly choosing one of antigravity/codex/claude/continue, preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
 
 **Local-only setup:** the installer also manages a marked block at the end of the target `.gitignore`, preserving existing rules. Agent directories, harness/runtime state, local AGENTS/CLAUDE/TASKS, project environment profile, generated trace and report templates stay local. Product source and actual product docs remain trackable. Preview lists `UPDATE .gitignore`; apply atomically updates that managed content. Already tracked setup is reported as `TRACKED_LOCAL_SETUP` with exit 2; ignore rules cannot untrack it. Do not automatically delete files, rewrite history or remove index entries. The canonical `project-template/` in bootstrap remains versioned source.
 
@@ -22,7 +22,7 @@ Only open detailed `harness/specs/` contracts for mechanisms being implemented. 
 ## Actual release capabilities
 Copy/install success is NOT a fully working harness. Use `python harness/common/status.py --tier Standard --runtime codex` (or chosen tier/runtime); exit 2 means required mechanisms remain NOT_CONFIGURED or real-host smoke UNVERIFIED. Now shipped and script-tested for Codex: project-local native hook JSON/Python adapter, scoped explicit hash snapshot/restore, single-task trace-link validator and bounded Stop verification, in addition to installer/roles/verify/preflight. Still NOT_CONFIGURED: authenticated approval/gate signing, full trace/STALE propagation and automatic reviewer orchestration; native Codex hook trust/smoke must be verified on the user's version. `harness/common/capabilities.json` is the definitive list. Codex Advisor/Critic/Explorer are prompt-level read-only only; inherit the parent sandbox.
 
-## Antigravity IDE setup (primary)
+## Google Antigravity IDE setup
 Install with `python install.py --target PATH --tier Standard --runtime antigravity --apply` (or use `--ask-first` for interactive pre-ask configuration). The installer configures native `.agents/hooks.json` (Stop lifecycle hook dispatching to `harness/common/verify.py`), `.antigravity/agents/*.md` (role definitions with model assignments and Gemini 3.8 Flash High fallback), and native `.agents/skills/`.
 
 **After install:** open the workspace in Google Antigravity IDE. Roles, skills, and hooks are loaded natively. Run `python harness/common/status.py --tier Standard --runtime antigravity` to inspect inventory and readiness; configure `harness/common/checks.json` with verified project build/test commands.
@@ -34,3 +34,6 @@ Install with `--runtime codex`. Inspect `/hooks` inside Codex and trust the exac
 Install with `--runtime claude`. The installer copies `.claude/settings.json` (with `UserPromptSubmit`, `PreToolUse`, `Stop` hooks), `.claude/agents/*.md` subagent files, and `harness/claude/hook.py` (the Python adapter). The adapter reuses `harness/common/*.py` and reads native `hook_event_name` from JSON stdin; exit 2 blocks supported events. Hook commands locate the adapter from project root or nested directories.
 
 **After install:** open the project in Claude Code, check that the hook fires on prompt submit (context message appears). Run `python harness/common/status.py --tier Standard --runtime claude`; configure `harness/common/checks.json` with real build/test commands; set branch authority if using Git. Save real host/client/version, exact source hashes and observed hook/block/Stop evidence. Do not clear readiness blockers by editing capability labels; Standard engines remain NOT_CONFIGURED until implemented and verified.
+
+## Cross-runtime acceptance
+Bootstrap targets popular coding-agent environments without a preferred primary app. Codex and Google Antigravity IDE have been tested by the Human on installed machines. Other apps have not been available for real-machine testing; their adapter definitions should be treated as unverified until their actual host/version is tested. Installer copy success/CI script tests do not themselves establish native model/agent/hook/gate enforcement. The installer requires a deliberate `--runtime` choice for noninteractive CLI use; `--ask-first` offers selection in a terminal.

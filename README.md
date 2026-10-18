@@ -2,9 +2,9 @@
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-> **Trạng thái kiểm thử & phát hành:** Template hiện đã **test pass** khi cấu hình cho **Google Antigravity IDE** (primary) và **Codex** (bộ cài đặt, script nền, inventory, verify, snapshot, hooks/roles/skills cho hai runtime này đã được kiểm thử và xác nhận). **Các coding agent khác (Claude Code, Continue, Copilot, Cline...) hiện chưa đạt trạng thái READY.** AI khi thiết lập cần **tự kiểm tra và tự sửa/cấu hình theo hướng dẫn trong template** để phù hợp với platform của mình. Kiểm tra trạng thái bằng `python harness/common/status.py --tier Standard --runtime antigravity` (hoặc `--runtime codex`). Xem chi tiết tại `project-template/harness/specs/READINESS.md`.
+> **Trạng thái kiểm thử & phát hành:** Template hiện đã **test pass** khi cấu hình cho **Google Antigravity IDE** và **Codex** (bộ cài đặt, script nền, inventory, verify, snapshot, hooks/roles/skills cho hai runtime này đã được kiểm thử và xác nhận). **Các coding agent khác (Claude Code, Continue, Copilot, Cline...) chưa được Human kiểm thử do chưa có môi trường cài đặt; không tự suy ra là không tương thích.** AI khi thiết lập cần **tự kiểm tra và tự sửa/cấu hình theo hướng dẫn trong template** để phù hợp với platform của mình. Kiểm tra trạng thái bằng `python harness/common/status.py --tier Standard --runtime antigravity` (hoặc `--runtime codex`). Xem chi tiết tại `project-template/harness/specs/READINESS.md`.
 
-Repo này là **bộ template harness có sẵn** cho coding agent. Hiện tại, template đã **test pass** khi cấu hình cho **Google Antigravity IDE** (primary) và **Codex**; các coding agent khác chưa đạt trạng thái ready và cần được AI tự kiểm tra, hiệu chỉnh theo runtime tương ứng. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
+Repo này là **bộ template harness có sẵn** cho coding agent. Hiện tại, template đã **test pass** khi cấu hình cho **Google Antigravity IDE** và **Codex**; các coding agent khác hiện chưa được kiểm thử trên máy của Human nên cần AI tự xác minh và điều chỉnh theo runtime tương ứng. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
 
 **Không thiết kế lại harness từ đầu, không viết lại agent/skill generic.** Mọi kết quả phải có bằng chứng kiểm thử thực tế. Những quyết định được bảo vệ cần **Approval Request ba lựa chọn: Đồng ý / Không đồng ý / Khác**. Ngoại lệ khi kênh duyệt chưa được cài trong lần bootstrap đầu tiên phải được công bố rõ.
 
@@ -81,9 +81,9 @@ project-template/
   lessons/
 ```
 
-- **Google Antigravity IDE (primary — đã test pass):** skills và roles được nạp native từ `.agents/skills/` và `.agents/roles/`; model assignment theo vai nằm ở `.antigravity/agents/*.md` (với fallback Gemini 3.8 Flash High); lifecycle hooks ở `.agents/hooks.json` (Stop dispatch tới `harness/common/verify.py`).
+- **Google Antigravity IDE (đã được Human test trên máy):** skills và roles được nạp native từ `.agents/skills/` và `.agents/roles/`; model assignment theo vai nằm ở `.antigravity/agents/*.md` (với fallback Gemini 3.8 Flash High); lifecycle hooks ở `.agents/hooks.json` (Stop dispatch tới `harness/common/verify.py`).
 - **Codex (đã test pass):** các subagent TOML tại `.codex/agents/*.toml` và model theo vai đã được cấu hình sẵn; native hook adapter tại `.codex/hooks.json` gọi `harness/codex/hook.py`; verifier/inventory chạy từ `harness/common/`.
-- **Các coding agent khác (chưa đạt trạng thái READY):** Claude Code (adapter `.claude/` và `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline... hiện **chưa đạt trạng thái READY**. **AI nhận nhiệm vụ trên các platform này phải tự kiểm tra khả năng thực tế của platform và tự sửa/hoàn thiện cấu hình theo hướng dẫn có sẵn trong template** (xem `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): điều chỉnh cách đăng ký agent, định dạng cấu hình, đường dẫn skill, mapping model khả dụng, native lifecycle hooks (hoặc ghi rõ `GUIDED_ONLY` nếu platform không hỗ trợ hook cưỡng chế) và kênh duyệt. **Có file trong thư mục không chứng minh subagent đã được runtime nạp hay hook đã hoạt động.** Phải chạy kiểm tra thực tế trước khi tuyên bố kích hoạt.
+- **Các coding agent khác (chưa được Human kiểm thử thực tế):** Claude Code (adapter `.claude/` và `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline... hiện **chưa có kết quả kiểm thử thực tế của Human**. **AI nhận nhiệm vụ trên các platform này phải tự kiểm tra khả năng thực tế của platform và tự sửa/hoàn thiện cấu hình theo hướng dẫn có sẵn trong template** (xem `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): điều chỉnh cách đăng ký agent, định dạng cấu hình, đường dẫn skill, mapping model khả dụng, native lifecycle hooks (hoặc ghi rõ `GUIDED_ONLY` nếu platform không hỗ trợ hook cưỡng chế) và kênh duyệt. **Có file trong thư mục không chứng minh subagent đã được runtime nạp hay hook đã hoạt động.** Phải chạy kiểm tra thực tế trước khi tuyên bố kích hoạt.
 
 ### Nguyên tắc cốt lõi (không được nới)
 
@@ -99,9 +99,11 @@ project-template/
 10. **Mâu thuẫn giữa template và dự án** phải đưa vào bảng chỉnh sửa, không tự đoán chọn.
 11. **Coder/Tester chạy được bằng generic skill** dù chưa có knowledge chuyên biệt; vẫn phải tuân thủ ràng buộc host/dialect bắt buộc.
 12. **Phân biệt trạng thái trung thực:** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED, UNVERIFIED không thể thay thế nhau.
-13. **AI tự kiểm tra và điều chỉnh theo platform của mình:** Template đã test pass cho Antigravity IDE và Codex. Với các platform khác (chưa đạt trạng thái READY), AI có trách nhiệm tự đọc hướng dẫn trong template, khảo sát cơ chế của runtime mình đang chạy, tự sửa và hoàn thiện cấu hình phù hợp, không chuyển gánh nặng cấu hình kỹ thuật sang người dùng.
+13. **AI tự kiểm tra và điều chỉnh theo platform của mình:** Template đã test pass cho Antigravity IDE và Codex. Với các platform khác (chưa được Human test trên máy), AI có trách nhiệm tự đọc hướng dẫn trong template, khảo sát cơ chế của runtime mình đang chạy, tự sửa và hoàn thiện cấu hình phù hợp, không chuyển gánh nặng cấu hình kỹ thuật sang người dùng.
 
 ### Quy trình
+
+**Không có runtime primary hoặc mặc định.** AI xác định runtime thực tế trong bước Pre-Ask; khi gọi CLI phải truyền rõ `--runtime`. Kết quả Human test Codex/Antigravity không tự chứng minh gate, hook hay orchestration đã ENFORCED trong mọi phiên bản.
 
 #### Bước 0. Pre-Ask — gom tất cả câu hỏi cấu hình vào một lần duy nhất
 
@@ -147,9 +149,9 @@ Gửi **Approval Request loại `HARNESS_PATCH`**, rồi dừng trước thay đ
 
 #### Bước 3. AI tự copy, tùy chỉnh và triển khai
 
-**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime antigravity` (hoặc `--runtime codex`, `claude`, `continue`) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
+**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime RUNTIME` (chọn rõ `antigravity`, `codex`, `claude` hoặc `continue`) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
 
-Giữ nguyên role và skill generic khi phù hợp. Điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh. Với Antigravity IDE và Codex, cấu hình đã test pass nên có thể dùng ngay sau khi điền thông số dự án. Với các coding agent khác chưa READY, AI phải tự kiểm tra và sửa cấu hình theo hướng dẫn trong `project-template/SETUP.md` và `harness/specs/` để tương thích với platform của mình. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Không biến NOT_CONFIGURED thành PASS.
+Giữ nguyên role và skill generic khi phù hợp. Điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh. Với Antigravity IDE và Codex, cấu hình đã test pass nên có thể dùng ngay sau khi điền thông số dự án. Với các coding agent khác chưa được Human kiểm thử, AI phải tự kiểm tra và sửa cấu hình theo hướng dẫn trong `project-template/SETUP.md` và `harness/specs/` để tương thích với platform của mình. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Không biến NOT_CONFIGURED thành PASS.
 
 #### Bước 4. Kiểm tra
 
@@ -197,12 +199,12 @@ Nếu thay đổi cấp thêm quyền hoặc làm yếu ranh giới bảo vệ, 
 
 MIT. Xem [LICENSE](LICENSE).
 
-**Google Antigravity IDE (primary) & Codex (đã test pass):**
+**Codex và Google Antigravity IDE (đã được Human test trên máy):**
 - **Antigravity IDE:** `.agents/hooks.json` khai báo Stop hook → `harness/common/verify.py`; roles và skills được nạp native từ `.agents/roles/` và `.agents/skills/`; model assignment theo vai ở `.antigravity/agents/*.md` (Gemini 3.8 Flash High fallback).
 - **Codex:** `.codex/hooks.json` gọi `harness/codex/hook.py`; subagents nạp từ `.codex/agents/*.toml`.
 - Python chung nằm tại `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
 
-**Các coding agent khác (chưa đạt trạng thái READY):**
+**Các coding agent khác (chưa được Human kiểm thử trên máy):**
 - **Claude Code:** `.claude/settings.json` + `harness/claude/hook.py` (adapter sơ bộ).
 - **Continue, Copilot, Cline, Cursor...:** chưa hoàn thiện cấu hình native hoặc chưa smoke-test thực tế.
 - **Yêu cầu đối với AI:** Khi triển khai trên các platform này, AI cần tự kiểm tra và sửa đổi cấu hình theo hướng dẫn trong template (`project-template/SETUP.md`, `project-template/harness/README.md`, `project-template/harness/specs/READINESS.md`) để thích ứng với nền tảng của mình, sau đó chạy smoke-test xác minh trước khi tuyên bố READY.

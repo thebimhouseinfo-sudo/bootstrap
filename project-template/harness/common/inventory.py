@@ -34,7 +34,7 @@ def check_skill(path):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue"], default="antigravity")
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue"], required=True)
     options = parser.parse_args(args)
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))

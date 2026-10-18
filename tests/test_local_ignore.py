@@ -24,7 +24,7 @@ class LocalIgnoreTests(unittest.TestCase):
 
     def install(self, *args):
         return subprocess.run([sys.executable, str(REPO / 'install.py'), '--target',
-                               str(self.root), *args], capture_output=True, text=True,
+                               str(self.root), *([] if '--runtime' in args else ['--runtime', 'codex']), *args], capture_output=True, text=True,
                               encoding='utf-8', errors='replace', timeout=30)
 
     def test_existing_ignore_preserved_preview_and_apply_are_idempotent(self):
@@ -45,7 +45,7 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertIn('SAME .gitignore', again.stdout)
 
     def test_git_add_keeps_only_source_and_product_docs_for_all_runtimes(self):
-        for runtime in ('codex', 'claude', 'continue'):
+        for runtime in ('codex', 'antigravity', 'claude', 'continue'):
             with self.subTest(runtime=runtime):
                 installed = self.install('--runtime', runtime, '--apply')
                 self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
@@ -59,7 +59,7 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertTrue({'src/app.py', 'docs/product.md', 'README.md', '.gitignore'} <= tracked)
         self.assertTrue({'docs/CRITERIA.md', 'docs/ARCHITECTURE.md'} <= tracked)
         for path in tracked:
-            self.assertFalse(path.startswith(('.codex/', '.claude/', '.agents/', '.continue/',
+            self.assertFalse(path.startswith(('.codex/', '.antigravity/', '.claude/', '.agents/', '.continue/',
                                               'harness/', 'lessons/')), path)
         for path in ('AGENTS.md', 'CLAUDE.md', 'TASKS.md', 'docs/PROJECT_PROFILE.md',
                      'docs/TRACE.md', 'docs/reports/_TEMPLATE.md', 'docs/reports/_REVIEW_TEMPLATE.md'):

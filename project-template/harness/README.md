@@ -1,6 +1,6 @@
-# Harness — Google Antigravity IDE baseline (Python scripts + contracts)
+# Harness — multi-runtime Python scripts and contracts
 
-**Primary runtime: Google Antigravity IDE.** Skills and roles are natively discovered from `.agents/skills/` and `.agents/roles/`. Antigravity lifecycle hooks are configured in `.agents/hooks.json`. Scripts in `harness/common/` are ordinary Python >=3.9 that run via `run_command` tool or terminal — not via Codex-specific hook bridges.
+**No primary runtime.** Codex and Google Antigravity IDE have been tested on the Human's installed machines; other app runtimes still need real-host testing. Shared scripts in `harness/common/` are ordinary Python >=3.9. Runtime-native role and hook adapters are selected deliberately during installation. Distinguish user-observed installation success from native hook/gate enforcement tests.
 
 | Area | Actual executable | State |
 |---|---|---|
@@ -14,7 +14,7 @@
 | Auto Planner/Reviewer/Critic orchestration | `specs/REVIEW_LOOP.md` | NOT_CONFIGURED |
 | Full trace generator/stale propagation | `specs/TRACE.md` | NOT_CONFIGURED |
 
-Do not add a VM, server, background daemon or another framework. `specs/` defines what remains to be implemented for the approved tier, not automatic features simply because an instruction exists. Run `python harness/common/status.py` and record actual CLI smoke results before claiming RUNTIME_VERIFIED or ENFORCED.
+Do not add a VM, server, background daemon or another framework. `specs/` defines what remains to be implemented for the approved tier, not automatic features simply because an instruction exists. Run `python harness/common/status.py --tier Standard --runtime RUNTIME` and record actual CLI smoke results before claiming RUNTIME_VERIFIED or ENFORCED.
 
 ### Active Git development branch
 `harness/common/branch_authority.py` works across every tier and runtime as an explicit Git branch/merge/push **preflight**; `harness/specs/BRANCH_AUTHORITY.md` explains the authority model. This does not provide universal shell/MCP/remote Git enforcement.
