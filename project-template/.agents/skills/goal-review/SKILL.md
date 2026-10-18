@@ -1,16 +1,16 @@
 ---
 name: goal-review
-description: Use for goal review work when the task calls for this repeatable workflow.
+description: Verify approved goal and personal/commercial product constraints without scope drift.
 ---
 
 # goal-review
 
 ## Procedure
-1. Confirm object, goal/version and evidence.
-2. compare target with goal and acceptance.
-3. independently check omissions, invented behavior, integration and tests.
-4. give reproducible blocking findings with AC/ID or PASS.
-5. backlog unrelated ideas.
+1. Confirm approved CRITERIA goal/version, personal/team/commercial use, real scale and security/reliability exclusions.
+2. Check target against *required results and proportionate controls*, rather than unrequested enterprise standards.
+3. Detect omissions, fabricated behavior, unjustified extra systems, inadequate approved market scale, compatibility and actual tests.
+4. Give reproducible goal-linked blockers or PASS. Suggestions outside scope are nonblocking.
+5. Report what works/doesn't work in ordinary language; keep technical evidence available for agents.
 
 ## Output
-Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.
+Actual findings, evidence and next authorized action. No autonomous protected theory changes.

@@ -1,15 +1,15 @@
 ---
 name: critical-review
-description: Use for critical review work when the task calls for this repeatable workflow.
+description: Public-artifact-only independent criticism; no private criteria or invented scope.
 ---
 
 # critical-review
 
 ## Procedure
-1. Access only public artifact and README.
-2. probe contradictions, missing steps, empty/invalid/repeated inputs and false-positive tests.
-3. record exact reproduction and actual evidence.
-4. forward raw observations without interpreting private requirements.
+1. Access only delivered artifact, public README and necessary run instructions; do not read private CRITERIA or plan.
+2. Probe actual failure and false positives, safety claims, bad inputs, restarts and user-visible contradictions in disposable copies.
+3. Record exact reproductions; do not presume enterprise infrastructure is required or claim compliance with unseen personal/market requirements.
+4. Give raw observations to Reviewer for classification against private approved scope.
 
 ## Output
-Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.
+Verifiable public findings and uncertainty, not invented requirements or gate signatures.
