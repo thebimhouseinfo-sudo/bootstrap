@@ -88,7 +88,7 @@ def disable(runtime):
 
 
 def restore(runtime, backup):
-    if not re.fullmatch(r"[0-9]{20}-[a-z]+", backup):
+    if not re.fullmatch(r"[0-9]{8}T[0-9]{12}-(?:codex|claude|antigravity)", backup):
         raise ValueError("invalid backup ID")
     location = safe(BACKUPS / backup)
     metadata = json.loads(safe(location / "manifest.json").read_text(encoding="utf-8"))
