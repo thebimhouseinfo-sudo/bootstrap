@@ -44,6 +44,15 @@ class StagedSetupTests(unittest.TestCase):
         self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
         return applied
 
+    def record_native_dialog_fixture(self, runtime="codex"):
+        """Synthetic trace validates format only; it is not a real host dialog."""
+        record = {"schema_version": 1, "channel": "native_dialog", "runtime": runtime,
+                  "host_event_ref": None,
+                  "responses": [{"id": "git_mode", "value": "tracked",
+                                 "source": "native_dialog"}]}
+        (self.root / "harness/setup-intake.json").write_text(
+            json.dumps(record), encoding="utf-8")
+
     def test_staged_codex_does_not_self_block_when_git_branch_unconfigured(self):
         self.install()
         phase = json.loads((self.root / "harness/setup-state.json").read_text())
@@ -105,6 +114,7 @@ class StagedSetupTests(unittest.TestCase):
     def test_activation_postlock_handoff_and_hash_drift_fixture(self):
         """Mechanical fixture only: do not mislabel these JSON files as actual host testimony."""
         self.install()
+        self.record_native_dialog_fixture("codex")
         (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
         (self.root / "docs/ARCHITECTURE.md").write_text("# Accepted architecture\nUses Python.\n", encoding="utf-8")
         (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified host profile\nPython SDK identified.\n", encoding="utf-8")
@@ -147,6 +157,7 @@ class StagedSetupTests(unittest.TestCase):
 
     def test_continue_handoff_remains_guided_only(self):
         self.install("continue")
+        self.record_native_dialog_fixture("continue")
         (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
         (self.root / "docs/ARCHITECTURE.md").write_text("# Approved architecture\nRuntime selected.\n", encoding="utf-8")
         (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified profile\nChosen provider and models.\n", encoding="utf-8")
@@ -350,6 +361,44 @@ class StagedSetupTests(unittest.TestCase):
         self.assertLess(len(english_b.splitlines()[2]), 380)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_a)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_b)
+
+    def test_staged_audit_requires_native_dialog_trace(self):
+        self.install()
+        tool = self.root / "harness/common/setup_lifecycle.py"
+        absent = call(sys.executable, tool, "audit", cwd=self.root)
+        self.assertEqual(absent.returncode, 2)
+        self.assertIn("native-dialog setup-intake trace missing", absent.stdout)
+        self.record_native_dialog_fixture()
+        valid = call(sys.executable, tool, "audit", cwd=self.root)
+        self.assertIn("DIALOG_INTAKE: RECORDED", valid.stdout)
+        # Other intentionally unconfigured components still prevent final readiness.
+        self.assertEqual(valid.returncode, 2)
+        path = self.root / "harness/setup-intake.json"
+        for corruption in (
+            {"schema_version": 1, "channel": "permission_dialog", "runtime": "codex",
+             "responses": [{"id": "git_mode", "value": "tracked", "source": "native_dialog"}]},
+            {"schema_version": 1, "channel": "native_dialog", "runtime": "claude",
+             "responses": [{"id": "git_mode", "value": "tracked", "source": "native_dialog"}]},
+            {"schema_version": 1, "channel": "native_dialog", "runtime": "codex",
+             "responses": [{"id": "git_mode", "value": "tracked", "source": "chat"}]},
+        ):
+            path.write_text(json.dumps(corruption), encoding="utf-8")
+            invalid = call(sys.executable, tool, "audit", cwd=self.root)
+            self.assertEqual(invalid.returncode, 2)
+            self.assertIn("native-dialog setup-intake trace missing", invalid.stdout)
+
+    def test_permission_notice_and_native_dialog_only_docs(self):
+        vi = (REPO / "README.md").read_text(encoding="utf-8")
+        en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
+        ai = (REPO / "docs/FOR_AI.md").read_text(encoding="utf-8")
+        spec = (REPO / "project-template/harness/specs/SETUP_INTAKE.md").read_text(encoding="utf-8")
+        for guide in (vi, en):
+            self.assertIn("dialog", guide.lower())
+            self.assertIn("raw.githubusercontent.com", guide)
+        self.assertIn("ONE ordinary chat notice", ai)
+        self.assertIn("native structured", ai)
+        self.assertIn("setup-intake.json", spec)
+        self.assertIn("No native dialog available?", ai)
 
     def test_one_root_readme_and_plan_ownership(self):
         self.assertFalse((REPO / "README.en.md").exists())
