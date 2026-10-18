@@ -2,6 +2,10 @@
 
 AI installs from repo root using `python install.py --target PATH --tier Standard --runtime codex --apply` **after preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
 
+**Local-only setup:** the installer also manages a marked block at the end of the target `.gitignore`, preserving existing rules. Agent directories, harness/runtime state, local AGENTS/CLAUDE/TASKS, project environment profile, generated trace and report templates stay local. Product source and actual product docs remain trackable. Preview lists `UPDATE .gitignore`; apply atomically updates that managed content. Already tracked setup is reported as `TRACKED_LOCAL_SETUP` with exit 2; ignore rules cannot untrack it. Do not automatically delete files, rewrite history or remove index entries. The canonical `project-template/` in bootstrap remains versioned source.
+
+In Git projects, apply verifies effective ignore behavior before copying setup: nested ignore exceptions produce `LOCAL_SETUP_NOT_IGNORED` and exit 2. Fix those rules before retrying. Git access/index errors block rather than pretending the repository is absent. If Git is unavailable or the project has not been initialized, rerun after `git init` to validate real ignore behavior.
+
 - **READY / copy as-is:** generic agents, skill procedures, native Codex/Claude role and Claude skill configurations, shared contracts, Codex baseline scripts.
 - **CONFIGURE only for actual project facts:** CRITERIA, profile, approved plan/tasks, verified build/check commands in `harness/common/checks.json`, optional skill/knowledge. Never invent facts.
 - **If user plan/model access differs:** Codex `.codex/MODEL_SELECTION.md`; Claude `.claude/MODEL_SELECTION.md`; Continue `.continue/README.md` (provider-dependent setup). **Main chat model is always user-selected**. Do not rewrite generic roles or consult these model guides when presets work.

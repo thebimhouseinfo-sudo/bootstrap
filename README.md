@@ -18,6 +18,14 @@ Gửi cho AI link repo này cùng yêu cầu:
 
 AI sẽ khảo sát những thứ đã có, chỉ hỏi thông tin còn thiếu, trình **bảng chỉnh sửa và enforcement** để người dùng duyệt, rồi mới triển khai. Người dùng không phải copy file thủ công.
 
+### File local của agent và GitHub
+
+Khi cài vào dự án đích, installer tự thêm/cập nhật một block có đánh dấu ở cuối `.gitignore`, giữ nguyên rule sẵn có. Các thư mục `.agents/`, `.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`, file hướng dẫn/task local và profile/trace/template báo cáo của agent được giữ local. Source, README và tài liệu sản phẩm như CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG vẫn được theo dõi; không ignore toàn bộ `docs/`.
+
+Dry-run hiện `UPDATE .gitignore` nếu cần; chỉ `--apply` mới ghi. File local đã tracked được báo `TRACKED_LOCAL_SETUP`, exit 2 để xử lý trước khi publish; installer không tự xóa file, sửa index hoặc lịch sử Git. Ignore bảo vệ các lần `git add` thông thường, không thay thế kiểm tra diff trước push. Riêng trong repo bootstrap, `project-template/` là source phân phối nên vẫn được version đầy đủ; block local-only chỉ được sinh ở dự án đích.
+
+Trong dự án Git, sau khi cập nhật rule, installer dùng `git check-ignore` kiểm tra hiệu lực thật. Nếu `.gitignore` ở thư mục con mở lại file local, installer báo `LOCAL_SETUP_NOT_IGNORED` và dừng trước khi copy setup. Lỗi quyền/index/metadata Git không bị coi là “chưa có Git”. Với dự án chưa `git init` hoặc chưa có Git, cần chạy lại kiểm tra sau khi tạo repository.
+
 ---
 
 ## Dành cho AI: hướng dẫn bắt buộc

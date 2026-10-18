@@ -4,8 +4,11 @@ import argparse
 import hashlib
 import json
 import pathlib
+import os
 import shutil
+import subprocess
 import sys
+import tempfile
 
 REPO = pathlib.Path(__file__).resolve().parent
 SOURCE = REPO / "project-template"
@@ -26,6 +29,112 @@ CACHE_DIRS = {
 }
 CACHE_NAMES = {".DS_Store", "Thumbs.db", ".coverage"}
 CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
+
+# Applied to installed projects only. Do not put these rules in the canonical
+# template's own .gitignore: the template is distributable source in this repo.
+LOCAL_SETUP_PATHS = (
+    ".agents/", ".codex/", ".claude/", ".continue/", "harness/", "lessons/",
+    "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
+    "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
+    "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
+)
+IGNORE_START = b"# BEGIN bootstrap local agent setup"
+IGNORE_END = b"# END bootstrap local agent setup"
+
+
+def ignored_setup_bytes(original):
+    """Keep product rules verbatim; put one managed local-only block last."""
+    lines = original.splitlines(keepends=True)
+    starts = [i for i, line in enumerate(lines) if line.rstrip(b"\r\n") == IGNORE_START]
+    ends = [i for i, line in enumerate(lines) if line.rstrip(b"\r\n") == IGNORE_END]
+    if starts or ends:
+        if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+            raise ValueError("ambiguous .gitignore managed block; preserve and reconcile manually")
+        original = b"".join(lines[:starts[0]] + lines[ends[0]+1:])
+    newline = b"\r\n" if b"\r\n" in original else b"\n"
+    if original and not original.endswith(b"\n"):
+        original += newline
+    block = [IGNORE_START, b"# Local agent configuration/state; product source and docs remain trackable."]
+    block.extend(("/" + path).encode("ascii") for path in LOCAL_SETUP_PATHS)
+    return original + newline.join(block + [IGNORE_END, b""])
+
+
+def ignore_contents(root, source):
+    target = root / ".gitignore"
+    confine(root, target)
+    if target.exists() and not target.is_file():
+        raise ValueError(".gitignore must be a regular file")
+    return ignored_setup_bytes(target.read_bytes() if target.exists() else source.read_bytes())
+
+
+def write_ignore(root, source):
+    target = root / ".gitignore"
+    confine(root, target)
+    before = target.read_bytes() if target.exists() else None
+    rendered = ignore_contents(root, source)
+    if before == rendered:
+        return
+    if before is None:
+        with target.open("xb") as output:
+            output.write(rendered)
+        return
+    # Replace only this explicitly managed file, after checking concurrent edits.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=str(root), prefix=".gitignore.bootstrap-",
+                                         suffix=".tmp", delete=False) as output:
+            temporary = pathlib.Path(output.name)
+            output.write(rendered)
+        os.chmod(temporary, target.stat().st_mode & 0o777)
+        confine(root, target)
+        if target.read_bytes() != before:
+            raise ValueError(".gitignore changed during install; retry preview")
+        temporary.replace(target)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
+def git_worktree(root):
+    if not shutil.which("git"):
+        print("GIT_INDEX: UNVERIFIED (git unavailable)")
+        return False
+    probe = subprocess.run(["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
+                           capture_output=True, timeout=10)
+    if probe.returncode == 0 and probe.stdout.strip() == b"true":
+        return True
+    markers = [(parent / ".git") for parent in (root, *root.parents)]
+    if (probe.returncode == 0 or any(p.exists() or p.is_symlink() for p in markers)
+            or os.environ.get("GIT_DIR") or os.environ.get("GIT_WORK_TREE")):
+        raise ValueError("cannot inspect Git repository; check access, ownership and metadata integrity")
+    return False
+
+
+def tracked_local_setup(root):
+    """Inspect the real index; ignore rules cannot hide already tracked files."""
+    if not git_worktree(root):
+        return []
+    result = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--",
+                             *[path.rstrip("/") for path in LOCAL_SETUP_PATHS]],
+                            capture_output=True, timeout=15)
+    if result.returncode:
+        raise ValueError("cannot inspect Git index for tracked local setup")
+    return sorted(set(os.fsdecode(path) for path in result.stdout.split(b"\0") if path))
+
+
+def exposed_local_setup(root):
+    """Use Git's actual rule precedence, including nested .gitignore exceptions."""
+    if not git_worktree(root):
+        return []
+    probes = {path + "__bootstrap_local_probe__" if path.endswith("/") else path: path
+              for path in LOCAL_SETUP_PATHS}
+    result = subprocess.run(["git", "-C", str(root), "check-ignore", "--no-index", "-z", "--stdin"],
+                            input=b"\0".join(os.fsencode(p) for p in probes) + b"\0",
+                            capture_output=True, timeout=15)
+    if result.returncode not in (0, 1):
+        raise ValueError("cannot verify effective Git ignore rules")
+    ignored = {os.fsdecode(p) for p in result.stdout.split(b"\0") if p}
+    return sorted(probes[path] for path in probes.keys() - ignored)
 
 def is_release_source(relative):
     parts = relative.parts
@@ -134,7 +243,17 @@ def classify(root, src, target):
     return "ADD"
 
 def plan(dest, tier, runtime):
-    return [(classify(dest, src, dest / rel), src, dest / rel) for src, rel in entries(tier, runtime)]
+    ops = []
+    for src, rel in entries(tier, runtime):
+        target = dest / rel
+        if rel.as_posix() == ".gitignore":
+            # Existing product rules are mergeable; unsafe or malformed files raise.
+            rendered = ignore_contents(dest, src)
+            state = ("SAME" if target.read_bytes() == rendered else "UPDATE") if target.exists() else "ADD"
+        else:
+            state = classify(dest, src, target)
+        ops.append((state, src, target))
+    return ops
 
 def safe_copy(root, source, target):
     confine(root, target)
@@ -164,19 +283,24 @@ def main():
         ap.error("target must be an existing project outside the bootstrap checkout")
     try:
         ops = plan(dest, args.tier, args.runtime)
-    except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
-        print("NOT_CONFIGURED: invalid manifest/source:", exc)
+        tracked = tracked_local_setup(dest)
+    except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
+        print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
         return 2
     for state, source, target in ops:
         print(state, target.relative_to(dest).as_posix())
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
     merge = (dest / "AGENTS.md") in conflicts and (dest / "AGENTS.md").is_file()
-    summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "CONFLICT")}
+    summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "CONFLICT")}
     print("SUMMARY:", json.dumps(dict(tier=args.tier, runtime=args.runtime, **summary), sort_keys=True))
     if merge:
         print("MERGE_REQUIRED: existing AGENTS.md retained; review AGENTS.bootstrap.md")
+    for name in tracked:
+        print("TRACKED_LOCAL_SETUP:", name)
+    if tracked:
+        print("PRIVACY_REVIEW_REQUIRED: .gitignore does not untrack existing index entries; no files/index entries removed")
     if not args.apply:
-        return 2 if conflicts else 0
+        return 2 if conflicts or tracked else 0
     # Preflight every destination before any write, including AGENTS merge candidate.
     try:
         for _, _, target in ops:
@@ -187,6 +311,16 @@ def main():
         print("BLOCK: unsafe destination:", exc)
         return 2
     try:
+        ignore_op = next(op for op in ops if op[2].name == ".gitignore")
+        if ignore_op[0] == "CONFLICT":
+            raise ValueError("cannot safely install local-only .gitignore policy")
+        write_ignore(dest, ignore_op[1])
+        exposed = exposed_local_setup(dest)
+        if exposed:
+            for name in exposed:
+                print("LOCAL_SETUP_NOT_IGNORED:", name)
+            print("BLOCK: reconcile nested Git ignore exceptions before installing local setup")
+            return 2
         if merge:
             candidate = dest / "AGENTS.bootstrap.md"
             if not candidate.exists():
@@ -195,13 +329,13 @@ def main():
             elif digest(candidate) != digest(SOURCE / "AGENTS.md"):
                 print("CONFLICT: existing AGENTS.bootstrap.md retained")
         for state, source, target in ops:
-            if state == "ADD":
+            if state == "ADD" and target.name != ".gitignore":
                 safe_copy(dest, source, target)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         print("ERROR: incomplete non-destructive install; inspect newly added files:", exc)
         return 1
-    print("APPLIED: new files only" if not conflicts else "APPLIED_WITH_CONFLICTS: merge/reconcile required")
-    return 2 if conflicts else 0
+    print("APPLIED: new files and local-only ignore policy" if not conflicts else "APPLIED_WITH_CONFLICTS: merge/reconcile required")
+    return 2 if conflicts or tracked else 0
 
 if __name__ == "__main__":
     sys.exit(main())

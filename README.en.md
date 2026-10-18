@@ -161,6 +161,28 @@ Read the `BLOCK` code, rule, definition location, reason, evidence and authorize
 
 ---
 
+## Local agent setup and GitHub
+
+The installer appends or updates one marked block at the end of the target project's
+`.gitignore`, preserving existing product rules. Agent directories (`.agents/`,
+`.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`), local instruction/task
+files and agent profile/trace/report templates stay local. Product source, README,
+CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG and other product docs remain trackable;
+the installer does not blanket-ignore `docs/`.
+
+Preview reports `UPDATE .gitignore`; only `--apply` writes it. Already tracked local
+setup is reported as `TRACKED_LOCAL_SETUP` with exit 2 for reconciliation before
+publication. No files, index entries or Git history are removed automatically.
+Ignore rules protect normal `git add`, not forced adds or existing tracked content.
+In this bootstrap repository, `project-template/` remains versioned distributable
+source: the local-only block is generated only in the installed target project.
+
+For Git projects, the installer checks effective rules using `git check-ignore`
+after updating the block. Nested exceptions exposing local files produce
+`LOCAL_SETUP_NOT_IGNORED` and stop before setup files are copied. Git access/index/
+metadata errors are not treated as an absent repository. For projects without
+Git, rerun the installer after repository initialization to verify actual rules.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
