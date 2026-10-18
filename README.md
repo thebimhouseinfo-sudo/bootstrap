@@ -120,7 +120,7 @@ project-template/
 
 #### Bước 0. Pre-Ask — gom tất cả câu hỏi cấu hình vào một lần duy nhất
 
-**Có thể lấy nguyên bộ câu hỏi bằng `python install.py --ask-first`; lệnh chỉ in câu hỏi, không ghi file hay hỏi lần lượt trong terminal.** Trước khi khảo sát, lập kế hoạch hay gọi lệnh yêu cầu quyền truy cập, AI hỏi toàn bộ thông tin cần thiết trong **một tin nhắn duy nhất**. Không tách ra hỏi dần theo bước — câu hỏi cấu hình xen vào giữa dialog xin quyền khiến người dùng nhấn nhầm theo thói quen.
+**AI hỏi trực tiếp trong chat theo danh sách dưới đây, không cần chạy lệnh lấy câu hỏi trước.** Lệnh `python install.py --ask-first` chỉ là tiện ích tùy chọn để in danh sách khi người dùng muốn xem từ CLI. Trước khi khảo sát, lập kế hoạch hay gọi lệnh yêu cầu quyền truy cập, AI hỏi toàn bộ thông tin cần thiết trong **một tin nhắn duy nhất**. Không tách ra hỏi dần theo bước — câu hỏi cấu hình xen vào giữa dialog xin quyền khiến người dùng nhấn nhầm theo thói quen.
 
 Các mục cần xác nhận (gộp gọn, bỏ những gì đã biết từ context):
 
