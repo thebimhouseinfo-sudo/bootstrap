@@ -135,7 +135,7 @@ Nêu thành phần đã copy/cấu hình và mục đích chống lỗi; enforce
 
 | Tầng | Dành cho | Thành phần dự kiến |
 | --- | --- | --- |
-| **Lite** | Dự án nhỏ, một người | AGENTS, CRITERIA + GOALMAP, verify, snapshot, Stop hook khi runtime hỗ trợ, lessons, evidence, journal, approval inbox, Coder + Reviewer |
+| **Lite** | Dự án nhỏ, một người | Mục tiêu: AGENTS, CRITERIA, verify, snapshot, evidence, Stop (nếu native được trust), các quy trình duyệt phù hợp. **Hiện có** script snapshot/verify; journal/approval inbox có xác thực chưa được triển khai. |
 | **Standard** | Dự án vừa | Lite + Planner/Tester/CR, milestone + G0–G11, review/repair loop theo trigger, G13 trace, decision log đầy đủ |
 | **Full** | Dự án lớn/rủi ro cao | Standard + G14, G12 Git Admin, harness-fixer, doctor/selftest, weakening detector |
 

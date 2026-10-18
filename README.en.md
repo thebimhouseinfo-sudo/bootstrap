@@ -133,7 +133,7 @@ Report installed components and why they exist; actual enforcement versus guidan
 
 | Tier | Suitable for | Intended scope |
 | --- | --- | --- |
-| **Lite** | Small, single-user projects | AGENTS, CRITERIA + GOALMAP framework, verify, snapshot, Stop hook where supported, lessons, evidence, journal, approval inbox, Coder + Reviewer |
+| **Lite** | Small, single-user projects | Target: AGENTS, CRITERIA, verify, snapshot, evidence, trusted native Stop and proportional approvals. **Currently shipped**: snapshot/verify scripts and Codex hook files; authenticated journal/approval inbox remains unimplemented. |
 | **Standard** | Most projects | Lite + Planner/Tester/Critic, milestones and G0–G11, trigger-based review/repair, G13 trace, full decision log |
 | **Full** | Larger or higher-risk projects | Standard + G14, G12 Git Admin, harness-fixer, doctor/self-tests, weakening detection |
 
