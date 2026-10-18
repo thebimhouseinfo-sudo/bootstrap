@@ -97,13 +97,15 @@ project-template/
 6. **Minimalism:** every retained component must prevent a specific failure.
 7. **No default push or network access in hooks.** Avoid unauthorized `git init`, forced push, destructive reset, history rewrite, unknown-branch deletion or third-party dependency/MCP installation.
 8. **No silent model substitutions.** Report missing choices as `UNAVAILABLE`.
-9. **Verify official documentation** for the actual runtime, OS, host and version. Never mix Codex, Claude Code, Copilot or Cline schemas.
+9. **Do not spend setup quota re-researching already generic-ready presets without an actual issue.** On Codex/Antigravity, copy first and verify project-specific settings. Consult official runtime/host/API documentation when the version differs, errors appear or an untested platform needs adaptation; never mix native schemas.
 10. **Escalate template conflicts** in the adaptation table; do not choose arbitrarily.
 11. **Coder and Tester work with generic defaults** even without optional project-specific skill/knowledge packs. Mandatory host/dialect constraints still apply.
 12. **Report actual readiness.** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED and UNVERIFIED are different states.
 13. **Evidence-specific compatibility:** Codex and Antigravity are GENERIC READY and Human-tested; Claude Code is fully configured but lacks host testing; Continue is nearly ready pending provider/model selection and host testing; other runtimes should port only necessary adapters. Never equate this generic readiness with `ENFORCED` or claim `RUNTIME_VERIFIED` without corresponding evidence.
 
 ### Setup workflow
+
+**One-message Pre-Ask:** before running setup tools or mixing in host tool-permission dialogs, gather all genuinely missing choices (project path, tier, runtime, Git branch, model, host/testing needs and approval channel) **in one chat message**, reusing context already known. After the human responds, inspect and install; do not drip-feed setup questions across command authorization prompts. This saves interaction time and quota.
 
 #### Step 0. Classify the project
 

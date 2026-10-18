@@ -104,7 +104,7 @@ project-template/
 6. **Tối giản:** mỗi thành phần phải chống một lỗi xác định.
 7. **Không mặc định push hoặc gọi mạng trong hook.** Không tự ý `git init`, force-push, `reset --hard`, rewrite history, xóa nhánh chưa rõ, cài dependency/MCP hoặc lộ secret.
 8. **Không tự đổi model.** Model không có ghi `UNAVAILABLE`.
-9. **Đọc tài liệu chính thức** của runtime, hệ điều hành, host và phiên bản; không trộn schema Codex/Claude/Copilot/Cline.
+9. **Không nghiên cứu lại setup generic đã READY nếu không có lỗi cụ thể.** Với Codex/Antigravity, ưu tiên copy rồi kiểm tra các thông số riêng dự án. Nếu khác phiên bản, có lỗi hoặc dùng nền tảng chưa thử, đối chiếu tài liệu chính thức của runtime/host/API; không trộn schema.
 10. **Mâu thuẫn giữa template và dự án** phải đưa vào bảng chỉnh sửa, không tự đoán chọn.
 11. **Coder/Tester chạy được bằng generic skill** dù chưa có knowledge chuyên biệt; vẫn phải tuân thủ ràng buộc host/dialect bắt buộc.
 12. **Phân biệt trạng thái trung thực:** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED, UNVERIFIED không thể thay thế nhau.
