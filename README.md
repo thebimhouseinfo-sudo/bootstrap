@@ -2,9 +2,9 @@
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-> **Trạng thái phát hành:** Hiện là **template agent + installer + các script nền**, chưa phải harness Codex tự động hoàn chỉnh. Đã có script Python cho snapshot và adapter hook Codex ở mức SCRIPT_TESTED; gate có chữ ký, approval có xác thực, trace đầy đủ và orchestration vẫn NOT_CONFIGURED; host Codex chưa smoke-test. Kiểm tra bằng `python harness/common/status.py --tier Standard --runtime codex` sau khi cài. Role Codex kế thừa sandbox/approval của phiên cha; yêu cầu chỉ-đọc trong prompt chưa phải quyền được cưỡng chế. Xem `project-template/harness/specs/READINESS.md`.
+> **Trạng thái kiểm thử & phát hành:** Template hiện đã **test pass** khi cấu hình cho **Google Antigravity IDE** (primary) và **Codex** (bộ cài đặt, script nền, inventory, verify, snapshot, hooks/roles/skills cho hai runtime này đã được kiểm thử và xác nhận). **Các coding agent khác (Claude Code, Continue, Copilot, Cline...) hiện chưa đạt trạng thái READY.** AI khi thiết lập cần **tự kiểm tra và tự sửa/cấu hình theo hướng dẫn trong template** để phù hợp với platform của mình. Kiểm tra trạng thái bằng `python harness/common/status.py --tier Standard --runtime antigravity` (hoặc `--runtime codex`). Xem chi tiết tại `project-template/harness/specs/READINESS.md`.
 
-Repo này là **bộ template harness có sẵn**, hướng tới **Codex**, hiện chỉ ở mức bộ khung và script nền đã kiểm thử. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
+Repo này là **bộ template harness có sẵn** cho coding agent. Hiện tại, template đã **test pass** khi cấu hình cho **Google Antigravity IDE** (primary) và **Codex**; các coding agent khác chưa đạt trạng thái ready và cần được AI tự kiểm tra, hiệu chỉnh theo runtime tương ứng. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
 
 **Không thiết kế lại harness từ đầu, không viết lại agent/skill generic.** Mọi kết quả phải có bằng chứng kiểm thử thực tế. Những quyết định được bảo vệ cần **Approval Request ba lựa chọn: Đồng ý / Không đồng ý / Khác**. Ngoại lệ khi kênh duyệt chưa được cài trong lần bootstrap đầu tiên phải được công bố rõ.
 
@@ -20,7 +20,7 @@ AI sẽ khảo sát những thứ đã có, chỉ hỏi thông tin còn thiếu,
 
 ### File local của agent và GitHub
 
-Khi cài vào dự án đích, installer tự thêm/cập nhật một block có đánh dấu ở cuối `.gitignore`, giữ nguyên rule sẵn có. Các thư mục `.agents/`, `.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`, file hướng dẫn/task local và profile/trace/template báo cáo của agent được giữ local. Source, README và tài liệu sản phẩm như CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG vẫn được theo dõi; không ignore toàn bộ `docs/`.
+Khi cài vào dự án đích, installer tự thêm/cập nhật một block có đánh dấu ở cuối `.gitignore`, giữ nguyên rule sẵn có. Các thư mục `.agents/`, `.antigravity/`, `.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`, file hướng dẫn/task local và profile/trace/template báo cáo của agent được giữ local. Source, README và tài liệu sản phẩm như CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG vẫn được theo dõi; không ignore toàn bộ `docs/`.
 
 Dry-run hiện `UPDATE .gitignore` nếu cần; chỉ `--apply` mới ghi. File local đã tracked được báo `TRACKED_LOCAL_SETUP`, exit 2 để xử lý trước khi publish; installer không tự xóa file, sửa index hoặc lịch sử Git. Ignore bảo vệ các lần `git add` thông thường, không thay thế kiểm tra diff trước push. Riêng trong repo bootstrap, `project-template/` là source phân phối nên vẫn được version đầy đủ; block local-only chỉ được sinh ở dự án đích.
 
@@ -60,6 +60,10 @@ project-template/
     skills/
     config/
     knowledge/
+    MODEL_SELECTION.md        # Antigravity model guide
+    hooks.json                # Antigravity lifecycle hooks
+  .antigravity/              # khi chọn Antigravity IDE
+    agents/
   .codex/                   # khi chọn Codex
     config.toml
     agents/
@@ -69,16 +73,17 @@ project-template/
   .continue/                # khi chọn Continue
     agents/
   harness/
-    common/                   # verify + inventory cho cả ba runtime
+    common/                   # verify + inventory cho mọi runtime
     codex/                    # Codex preflight
+    claude/                   # Claude Code adapter
     specs/
     HARNESS_SPEC.md
   lessons/
 ```
 
-Với Codex, các subagent TOML và model theo vai đã được cấu hình sẵn; verifier/inventory chạy từ `harness/common/`. **Có file không chứng minh subagent đã được runtime nạp, hoặc hook/gate/approval tự động đã hoạt động.** Phải kiểm tra khả năng của đúng runtime trước khi tuyên bố được kích hoạt.
-
-Với Claude Code, adapter agent và skills native được cài sẵn. Continue có template config theo vai và cần điền model/provider. Với Copilot, Cline và runtime khác, giữ nguyên logic generic, chỉ chỉnh phần tích hợp đặc thù: cách đăng ký agent, đường dẫn skill, model, quyền, hook, script, shell và kênh duyệt.
+- **Google Antigravity IDE (primary — đã test pass):** skills và roles được nạp native từ `.agents/skills/` và `.agents/roles/`; model assignment theo vai nằm ở `.antigravity/agents/*.md` (với fallback Gemini 3.8 Flash High); lifecycle hooks ở `.agents/hooks.json` (Stop dispatch tới `harness/common/verify.py`).
+- **Codex (đã test pass):** các subagent TOML tại `.codex/agents/*.toml` và model theo vai đã được cấu hình sẵn; native hook adapter tại `.codex/hooks.json` gọi `harness/codex/hook.py`; verifier/inventory chạy từ `harness/common/`.
+- **Các coding agent khác (chưa đạt trạng thái READY):** Claude Code (adapter `.claude/` và `harness/claude/hook.py`), Continue (`.continue/agents/`), GitHub Copilot, Cline... hiện **chưa đạt trạng thái READY**. **AI nhận nhiệm vụ trên các platform này phải tự kiểm tra khả năng thực tế của platform và tự sửa/hoàn thiện cấu hình theo hướng dẫn có sẵn trong template** (xem `project-template/SETUP.md`, `project-template/AGENTS.md`, `project-template/harness/specs/READINESS.md`): điều chỉnh cách đăng ký agent, định dạng cấu hình, đường dẫn skill, mapping model khả dụng, native lifecycle hooks (hoặc ghi rõ `GUIDED_ONLY` nếu platform không hỗ trợ hook cưỡng chế) và kênh duyệt. **Có file trong thư mục không chứng minh subagent đã được runtime nạp hay hook đã hoạt động.** Phải chạy kiểm tra thực tế trước khi tuyên bố kích hoạt.
 
 ### Nguyên tắc cốt lõi (không được nới)
 
@@ -94,18 +99,35 @@ Với Claude Code, adapter agent và skills native được cài sẵn. Continue
 10. **Mâu thuẫn giữa template và dự án** phải đưa vào bảng chỉnh sửa, không tự đoán chọn.
 11. **Coder/Tester chạy được bằng generic skill** dù chưa có knowledge chuyên biệt; vẫn phải tuân thủ ràng buộc host/dialect bắt buộc.
 12. **Phân biệt trạng thái trung thực:** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED, UNVERIFIED không thể thay thế nhau.
+13. **AI tự kiểm tra và điều chỉnh theo platform của mình:** Template đã test pass cho Antigravity IDE và Codex. Với các platform khác (chưa đạt trạng thái READY), AI có trách nhiệm tự đọc hướng dẫn trong template, khảo sát cơ chế của runtime mình đang chạy, tự sửa và hoàn thiện cấu hình phù hợp, không chuyển gánh nặng cấu hình kỹ thuật sang người dùng.
 
 ### Quy trình
 
-#### Bước 0. Phân loại dự án
+#### Bước 0. Pre-Ask — gom tất cả câu hỏi cấu hình vào một lần duy nhất
+
+**Trước khi khảo sát, lập kế hoạch hay hiển thị bất kỳ dialog nào**, AI hỏi toàn bộ thông tin cần thiết trong **một tin nhắn duy nhất**. Không tách ra hỏi dần theo bước — câu hỏi cấu hình xen vào giữa dialog xin quyền khiến người dùng nhấn nhầm theo thói quen.
+
+Các mục cần xác nhận (gộp gọn, bỏ những gì đã biết từ context):
+
+1. **Tầng:** Lite / Standard / Full (mặc định Standard).
+2. **Runtime:** Antigravity IDE / Codex / Claude Code / Continue — phiên bản, OS và shell (vd. PowerShell trên Windows).
+3. **Git:** có dùng không? remote/nhánh phát triển chính và nhánh đóng băng?
+4. **Loại sản phẩm:** local/web/plugin/CLI/service — nền tảng/host cụ thể.
+5. **Đặc tả hiện có:** tài liệu đã được chấp thuận? Dự án đang chạy thế nào?
+6. **Stack:** đã xác định hay Planner cần discovery?
+7. **Tích hợp & test thực:** host/thiết bị/tài khoản cần test thật.
+8. **Model:** giữ mặc định (theo `.agents/MODEL_SELECTION.md`) hay tự chọn?
+9. **Dialect/API đặc thù:** tài liệu chính thức, phiên bản, cách chạy thử.
+10. **Ngôn ngữ báo cáo** (mặc định: Tiếng Việt cho tài liệu, tiếng Anh cho file/ID/lệnh).
+11. **Kênh duyệt:** nút trong UI / lệnh terminal / `inbox.html`?
+
+Chỉ sau khi nhận đủ câu trả lời mới chuyển sang bước tiếp theo.
+
+#### Bước 1. Phân loại dự án và khảo sát (sau Pre-Ask)
 
 - **A — Đã có code:** đọc code, cấu hình, test, tài liệu; nếu chưa có lý thuyết vận hành thì ghi rõ, không tự suy diễn thành yêu cầu đã duyệt.
 - **B — Dự án mới đã có đặc tả được chấp thuận:** sử dụng đặc tả để xác nhận ràng buộc; Planner chuẩn hóa vào CRITERIA; Bootstrap không tự viết lại logic sản phẩm.
 - **C — Dự án mới, chưa có lý thuyết:** kích hoạt **Planner Discovery Mode tối thiểu** (brainstorm, research, CRITERIA placeholder và kênh trao đổi/duyệt khả dụng). Không ép người dùng phải chốt lý thuyết trước khi khám phá. Chưa chọn stack cuối, chưa tạo task sản phẩm hoặc tuyên bố full harness đã có.
-
-#### Bước 1. Hỏi ngắn, bỏ thông tin đã biết
-
-Kiểm tra hiện trạng trước rồi mới hỏi các mục còn thiếu: tầng Lite/Standard/Full (thường mặc định Standard), runtime và phiên bản (ưu tiên Codex), OS/shell, Git/remote/nhánh, loại sản phẩm/host/stack, khả năng kiểm thử tích hợp thật, model/tool khả dụng, dialect/API và tài liệu chính thức, ngôn ngữ báo cáo, kênh phê duyệt.
 
 Với C, chỉ hỏi đủ cho Discovery tối thiểu. Runtime không có hook hoặc kênh human-only có thể không bảo đảm được journal/approval integrity: phải ghi `GUIDED_ONLY` và chỉ ra giải pháp thay thế.
 
@@ -125,9 +147,9 @@ Gửi **Approval Request loại `HARNESS_PATCH`**, rồi dừng trước thay đ
 
 #### Bước 3. AI tự copy, tùy chỉnh và triển khai
 
-**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime codex` để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
+**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime antigravity` (hoặc `--runtime codex`, `claude`, `continue`) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
 
-Giữ nguyên role và skill generic khi phù hợp. Điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Dùng script Codex có sẵn khi phù hợp; phần còn thiếu triển khai theo `harness/specs/`. Không biến NOT_CONFIGURED thành PASS.
+Giữ nguyên role và skill generic khi phù hợp. Điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh. Với Antigravity IDE và Codex, cấu hình đã test pass nên có thể dùng ngay sau khi điền thông số dự án. Với các coding agent khác chưa READY, AI phải tự kiểm tra và sửa cấu hình theo hướng dẫn trong `project-template/SETUP.md` và `harness/specs/` để tương thích với platform của mình. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Không biến NOT_CONFIGURED thành PASS.
 
 #### Bước 4. Kiểm tra
 
@@ -175,7 +197,15 @@ Nếu thay đổi cấp thêm quyền hoặc làm yếu ranh giới bảo vệ, 
 
 MIT. Xem [LICENSE](LICENSE).
 
-**Codex-first:** `.codex/hooks.json` gọi `harness/codex/hook.py`; Python chung nằm tại `harness/common/`. Claude Code/IDE khác sẽ chuyển đổi hook theo cơ chế native, không nhân bản cả harness. Trước khi chốt READY phải kiểm tra `/hooks` trên Codex thật và test chặn/tiếp tục; script CI PASS chưa thay được bước này.
+**Google Antigravity IDE (primary) & Codex (đã test pass):**
+- **Antigravity IDE:** `.agents/hooks.json` khai báo Stop hook → `harness/common/verify.py`; roles và skills được nạp native từ `.agents/roles/` và `.agents/skills/`; model assignment theo vai ở `.antigravity/agents/*.md` (Gemini 3.8 Flash High fallback).
+- **Codex:** `.codex/hooks.json` gọi `harness/codex/hook.py`; subagents nạp từ `.codex/agents/*.toml`.
+- Python chung nằm tại `harness/common/` (inventory, status, verify, snapshot, task, branch_authority).
+
+**Các coding agent khác (chưa đạt trạng thái READY):**
+- **Claude Code:** `.claude/settings.json` + `harness/claude/hook.py` (adapter sơ bộ).
+- **Continue, Copilot, Cline, Cursor...:** chưa hoàn thiện cấu hình native hoặc chưa smoke-test thực tế.
+- **Yêu cầu đối với AI:** Khi triển khai trên các platform này, AI cần tự kiểm tra và sửa đổi cấu hình theo hướng dẫn trong template (`project-template/SETUP.md`, `project-template/harness/README.md`, `project-template/harness/specs/READINESS.md`) để thích ứng với nền tảng của mình, sau đó chạy smoke-test xác minh trước khi tuyên bố READY.
 
 ### Nhánh phát triển chính và đóng băng main
 

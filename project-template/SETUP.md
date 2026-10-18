@@ -22,6 +22,11 @@ Only open detailed `harness/specs/` contracts for mechanisms being implemented. 
 ## Actual release capabilities
 Copy/install success is NOT a fully working harness. Use `python harness/common/status.py --tier Standard --runtime codex` (or chosen tier/runtime); exit 2 means required mechanisms remain NOT_CONFIGURED or real-host smoke UNVERIFIED. Now shipped and script-tested for Codex: project-local native hook JSON/Python adapter, scoped explicit hash snapshot/restore, single-task trace-link validator and bounded Stop verification, in addition to installer/roles/verify/preflight. Still NOT_CONFIGURED: authenticated approval/gate signing, full trace/STALE propagation and automatic reviewer orchestration; native Codex hook trust/smoke must be verified on the user's version. `harness/common/capabilities.json` is the definitive list. Codex Advisor/Critic/Explorer are prompt-level read-only only; inherit the parent sandbox.
 
+## Antigravity IDE setup (primary)
+Install with `python install.py --target PATH --tier Standard --runtime antigravity --apply` (or use `--ask-first` for interactive pre-ask configuration). The installer configures native `.agents/hooks.json` (Stop lifecycle hook dispatching to `harness/common/verify.py`), `.antigravity/agents/*.md` (role definitions with model assignments and Gemini 3.8 Flash High fallback), and native `.agents/skills/`.
+
+**After install:** open the workspace in Google Antigravity IDE. Roles, skills, and hooks are loaded natively. Run `python harness/common/status.py --tier Standard --runtime antigravity` to inspect inventory and readiness; configure `harness/common/checks.json` with verified project build/test commands.
+
 ## Codex setup
 Install with `--runtime codex`. Inspect `/hooks` inside Codex and trust the exact definitions if approved. Configure actual project commands in `harness/common/checks.json` and an explicitly approved `harness/active-task.json`; no fabricated goal ID. Stop checks activate for configured tasks only.
 

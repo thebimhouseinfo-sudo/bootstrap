@@ -1,0 +1,11 @@
+{
+  "verify-on-stop": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python harness/common/verify.py",
+        "timeout": 180
+      }
+    ]
+  }
+}

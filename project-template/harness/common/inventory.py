@@ -34,7 +34,7 @@ def check_skill(path):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["codex", "claude", "continue"], default="codex")
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue"], default="antigravity")
     options = parser.parse_args(args)
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -48,7 +48,10 @@ def main(args=None):
         "harness/common/branch_authority.py", "harness/config/branch-authority.example.json",
     ]
     needed += [".agents/roles/" + role + ".md" for role in sorted(roles)]
-    if options.runtime == "codex":
+    if options.runtime == "antigravity":
+        needed.extend([".agents/hooks.json", ".agents/MODEL_SELECTION.md", ".antigravity/README.md"])
+        needed += [".antigravity/agents/" + role + ".md" for role in sorted(roles)]
+    elif options.runtime == "codex":
         needed.extend([".codex/hooks.json", "harness/codex/hook.py",
                        "harness/common/snapshot.py", "harness/common/task.py",
                        "harness/hook-policy.json", "harness/active-task.json"])

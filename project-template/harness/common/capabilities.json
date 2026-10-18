@@ -31,6 +31,7 @@
     "git_remote_protection": "NOT_CONFIGURED"
   },
   "runtime_smoke": {
+    "antigravity": "UNVERIFIED",
     "codex": "UNVERIFIED",
     "claude": "UNVERIFIED",
     "continue": "UNVERIFIED"
