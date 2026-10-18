@@ -205,7 +205,7 @@ The legacy `-y/--yes` flag is accepted but **ignored**; only `--apply` writes. P
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](../LICENSE).
 
 ### Generic runtime adapter readiness
 
