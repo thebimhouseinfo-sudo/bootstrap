@@ -234,10 +234,11 @@ class InstallTests(unittest.TestCase):
             for label in ("Tạm dùng", "Ổn", "Nâng cao"):
                 self.assertIn(label, value, rel)
             self.assertIn("when", value.lower(), rel)
-        for rel in ("README.md", "README.en.md"):
+        for rel in ("README.md", "docs/user-guide.en.md"):
             value = (ROOT / rel).read_text(encoding="utf-8")
-            for label in ("Tạm dùng", "Ổn", "Nâng cao"):
+            for label in ("CRITERIA", "Planner", "For AI"):
                 self.assertIn(label, value, rel)
+        self.assertFalse((ROOT / "README.en.md").exists())
 
     def test_planner_owns_intake_and_advisor_is_preapply_only(self):
         planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
