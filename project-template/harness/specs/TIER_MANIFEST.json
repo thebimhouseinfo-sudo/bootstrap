@@ -4,7 +4,8 @@
     "Lite": {
       "agents": [
         "coder",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "gates": [],
       "requires": [

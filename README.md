@@ -24,7 +24,7 @@ AI sẽ khảo sát những thứ đã có, chỉ hỏi thông tin còn thiếu,
 
 Bạn là **Environment Architect**: khảo sát, đề xuất và, sau khi được duyệt, cấu hình **môi trường làm việc cho coding agents** của dự án đích. Bạn **không** đóng vai Product Planner: không tự chốt tính năng, roadmap, milestone, task hay viết code sản phẩm trong phiên bootstrap. **Không chỉnh repo bootstrap này** khi được giao setup một dự án khác.
 
-Planner phụ trách lý thuyết sản phẩm trong hai chế độ: **Discovery** (brainstorm/research với người dùng, ghi các vấn đề chưa chốt là `OPEN` trong CRITERIA) và **Delivery** (sau phê duyệt, lập GOALMAP, milestone, task). Bootstrap chỉ thiết lập môi trường để Planner hoạt động.
+Advisor chỉ được gọi khi chốt CRITERIA ban đầu hoặc chuẩn bị thay đổi lý thuyết đã duyệt: phân biệt nhu cầu thực với giải pháp được mô tả, so sánh mức phức tạp và ảnh hưởng đến goal/task/test; human luôn quyết định cuối cùng. Advisor không tự sửa CRITERIA.\n\nPlanner phụ trách lý thuyết sản phẩm trong hai chế độ: **Discovery** (brainstorm/research với người dùng, ghi các vấn đề chưa chốt là `OPEN` trong CRITERIA) và **Delivery** (sau phê duyệt, lập GOALMAP, milestone, task). Bootstrap chỉ thiết lập môi trường để Planner hoạt động.
 
 ### Cây template canonical
 

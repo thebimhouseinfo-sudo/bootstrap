@@ -14,7 +14,7 @@ Status: DISCOVERY / NOT_CONFIGURED
 ## OPEN questions / proposed alternatives
 <!-- ID, options, tradeoffs, evidence and pending user decision -->
 
-## Approvals and version history
+## Advisor impact before approval\n<!-- Before initial APPROVED or a proposed change to approved theory, capture outcome vs architecture, minimal alternatives, estimated complexity, affected IDs/GOALMAP/tasks/tests, risks and user's actual choice. The Advisor never edits approved CRITERIA or vetoes the human. -->\n\n## Approvals and version history
 <!-- Cite verified user approval records; chat acknowledgement alone is not approval -->
 
 ## GOALMAP
