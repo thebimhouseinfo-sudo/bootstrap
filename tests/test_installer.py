@@ -112,6 +112,53 @@ class InstallTests(unittest.TestCase):
         instructions = (SOURCE / "AGENTS.md").read_text()
         self.assertIn("No standing Advisor loop", instructions)
 
+    def test_technical_advisor_three_level_contract_and_native_parity(self):
+        advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
+        required = (
+            "Technical Advisor", "Tạm dùng", "Ổn", "Nâng cao",
+            "ALWAYS provide exactly three", "minimum", "maintenance",
+            "working-directory restriction alone is not a sandbox",
+            "Human decision", "cannot edit approved CRITERIA",
+            "offline GitHub", "VM",
+        )
+        for phrase in required:
+            self.assertIn(phrase.lower(), advisor.lower(), phrase)
+        self.assertIn("before (1) initial approval", advisor)
+        self.assertIn("never label an unsafe shortcut", advisor.lower())
+        self.assertIn("may knowingly choose", advisor.lower())
+
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
+        with (SOURCE / ".codex/agents/advisor.toml").open("rb") as f:
+            codex = tomllib.load(f)
+        self.assertEqual(codex["name"], "advisor")
+        self.assertEqual(codex.get("sandbox_mode"), "read-only")
+        self.assertIn(advisor.strip(), codex["developer_instructions"])
+        claude = (SOURCE / ".claude/agents/advisor.md").read_text(encoding="utf-8")
+        self.assertIn(advisor.strip(), claude)
+        try:
+            import yaml
+        except ImportError:
+            self.skipTest("PyYAML unavailable")
+        continue_cfg = yaml.safe_load((SOURCE / ".continue/agents/advisor/config.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(continue_cfg["schema"], "v1")
+        self.assertIn(advisor.strip(), continue_cfg["rules"][0])
+        assignment = yaml.safe_load((SOURCE / ".agents/config/agent-assignment.yaml").read_text(encoding="utf-8"))
+        self.assertIn("advisor", assignment["roles"])
+        self.assertEqual(assignment["roles"]["advisor"]["options"], ["tam_dung", "on", "nang_cao"])
+
+        for rel in ("AGENTS.md", "docs/CRITERIA.md", "harness/specs/APPROVAL.md", "SETUP.md"):
+            value = (SOURCE / rel).read_text(encoding="utf-8")
+            self.assertNotIn("\\\\n", value, rel)
+            for label in ("Tạm dùng", "Ổn", "Nâng cao"):
+                self.assertIn(label, value, rel)
+        for rel in ("README.md", "README.en.md"):
+            value = (ROOT / rel).read_text(encoding="utf-8")
+            for label in ("Tạm dùng", "Ổn", "Nâng cao"):
+                self.assertIn(label, value, rel)
+
     def test_manifest_and_native_configs(self):
         manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text())
         for tier in TIERS:
