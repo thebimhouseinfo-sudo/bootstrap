@@ -127,7 +127,7 @@ class InstallTests(unittest.TestCase):
         for phrase in required:
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
         self.assertNotIn("ALWAYS present exactly three", advisor)
-        self.assertIn("only when meaningful alternatives exist", advisor)
+        self.assertIn("are OPTIONAL comparison levels", advisor)
         self.assertIn("Human and Planner first discuss", advisor)
         self.assertIn("before CRITERIA is edited or merged", advisor)
         self.assertIn("entire proposed CRITERIA", advisor)
@@ -180,12 +180,13 @@ class InstallTests(unittest.TestCase):
                        "read-only proposed delta", "before application"):
             self.assertIn(phrase.lower(), planner.lower(), phrase)
         for phrase in ("entire proposed CRITERIA", "existing approved CRITERIA",
-                       "settled the proposed delta", "before CRITERIA is edited or merged",
+                       "settle the proposed delta", "before CRITERIA is edited or merged",
                        "not a review gate", "when feasibility or impact",
                        "do not read or review Plan", "no PASS/FAIL", "OPTIONAL"):
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
-        for phrase in ("no veto", "Human and Planner"):
-            self.assertNotIn("ALWAYS present exactly three", advisor)
+        self.assertNotIn("ALWAYS present exactly three", advisor)
+        self.assertIn("Human and Planner", advisor)
+        self.assertIn("no PASS/FAIL verdict", advisor)
         self.assertIn("OVERENGINEERING", reviewer)
         self.assertIn("UNDERSCOPING", reviewer)
         self.assertIn("approved CRITERIA", reviewer)
