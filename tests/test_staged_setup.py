@@ -137,6 +137,37 @@ class StagedSetupTests(unittest.TestCase):
         self.assertEqual(status.returncode, 2)
         self.assertIn("DRIFT", status.stdout)
 
+
+    def test_continue_handoff_remains_guided_only(self):
+        self.install("continue")
+        (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
+        (self.root / "docs/ARCHITECTURE.md").write_text("# Approved architecture\nRuntime selected.\n", encoding="utf-8")
+        (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified profile\nChosen provider and models.\n", encoding="utf-8")
+        (self.root / "harness/common/checks.json").write_text(json.dumps(
+            {"checks": [{"name": "fixture", "argv": [sys.executable, "-c", "pass"]}]}), encoding="utf-8")
+        tool = self.root / "harness/common/setup_lifecycle.py"
+        evidence = self.root / "harness/setup-live-evidence.json"
+        evidence.write_text(json.dumps({
+            "runtime": "continue", "host_version": "CI fixture",
+            "fresh_session": True, "roles_loaded": True, "checks_executed": True,
+            "native_hook_available": False, "notes": "Synthetic observations only"}), encoding="utf-8")
+        active = call(sys.executable, tool, "activate", "--evidence", evidence,
+                      "--human-approved", cwd=self.root)
+        self.assertEqual(active.returncode, 0, active.stdout + active.stderr)
+        self.assertIn("READY_WITH_LIMITATIONS", active.stdout)
+        status = call(sys.executable, tool, "status", cwd=self.root)
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("HASHES_MATCH", status.stdout)
+        post = self.root / "harness/setup-postlock-evidence.json"
+        post.write_text(json.dumps({
+            "runtime": "continue", "host_version": "CI fixture",
+            "fresh_session": True, "roles_loaded": True, "checks_executed": True,
+            "post_lock_allow": True, "notes": "Synthetic observations only"}), encoding="utf-8")
+        handoff = call(sys.executable, tool, "finalize",
+                       "--post-lock-evidence", post, "--human-approved", cwd=self.root)
+        self.assertEqual(handoff.returncode, 0, handoff.stdout + handoff.stderr)
+        self.assertIn("GUIDED_ONLY", handoff.stdout)
+
     def test_host_test_prints_keep_setup_tab_open(self):
         self.install()
         result = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
