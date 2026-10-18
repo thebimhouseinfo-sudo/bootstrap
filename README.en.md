@@ -1,3 +1,5 @@
+> **Release status:** Current product is an **agent template + installer + baseline scripts**, not a complete automated Codex harness. Snapshot/hook/gate/authenticated approval/trace/orchestration engines remain NOT_CONFIGURED. Run `python harness/common/status.py --tier Standard --runtime codex` after install. Codex subagent sandbox/approval inherit the parent; read-only prompt instructions are not enforcement. See `project-template/harness/specs/READINESS.md`.
+
 # Bootstrap: Codex-ready harness templates for coding agents
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)

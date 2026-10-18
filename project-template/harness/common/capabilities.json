@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "release_kind": "BASELINE_AGENT_TEMPLATE_AND_SCRIPTS",
+  "release_claim": "INSTALLABLE_BASELINE_NOT_AUTOMATED_HARNESS",
+  "description": "Copy-safe templates and portable scripts. No verified autonomous protected Codex harness shipped.",
+  "capabilities": {
+    "installer": "SCRIPT_TESTED",
+    "role_configs": "READY_CONTENT",
+    "inventory": "SCRIPT_TESTED",
+    "verify": "SCRIPT_TESTED",
+    "codex_preflight": "SCRIPT_TESTED",
+    "evidence": "READY_CONTENT",
+    "snapshot": "NOT_CONFIGURED",
+    "milestones": "NOT_CONFIGURED",
+    "review_loop": "NOT_CONFIGURED",
+    "trace": "NOT_CONFIGURED",
+    "doctor": "INVENTORY_ONLY",
+    "git_admin": "NOT_CONFIGURED",
+    "weakening_review": "GUIDED_ONLY",
+    "native_hooks": "NOT_CONFIGURED",
+    "gate_engine": "NOT_CONFIGURED",
+    "authenticated_approval": "NOT_CONFIGURED",
+    "approval_ledger": "NOT_CONFIGURED",
+    "role_isolation": "GUIDED_ONLY",
+    "orchestration": "NOT_CONFIGURED"
+  },
+  "runtime_smoke": {
+    "codex": "UNVERIFIED",
+    "claude": "UNVERIFIED",
+    "continue": "UNVERIFIED"
+  },
+  "note": "Tested Python helper scripts and syntax do not establish actual Codex/Claude/Continue agent discovery, gate enforcement or human-only authorization."
+}

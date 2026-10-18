@@ -1,3 +1,5 @@
+> **Trạng thái phát hành:** Hiện là **template agent + installer + các script nền**, chưa phải harness Codex tự động hoàn chỉnh. Các engine snapshot/hook/gate/approval có xác thực/trace/orchestration còn NOT_CONFIGURED. Kiểm tra bằng `python harness/common/status.py --tier Standard --runtime codex` sau khi cài. Role Codex kế thừa sandbox/approval của phiên cha; yêu cầu chỉ-đọc trong prompt chưa phải quyền được cưỡng chế. Xem `project-template/harness/specs/READINESS.md`.
+
 # bootstrap: bộ template harness cho coding agent
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
