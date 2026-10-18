@@ -26,7 +26,7 @@
 6. **Live verification:** nếu cần, AI đưa đúng prompt/lệnh cho bạn mở phiên mới kiểm tra hook và script thật.
 7. **Final lock + post-lock test:** sau khi xác minh runtime thật, AI chốt trạng thái hook/policy, lưu hash và kiểm tra lại một phiên mới sau khóa. Chỉ khi PASS mới xác nhận handoff và đưa prompt Planner.
 
-### <warning>KHÔNG ĐÓNG TAB ĐANG SETUP</warning>
+### ⚠️ QUAN TRỌNG — KHÔNG ĐÓNG TAB ĐANG SETUP
 
 **Giữ nguyên tab/phiên coding agent đang thiết lập Bootstrap khi được yêu cầu mở tab mới để test.** Tab mới chỉ dùng kiểm thử. Nếu bị BLOCK hoặc hook lỗi, quay về tab setup để sửa; không tự vô hiệu hóa cơ chế bảo vệ. Chỉ đóng tab setup sau khi AI xác nhận bàn giao xong và đã lưu checkpoint/đường recovery.
 
