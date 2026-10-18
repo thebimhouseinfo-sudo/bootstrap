@@ -103,7 +103,7 @@ class InstallTests(unittest.TestCase):
 
     def test_advisor_is_a_decision_stage_role_not_global_agent(self):
         source = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
-        self.assertIn("before (1) initial approval", source)
+        self.assertIn("entire proposed CRITERIA", source)
         self.assertIn("human", source.lower())
         self.assertIn("no veto", source.lower())
         for rel in (".codex/agents/advisor.toml", ".claude/agents/advisor.md",
@@ -116,16 +116,16 @@ class InstallTests(unittest.TestCase):
         advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
         required = (
             "Technical Advisor", "Tạm dùng", "Ổn", "Nâng cao",
-            "ALWAYS provide exactly three", "minimum", "maintenance",
-            "working-directory restriction alone is not a sandbox",
-            "Human decision", "cannot edit approved CRITERIA",
+            "ALWAYS present exactly three", "minimum", "maintenance",
+            "cwd is not an arbitrary-command sandbox",
+            "Human can select any option", "cannot edit CRITERIA",
             "offline GitHub", "VM",
         )
         for phrase in required:
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
-        self.assertIn("before (1) initial approval", advisor)
-        self.assertIn("never label an unsafe shortcut", advisor.lower())
-        self.assertIn("may knowingly choose", advisor.lower())
+        self.assertIn("entire proposed CRITERIA", advisor)
+        self.assertIn("minimum necessary safety", advisor.lower())
+        self.assertIn("human can select any option", advisor.lower())
 
         try:
             import tomllib
@@ -158,6 +158,51 @@ class InstallTests(unittest.TestCase):
             value = (ROOT / rel).read_text(encoding="utf-8")
             for label in ("Tạm dùng", "Ổn", "Nâng cao"):
                 self.assertIn(label, value, rel)
+
+    def test_planner_owns_intake_and_advisor_is_preapply_only(self):
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
+        advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
+        reviewer = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
+        critic = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
+        for phrase in ("Planner (not Advisor)", "personal-only", "commercial", "actual",
+                       "draft", "do not edit the approved CRITERIA",
+                       "before requesting **initial approval**", "human says the proposed changes are settled",
+                       "read-only proposed delta", "before application"):
+            self.assertIn(phrase.lower(), planner.lower(), phrase)
+        for phrase in ("full draft", "entire proposed CRITERIA",
+                       "existing approved CRITERIA plus the proposed read-only delta",
+                       "before editing or merging", "already discussed",
+                       "only the required decision stage", "Tạm dùng", "Ổn", "Nâng cao"):
+            if phrase != "only the required decision stage":
+                self.assertIn(phrase.lower(), advisor.lower(), phrase)
+        self.assertIn("OVERENGINEERING", reviewer)
+        self.assertIn("UNDERSCOPING", reviewer)
+        self.assertIn("approved CRITERIA", reviewer)
+        self.assertIn("do not claim scope compliance", critic.lower())
+        self.assertIn("No CRITERIA", critic)
+        criteria = (SOURCE / "docs/CRITERIA.md").read_text(encoding="utf-8")
+        for phrase in ("personal-only", "commercial", "proportional", "complete coherent draft", "BEFORE modifying"):
+            self.assertIn(phrase.lower(), criteria.lower(), phrase)
+        approval = (SOURCE / "harness/specs/APPROVAL.md").read_text(encoding="utf-8")
+        self.assertIn("whole draft", approval)
+        self.assertIn("before any edit or merge", approval)
+        self.assertIn("settle the exact theory delta", approval)
+
+    def test_role_adapter_instructions_match_generic_contract(self):
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
+        import yaml
+        for role in ("planner", "advisor", "reviewer", "critic"):
+            canonical = (SOURCE / ".agents/roles" / (role + ".md")).read_text(encoding="utf-8").strip()
+            with (SOURCE / ".codex/agents" / (role + ".toml")).open("rb") as f:
+                codex = tomllib.load(f)
+            self.assertIn(canonical, codex["developer_instructions"])
+            claude = (SOURCE / ".claude/agents" / (role + ".md")).read_text(encoding="utf-8")
+            self.assertIn(canonical, claude)
+            cont = yaml.safe_load((SOURCE / ".continue/agents" / role / "config.yaml").read_text(encoding="utf-8"))
+            self.assertIn(canonical, cont["rules"][0])
 
     def test_manifest_and_native_configs(self):
         manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text(encoding="utf-8"))

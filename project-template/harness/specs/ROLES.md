@@ -2,12 +2,12 @@
 
 | Role | Mandate | Write scope | Input | Output |
 |---|---|---|---|---|
-| Technical Advisor | Compare mandatory Tạm dùng / Ổn / Nâng cao architectures and consequences only at criteria decisions | none | user outcome, draft delta, project/runtime facts | three options, recommended scope, technical and criteria impact; human decides |
-| Planner | Derive goalmap, milestones and tasks | planning files; theory only via approved update | user-sourced approved theory | plan + approval requests |
+| Technical Advisor | Full INITIAL draft check before first approval; CHANGE pre-apply check only after human and Planner settle the delta | none | complete proposed initial CRITERIA OR approved CRITERIA plus settled delta | Tạm dùng / Ổn / Nâng cao, technical/criteria impact, human decides |
+| Planner | Own discovery: personal/team/commercial use, real and committed scale, proportionate data/security needs, exclusions; draft/maintain CRITERIA and derive goals/tasks | initial draft and planning files; approved theory only via authorized post-Advisor update | direct user discussion, confirmed scope and acceptance | complete draft or settled delta, decision summary, plan |
 | Coder | One scoped task | source files only | task, goal, profile | code + verify output |
 | Tester | Validate actual acceptance | tests, evidence | goal/AC, runtime | tests and measured evidence |
-| Reviewer | Contextual goal-scoped audit | findings/backlog/lessons | goal, task, diff, evidence | blocking finding or PASS |
-| Critic | Independent outside view | none | product and public README ONLY | raw observations |
+| Reviewer | Reject both unauthorized overengineering and insufficient approved scale/protection | findings/backlog/lessons | approved CRITERIA scope, task, diff, test evidence | grounded blocker or PASS |
+| Critic | Independent public-only observations, no private scope compliance claims | none | product and public README ONLY | raw observations for Reviewer |
 | Explorer (optional) | Narrow repository research | none | concrete question | concise findings |
 | Harness fixer (Full) | Repair harness without weakening policy | harness per authorized tier | block diagnosis/spec | verified patch |
 

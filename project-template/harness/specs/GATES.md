@@ -1,13 +1,13 @@
 # Milestone and gate contract (Standard+)
 
-A specification, not a gate engine. Milestones, triggers and gate selection are written by the Planner and approved by the user; bootstrap only builds the engine. No approved GOALMAP or milestone means `NOT_CONFIGURED`, never an invented M1. A gate is never PASS because this file exists.
+A specification, not a gate engine. PLAN, CODE and TEST are evaluated against explicit intended-use class, real/committed scale, proportionate security/reliability and non-goals in approved CRITERIA. Unrequested enterprise-grade features or protection are nonblocking ideas, not requirements. Conversely do not certify a personal-only implementation against genuinely approved commercial needs. Critic sees public artifact only; Reviewer checks private goal/scope compliance. Milestones, triggers and gate selection are written by the Planner and approved by the user; bootstrap only builds the engine. No approved GOALMAP or milestone means `NOT_CONFIGURED`, never an invented M1. A gate is never PASS because this file exists.
 
 ## Gate catalog
 
 | Gate | Who | Target | Meaning |
 |---|---|---|---|
 | G0 | user (request) | GOALMAP + milestones | approved goal-to-ID table and milestones (COVERAGE_MAP / MILESTONE_SET) |
-| G1 | reviewer | plan | goal is faithful to the IDs it covers (nothing missing, added or reworded); tasks point to the right goal |
+| G1 | reviewer | plan | goal is faithful to IDs, use class, scale, trust boundary, explicit non-goals and proportional safeguards (nothing missing, added or reworded); tasks point to the right goal |
 | G2 | critic | plan | plan is clear and consistent to an outsider |
 | G3 | coder | code | self-review done |
 | G4 | script | code | verify PASS |
@@ -16,7 +16,7 @@ A specification, not a gate engine. Milestones, triggers and gate selection are 
 | G7 | reviewer | code | diff matches goal and acceptance conditions |
 | G8 | critic + reviewer | code | no blocking finding remains |
 | G9 | critic + reviewer | tests | tests are not weak (mutation-style check on a copy) |
-| G10 | reviewer | milestone | no drift from goals; everything traces back to IDs |
+| G10 | reviewer | milestone | no drift or unauthorized extra infrastructure from approved scope; everything traces to IDs |
 | G11 | user (request) | milestone | acceptance (MILESTONE_ACCEPT) |
 | G12 | git-admin (Full) | repo | this task's change is integrated at the target; NOT_APPLICABLE without Git |
 | G13 | trace | plan + code + tests | links valid, no OPEN/STALE in scope, every in-scope ID has task and test |

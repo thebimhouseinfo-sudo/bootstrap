@@ -1,24 +1,30 @@
-# Product theory — Planner-owned single source
+# Product theory — Planner-owned single source of truth
 
 Status: DISCOVERY / NOT_CONFIGURED
 
-## Problem, audience and scope
-<!-- Planner fills from user interaction; unapproved content marked OPEN -->
+## Actual outcome, users and intended use
+<!-- Planner clarifies before first draft: real observable outcome and minimal demonstration; personal-only / internal team / limited commercial / broad commercial or market; operator and intended audience; a product analogy is not a specification. Unapproved items OPEN. -->
 
-## Definitions, states, flows, rules and invariants
-<!-- Maintain stable IDs, examples and sources; distinguish hypothesis from approval -->
+## Real scope, deployment and scale
+<!-- Confirm current users, machines, data size, local/remote/public access, platforms, available resources, maintenance owner. Separate present requirements, actually committed future scale, and unapproved hypothetical growth. -->
 
-## Integrations, error handling and measurable outcomes
-<!-- Record actual constraints and evidence; do not invent platform capabilities -->
+## Risk, trust, data, security and reliability proportionality
+<!-- Which data/commands/users are trusted, possible data loss or harm, recovery, mandatory guardrails, level of protection actually justified and accepted tradeoffs? Exclude unnecessary enterprise controls; never claim risky unrestricted shell/file access is safe merely because user chooses personal use. -->
 
-## OPEN questions / proposed alternatives
-<!-- ID, options, tradeoffs, evidence and pending user decision -->
+## Required behaviors, definitions, flows and testable acceptance
+<!-- Approved requirement IDs, actual user-visible results and concrete successful/failing examples. -->
 
-## Technical Advisor — decision impact before approval
-<!-- Before initial APPROVED or a proposed change to approved theory, capture actual user outcome vs architecture analogy, required components, the three options Tạm dùng / Ổn / Nâng cao, relative complexity, operational/test burden, limitations, affected IDs/GOALMAP/tasks/tests and the user's chosen scope. The Advisor never edits approved CRITERIA or vetoes the human. -->
+## Explicit NON-goals and constraints
+<!-- Features/architecture/platforms/collaboration/distributed VM or advanced security features NOT requested; accepted operating limitations; no hypothetical future roadmap unless human approves. -->
 
-## Approvals and version history
-<!-- Cite verified user approval records; chat acknowledgement alone is not approval -->
+## OPEN questions / draft alternatives
+<!-- Initial discovery draft may live here as OPEN; no invented APPROVED status. Once theory has been approved, negotiate future changes with human without changing this file until Advisor reviews the settled delta and human authorizes its application. -->
+
+## Technical Advisor decision checkpoint
+<!-- INITIAL: review the complete coherent draft before its first approval. CHANGE: after human/Planner settle exact delta and human requests apply, Advisor reviews existing APPROVED CRITERIA + delta BEFORE modifying this file. Show Tạm dùng / Ổn / Nâng cao, architecture components, fit to personal/commercial scale, proportional controls, exclusions, impacts and human choice. Do not persist speculative/unselected features as approved theory. -->
+
+## Human approvals and versions
+<!-- Link actual authorization evidence; Advisor cannot approve for human; no fake signature. Changes touch only chosen IDs and mark dependent material STALE as appropriate. -->
 
 ## GOALMAP
-<!-- Derive only after sufficient approved theory; no default milestones -->
+<!-- Derive only from sufficiently approved theory; do not invent a default milestone or advanced upgrade. -->

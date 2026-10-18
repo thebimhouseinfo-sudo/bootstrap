@@ -27,9 +27,13 @@ This file is a **specification**, not an operational approval system.
 | BREAK_GLASS | one-time unlock for exactly one BLOCK; never changes config |
 | DEP_ADD, MODEL_CHOICE | adding a dependency, choosing a model |
 
-## Theory decisions and Advisor
+## Theory decisions: Planner owns intake; Advisor reviews only at the gate
 
-Before first approval of CRITERIA or a THEORY_CHANGE, request Technical Advisor's concise, mandatory three-way comparison **Tạm dùng / Ổn / Nâng cao** for every evaluated requirement. Each option must specify the actual subsystem/components, safe scope, limits, engineering/maintenance complexity, costs/risks and downstream theory IDs/goals/tasks/tests affected. Separate the user's analogy from the actual capability wanted. Recommend the minimum sufficient scope, not the most sophisticated option. Human remains free to select any option, override advice or revise the request; selection of a design level is distinct from the final AGREE / DISAGREE / OTHER theory-change approval. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.
+**INITIAL:** Planner asks the human for intended use (personal/internal/commercial/market), actual scale, proportional security/data risks and non-goals, then completes a coherent **full initial CRITERIA draft**. Before first approval, Advisor reviews the **whole draft**.
+
+**CHANGE:** User and Planner first discuss/clarify and **settle the exact theory delta without modifying approved CRITERIA**. When the human says to apply/update CRITERIA, and **before any edit or merge**, Advisor reviews the **existing approved CRITERIA + exact proposed delta**, not all unchanged theory. If the proposal is not yet settled, return to discussion; if the human changes it materially after review, re-review before applying. Planner writes only the delta the human then authorizes.
+
+Advisor's concise mandatory three-way comparison **Tạm dùng / Ổn / Nâng cao** covers the reviewed requirements. Each option must specify the actual subsystem/components, safe scope, limits, engineering/maintenance complexity, costs/risks and downstream theory IDs/goals/tasks/tests affected. Separate the user's analogy from the actual capability wanted. Recommend the minimum sufficient scope, not the most sophisticated option. Human remains free to select any option, override advice or revise the request; selection of a design level is distinct from the final AGREE / DISAGREE / OTHER theory-change approval. Present a nontechnical summary (result, exclusions, tradeoffs, choice), not a required diff or engineering plan. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.
 
 ## Answer channel (choose at intake, in order of preference)
 
