@@ -13,6 +13,34 @@ MANIFEST = SOURCE / "harness/specs/TIER_MANIFEST.json"
 TIERS = ("Lite", "Standard", "Full")
 RUNTIMES = ("codex", "claude", "continue")
 SKIP = {"README.md", "SETUP.md"}
+# Restrict copied artifacts to packaged template sources, never test/build/editor output.
+# This explicit filter is applied BEFORE tier/runtime filtering and is independent
+# of whether tests ran in this checkout.
+RELEASE_ROOTS = {".agents", ".claude", ".codex", ".continue", "docs", "harness", "lessons"}
+RELEASE_FILES = {"AGENTS.md", "CLAUDE.md", "README.md", "SETUP.md", "TASKS.md", ".gitignore"}
+RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".gitkeep"}
+CACHE_DIRS = {
+    "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    ".tox", ".nox", ".venv", "venv", "node_modules", "dist", "build",
+    ".cache", ".idea", ".vscode",
+}
+CACHE_NAMES = {".DS_Store", "Thumbs.db", ".coverage"}
+CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
+
+def is_release_source(relative):
+    parts = relative.parts
+    if not parts or any(part in CACHE_DIRS for part in parts):
+        return False
+    if any(part.startswith(".coverage.") for part in parts):
+        return False
+    if relative.name in CACHE_NAMES or relative.suffix.lower() in CACHE_SUFFIXES:
+        return False
+    if relative.name.endswith(("~", ".orig", ".rej")):
+        return False
+    if len(parts) == 1:
+        return relative.name in RELEASE_FILES
+    return parts[0] in RELEASE_ROOTS and relative.suffix.lower() in RELEASE_SUFFIXES
+
 LITE_SKILL_EXCLUSIONS = {
     "critical-review", "goal-review", "trace-impact", "plan-task",
     "research-evidence", "brainstorm-theory",
@@ -70,10 +98,10 @@ def entries(tier, runtime):
     roles = role_names(tier)
     files = []
     for src in SOURCE.rglob("*"):
-        if not src.is_file():
+        if src.is_symlink() or not src.is_file() or any(parent.is_symlink() for parent in src.parents if parent != SOURCE.parent):
             continue
         rel = src.relative_to(SOURCE)
-        if eligible(rel, tier, runtime, roles):
+        if is_release_source(rel) and eligible(rel, tier, runtime, roles):
             files.append((src, rel))
             if runtime == "claude" and rel.parts[:2] == (".agents", "skills"):
                 files.append((src, pathlib.Path(".claude", "skills", *rel.parts[2:])))

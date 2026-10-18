@@ -13,3 +13,6 @@ AI installs from repo root using `python install.py --target PATH --tier Standar
 - **Runtime switch:** install just one selected adapter. Continue workspace rules are not isolated named subagents.
 
 Only open detailed `harness/specs/` contracts for mechanisms being implemented. Keep setup bounded and report tested vs unverified honestly.
+
+## Actual release capabilities
+Copy/install success is NOT a fully working harness. Use `python harness/common/status.py --tier Standard --runtime codex` (or chosen tier/runtime); exit 2 means required mechanisms remain NOT_CONFIGURED or real-host smoke UNVERIFIED. Currently supported: copy-safe installer, role files, shared inventory/verify, Codex preflight. Not shipped as active engines: snapshot, hooks, gate, journal/authenticated approval, trace, orchestration. `harness/common/capabilities.json` is the definitive list. Codex Advisor/Critic/Explorer are prompt-level read-only only; inherit the parent sandbox.

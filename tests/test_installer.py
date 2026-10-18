@@ -134,7 +134,7 @@ class InstallTests(unittest.TestCase):
         with (SOURCE / ".codex/agents/advisor.toml").open("rb") as f:
             codex = tomllib.load(f)
         self.assertEqual(codex["name"], "advisor")
-        self.assertEqual(codex.get("sandbox_mode"), "read-only")
+        self.assertNotIn("sandbox_mode", codex, "role TOML cannot enforce per-agent sandbox")
         self.assertIn(advisor.strip(), codex["developer_instructions"])
         claude = (SOURCE / ".claude/agents/advisor.md").read_text(encoding="utf-8")
         self.assertIn(advisor.strip(), claude)
@@ -204,6 +204,98 @@ class InstallTests(unittest.TestCase):
             cont = yaml.safe_load((SOURCE / ".continue/agents" / role / "config.yaml").read_text(encoding="utf-8"))
             self.assertIn(canonical, cont["rules"][0])
 
+    def test_installer_is_stable_after_python_cache_and_editor_artifacts(self):
+        with tempfile.TemporaryDirectory() as d:
+            dest = pathlib.Path(d)
+            before, after, preview = dest / "before", dest / "after", dest / "preview"
+            before.mkdir()
+            after.mkdir()
+            preview.mkdir()
+            flags = ("--tier", "Standard", "--runtime", "codex")
+            clean_preview = run(INSTALLER, "--target", preview, *flags)
+            self.assertEqual(clean_preview.returncode, 0)
+            first = run(INSTALLER, "--target", before, *flags, "--apply")
+            self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            probes = (
+                SOURCE / "harness/common/__pycache__/__bootstrap_probe__.cpython-312.pyc",
+                SOURCE / "harness/common/.pytest_cache/v/cache/__bootstrap_probe__.json",
+                SOURCE / ".agents/skills/implement-task/__bootstrap_probe__.pyc",
+                SOURCE / ".agents/skills/implement-task/__bootstrap_probe__.md~",
+                SOURCE / ".codex/agents/__bootstrap_probe__.toml.bak",
+                SOURCE / "docs/__bootstrap_probe__.swp",
+            )
+            created_dirs = []
+            try:
+                for probe in probes:
+                    ancestor = probe.parent
+                    missing_parents = []
+                    while ancestor != SOURCE and not ancestor.exists():
+                        missing_parents.append(ancestor)
+                        ancestor = ancestor.parent
+                    if missing_parents:
+                        probe.parent.mkdir(parents=True)
+                        created_dirs.extend(missing_parents)
+                    self.assertFalse(probe.exists(), str(probe))
+                    probe.write_bytes(b"not a release file")
+                dirty_preview = run(INSTALLER, "--target", preview, *flags)
+                self.assertEqual(dirty_preview.returncode, 0, dirty_preview.stdout + dirty_preview.stderr)
+                self.assertEqual(clean_preview.stdout, dirty_preview.stdout)
+                second = run(INSTALLER, "--target", after, *flags, "--apply")
+                self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+                def installed(root):
+                    return {str(p.relative_to(root)): p.read_bytes()
+                            for p in root.rglob("*") if p.is_file()}
+                self.assertEqual(installed(before), installed(after))
+                self.assertFalse(any("__bootstrap_probe__" in p for p in installed(after)))
+            finally:
+                for probe in probes:
+                    if probe.exists():
+                        probe.unlink()
+                for parent in sorted(set(created_dirs), key=lambda x: len(x.parts), reverse=True):
+                    try:
+                        parent.rmdir()
+                    except OSError:
+                        pass
+
+    def test_codex_agent_sandbox_is_inherited_not_per_role(self):
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
+        for config in (SOURCE / ".codex/agents").glob("*.toml"):
+            with config.open("rb") as f:
+                agent = tomllib.load(f)
+            self.assertNotIn("sandbox_mode", agent, config.name)
+            self.assertNotIn("approval_policy", agent, config.name)
+        policy = (SOURCE / "harness/specs/READINESS.md").read_text(encoding="utf-8")
+        self.assertIn("inherit the parent sandbox", policy)
+        self.assertIn("GUIDED_ONLY", policy)
+
+    def test_manual_coordination_is_not_authenticated_gate_approval(self):
+        approval = (SOURCE / "harness/specs/APPROVAL.md").read_text(encoding="utf-8")
+        maintenance = (SOURCE / "harness/specs/APPROVAL_MAINTENANCE.md").read_text(encoding="utf-8")
+        for label in ("MANUAL_COORDINATION", "AUTHENTICATED_ADAPTER", "AWAITING_USER", "NOT_CONFIGURED", "G0/G11"):
+            self.assertIn(label, approval)
+            self.assertIn(label, maintenance)
+        self.assertIn("specific, direct instruction", approval)
+        self.assertIn("*not* independent identity authentication", approval)
+        self.assertIn("not an authenticated gate answer", maintenance)
+        self.assertIn("Precedence:", maintenance)
+
+    def test_release_state_never_claims_full_harness(self):
+        report = SOURCE / "harness/common/status.py"
+        caps = json.loads((SOURCE / "harness/common/capabilities.json").read_text(encoding="utf-8"))
+        self.assertEqual(caps["release_claim"], "INSTALLABLE_BASELINE_NOT_AUTOMATED_HARNESS")
+        for missing in ("snapshot", "native_hooks", "gate_engine", "trace",
+                        "orchestration", "authenticated_approval"):
+            self.assertEqual(caps["capabilities"][missing], "NOT_CONFIGURED")
+        for tier in TIERS:
+            for runtime in RUNTIMES:
+                result = run(report, "--tier", tier, "--runtime", runtime)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("NOT_CONFIGURED: not a fully operational automated harness", result.stdout)
+                self.assertIn("REAL_HOST_SMOKE: UNVERIFIED", result.stdout)
+
     def test_manifest_and_native_configs(self):
         manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text(encoding="utf-8"))
         for tier in TIERS:
@@ -226,8 +318,7 @@ class InstallTests(unittest.TestCase):
                 cfg = tomllib.load(f)
             self.assertTrue(cfg.get("model"))
             self.assertIn(cfg.get("model_reasoning_effort"), ("medium", "high"))
-            if p.stem in ("critic", "explorer"):
-                self.assertEqual(cfg.get("sandbox_mode"), "read-only")
+            self.assertNotIn("sandbox_mode", cfg, "custom subagent inherits parent sandbox")
         for p in (SOURCE / ".claude/agents").glob("*.md"):
             front = p.read_text(encoding="utf-8").split("---", 2)[1]
             self.assertIn("effort:", front)

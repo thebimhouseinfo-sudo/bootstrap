@@ -1,48 +1,44 @@
-# Decision, journal and approval contract (runtime-specific implementation required)
+# Approval contract — one mode, no fabricated signatures
 
-This file is a **specification**, not an operational approval system.
+This is a specification, not an installed authenticated approval engine.
 
-- Journal user messages via trusted hook/tool with redaction; append-only, hash chained and excluded from Git.
-- Decision entries must quote an exact substring of a journal message. Product theory changes appear only in CRITERIA.
-- Request: ID, type, summary, before/after, scope/content hash, source, implications, risks, state PENDING.
-- Exactly three user choices: AGREE / DISAGREE / OTHER (note mandatory). No expiration.
-- AGREE authorizes only matching unchanged request/scope; DISAGREE closes without action; OTHER supersedes and creates revised request without authorization.
-- A chat 'ok' is NOT approval. Agents may request but may not answer for a user.
-- A verified UI or human-only command channel is required; if agent can impersonate user, mark GUIDED_ONLY.
-- Pending approval defaults to BLOCKED. Altered request hashes invalidate authorization.
-- Protected files: journal, decisions, approvals, request history and theory-update pathway.
-- Implement rejection tests: fabricated quote, agent answering own request, changed request after approval, repeated rejected request, missing OTHER note.
-- Do not claim cryptographic or permission guarantees without actual enforcement tests.
+## Precedence and modes (normative)
+1. **Actual host permissions and human-only channels** always take priority. No document can relax them.
+2. `APPROVAL_MAINTENANCE.md` defines whether the running workflow is `MANUAL_COORDINATION` or a **verified** `AUTHENTICATED_ADAPTER`. This is the authoritative distinction for *what kind* of user authorization exists.
+3. This document defines request data, gates and signatures **only to the extent that the selected mode genuinely supports them**. On any conflict, preserve the stricter protection and report `NOT_CONFIGURED` / `AWAITING_USER`, never silently upgrade manual consent to a trusted signature.
+
+### MANUAL_COORDINATION (default)
+A **specific, direct instruction from the human through the host conversation** may authorize ordinary scoped manual work under the host's normal controls, including manually coordinated setup or maintenance. It is *not* independent identity authentication, a protected journal record, a G0/G11 gate signature or proof that the agent cannot impersonate the user. A vague "ok" alone does not establish the exact scope of a protected operation.
+
+For a CRITERIA change: human and Planner settle the exact theory delta; Advisor reviews immediately before the edit; **only then** may the human expressly instruct the authorized change under ordinary host controls. Record the scope and observed instruction as *manual coordination only*. Do not claim an electronically authenticated THEORY_CHANGE approval or sign its gate. An unimplemented gate remains `NOT_CONFIGURED`; a pending gate requiring independently authenticated authorization remains `AWAITING_USER`. Neither may be PASS.
+
+### AUTHENTICATED_ADAPTER (opt-in only after negative tests)
+Requires a user-only answer channel that the agent **cannot call or impersonate**, bound to request ID, unchanged content/scope hash and verified source. Test malicious agent attempts, changed requests and replay. Only this verified channel may issue attested AGREE / DISAGREE / OTHER and support signing user-only G0/G11. A command reachable by an agent under the same OS identity or a clipboard-generated response is not automatically human-only.
+
+## Request and journal specification (not implemented by this template)
+- Trusted, redacted, append-only hash-chain journal if such capture is actually supported.
+- A decision quotes an exact substring of a trusted message; if trusted capture is missing, this guarantee is `NOT_CONFIGURED`.
+- Request: ID, type, exact before/after, scope/hash, source, impacts, risks, PENDING state.
+- Authenticated response choices: AGREE / DISAGREE / OTHER (OTHER requires a note). No automatic expiry.
+- AGREE is valid only for the exact unchanged request. DISAGREE rejects. OTHER requires a revised request; it never authorizes the original.
+- Reject fabricated quotes, agent self-approval, changed content after response, replay and missing OTHER note.
+- Protect journal, decisions, request history and the CRITERIA update path from agent-controlled forgery.
+- Never assert a user identity or signature from ordinary chat text.
 
 ## Request types
-
-| Type | Replaces |
+| Type | Intent |
 |---|---|
-| THEORY_CHANGE | change to `docs/CRITERIA.md` after Advisor's outcome/complexity/impact analysis and user's informed decision |
-| THEORY_GAP | choosing an option where theory is silent; batch several gaps into one request |
-| COVERAGE_MAP | approval of GOALMAP (goal to theory-ID coverage) |
-| MILESTONE_SET / MILESTONE_ACCEPT | approving milestones and triggers / accepting a finished milestone |
-| PUSH, BRANCH_ACTION | one-time push for exact remote, ref and commit set / merge, cleanup, new branch |
-| HARNESS_PATCH | the bootstrap plan itself, protected-config changes, tier upgrades |
-| BREAK_GLASS | one-time unlock for exactly one BLOCK; never changes config |
-| DEP_ADD, MODEL_CHOICE | adding a dependency, choosing a model |
+| THEORY_CHANGE | Authorized modification to `docs/CRITERIA.md` after the Advisor checkpoint |
+| THEORY_GAP | Human choice on otherwise missing product theory |
+| COVERAGE_MAP | Goal-to-theory coverage |
+| MILESTONE_SET / MILESTONE_ACCEPT | Milestone planning and final acceptance |
+| PUSH / BRANCH_ACTION | Bounded Git change |
+| HARNESS_PATCH | Protected harness and policy modifications |
+| BREAK_GLASS | One-time explicitly controlled override, not a policy rewrite |
+| DEP_ADD / MODEL_CHOICE | Dependency or agent model choice |
 
-## Theory decisions: Planner owns intake; Advisor reviews only at the gate
+## Advisor timing
+**First criteria:** Planner completes the full proposed draft, Advisor reviews **the whole draft before first approval**. **Later change:** Human and Planner settle the exact theory delta *without editing the approved file*, human requests application, Advisor reviews the **approved CRITERIA plus delta before any edit or merge**, and human selects the exact scope. Advisor does not sign or edit theory. Present Tạm dùng / Ổn / Nâng cao with user-visible results and impacts, not a mandatory technical diff.
 
-**INITIAL:** Planner asks the human for intended use (personal/internal/commercial/market), actual scale, proportional security/data risks and non-goals, then completes a coherent **full initial CRITERIA draft**. Before first approval, Advisor reviews the **whole draft**.
-
-**CHANGE:** User and Planner first discuss/clarify and **settle the exact theory delta without modifying approved CRITERIA**. When the human says to apply/update CRITERIA, and **before any edit or merge**, Advisor reviews the **existing approved CRITERIA + exact proposed delta**, not all unchanged theory. If the proposal is not yet settled, return to discussion; if the human changes it materially after review, re-review before applying. Planner writes only the delta the human then authorizes.
-
-Advisor's concise mandatory three-way comparison **Tạm dùng / Ổn / Nâng cao** covers the reviewed requirements. Each option must specify the actual subsystem/components, safe scope, limits, engineering/maintenance complexity, costs/risks and downstream theory IDs/goals/tasks/tests affected. Separate the user's analogy from the actual capability wanted. Recommend the minimum sufficient scope, not the most sophisticated option. Human remains free to select any option, override advice or revise the request; selection of a design level is distinct from the final AGREE / DISAGREE / OTHER theory-change approval. Present a nontechnical summary (result, exclusions, tradeoffs, choice), not a required diff or engineering plan. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.
-
-## Answer channel (choose at intake, in order of preference)
-
-1. Real buttons in the target tool's UI.
-2. A command only the human types, e.g. `harness answer REQ-0012 agree|disagree|other --note "..."`.
-3. A generated `inbox.html` whose buttons copy the command.
-
-If no channel exists the state is `AWAITING_USER`. Never substitute chat "ok".
-
-## Runtimes without hooks (e.g. a chat UI driving tools over MCP)
-
-The machine cannot capture the user's messages, so the journal and the "quote must be a substring of the journal" check are `GUIDED_ONLY`: an agent that relays the user's words could fabricate both sides. Record this in `ENFORCEMENT.md`. Mitigation: the user pastes the decision text into the request, or answers through a real UI channel.
+## Supported release state
+Only manual coordination instructions are currently packaged. The authenticated adapter, journal, approval ledger and G0/G11 signing engine remain `NOT_CONFIGURED`. Do not invent UI buttons or human-only commands. See `APPROVAL_MAINTENANCE.md` for a bounded independent repair when approval itself is broken.

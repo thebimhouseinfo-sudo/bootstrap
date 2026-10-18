@@ -2,7 +2,9 @@
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-Repo này là **bộ template harness có sẵn**, ưu tiên **Codex-ready**. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
+> **Trạng thái phát hành:** Hiện là **template agent + installer + các script nền**, chưa phải harness Codex tự động hoàn chỉnh. Các engine snapshot/hook/gate/approval có xác thực/trace/orchestration còn NOT_CONFIGURED. Kiểm tra bằng `python harness/common/status.py --tier Standard --runtime codex` sau khi cài. Role Codex kế thừa sandbox/approval của phiên cha; yêu cầu chỉ-đọc trong prompt chưa phải quyền được cưỡng chế. Xem `project-template/harness/specs/READINESS.md`.
+
+Repo này là **bộ template harness có sẵn**, hướng tới **Codex**, hiện chỉ ở mức bộ khung và script nền đã kiểm thử. Người dùng chỉ đưa link repo và mô tả ngắn về dự án cho AI. **AI tự đọc, khảo sát dự án, trình phương án để duyệt, rồi tự copy và cấu hình template**. Nếu không có quyền truy cập file hoặc terminal, AI phải đưa **lệnh terminal chính xác cho hệ điều hành, shell và đường dẫn dự án**, rồi kiểm tra kết quả. Người dùng không phải tự tìm hay chọn file template.
 
 **Không thiết kế lại harness từ đầu, không viết lại agent/skill generic.** Mọi kết quả phải có bằng chứng kiểm thử thực tế. Những quyết định được bảo vệ cần **Approval Request ba lựa chọn: Đồng ý / Không đồng ý / Khác**. Ngoại lệ khi kênh duyệt chưa được cài trong lần bootstrap đầu tiên phải được công bố rõ.
 

@@ -1,6 +1,5 @@
 model = "gpt-6-luna"
 model_reasoning_effort = "high"
-sandbox_mode = "read-only"
 name = "explorer"
 description = "Read-only repository investigation"
 developer_instructions = """
