@@ -103,9 +103,9 @@ class InstallTests(unittest.TestCase):
 
     def test_advisor_is_a_decision_stage_role_not_global_agent(self):
         source = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
-        self.assertIn("before the first approval", source)
+        self.assertIn("before (1) initial approval", source)
         self.assertIn("human", source.lower())
-        self.assertIn("NEVER veto", source)
+        self.assertIn("no veto", source.lower())
         for rel in (".codex/agents/advisor.toml", ".claude/agents/advisor.md",
                     ".continue/agents/advisor/config.yaml"):
             self.assertTrue((SOURCE / rel).is_file(), rel)
@@ -147,7 +147,7 @@ class InstallTests(unittest.TestCase):
         self.assertIn(advisor.strip(), continue_cfg["rules"][0])
         assignment = yaml.safe_load((SOURCE / ".agents/config/agent-assignment.yaml").read_text(encoding="utf-8"))
         self.assertIn("advisor", assignment["roles"])
-        self.assertEqual(assignment["roles"]["advisor"]["options"], ["tam_dung", "on", "nang_cao"])
+        self.assertEqual(assignment["roles"]["advisor"]["options"], ["tam_dung", "on_dinh", "nang_cao"])
 
         for rel in ("AGENTS.md", "docs/CRITERIA.md", "harness/specs/APPROVAL.md", "SETUP.md"):
             value = (SOURCE / rel).read_text(encoding="utf-8")
