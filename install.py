@@ -473,8 +473,9 @@ def print_setup_questions():
     print("8. Reporting language and approval channel/preferences?")
     print("9. Keep harness configuration local (default), or track it in Git?")
     print("   Approvals remain local and are supported for one Human only.")
-    print("Use a native host questionnaire for unresolved choices, not chat Q&A.")
-    print("Keep answers in harness/setup-intake.json for trace when permitted.")
+    print("IDE: use native dialog. CLI: use numbered terminal selection/menu.")
+    print("If CLI host has no selector: use harness/common/setup_intake.py with a real TTY.")
+    print("Keep responses in local harness/setup-intake.json for trace.")
     print("Permission prompts are distinct; then preview and request --apply approval.")
     print("No files have been inspected or changed.")
 
