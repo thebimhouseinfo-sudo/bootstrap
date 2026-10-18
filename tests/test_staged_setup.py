@@ -242,7 +242,7 @@ class StagedSetupTests(unittest.TestCase):
                         "disable", cwd=self.root)
         self.assertEqual(disabled.returncode, 0, disabled.stdout + disabled.stderr)
         self.assertFalse(hook.exists())
-        backup_id = disabled.stdout.split("RECOVERY_BACKUP: ")[1].splitlines()[0].split("/")[-1]
+        backup_id = disabled.stdout.split("RECOVERY_BACKUP: ")[1].splitlines()[0].replace(chr(92), "/").split("/")[-1]
         restored = call(sys.executable, "-c", code, script, "--runtime", "codex",
                         "restore", "--backup", backup_id, cwd=self.root)
         self.assertEqual(restored.returncode, 0, restored.stdout + restored.stderr)
