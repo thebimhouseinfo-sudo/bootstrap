@@ -1,7 +1,8 @@
 # PLUGIN/AGENT ASSIGNMENT PLACEHOLDER. Not native runtime config.
 roles:
   planner: {contract: .agents/roles/planner.md, model: UNVERIFIED, discovery_skills: [brainstorm-theory, research-evidence], delivery_skills: [plan-task, trace-impact]}
-  advisor: {contract: .agents/roles/advisor.md, model: UNVERIFIED, trigger: criteria_initial_or_approved_theory_change}\n  reviewer: {contract: .agents/roles/reviewer.md, model: UNVERIFIED}
+  advisor: {contract: .agents/roles/advisor.md, model: UNVERIFIED, trigger: criteria_initial_or_approved_theory_change}
+  reviewer: {contract: .agents/roles/reviewer.md, model: UNVERIFIED}
   critic: {contract: .agents/roles/critic.md, model: UNVERIFIED}
   coder: {contract: .agents/roles/coder.md, model: UNVERIFIED}
   tester: {contract: .agents/roles/tester.md, model: UNVERIFIED}

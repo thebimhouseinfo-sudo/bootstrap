@@ -14,7 +14,10 @@ Status: DISCOVERY / NOT_CONFIGURED
 ## OPEN questions / proposed alternatives
 <!-- ID, options, tradeoffs, evidence and pending user decision -->
 
-## Advisor impact before approval\n<!-- Before initial APPROVED or a proposed change to approved theory, capture outcome vs architecture, minimal alternatives, estimated complexity, affected IDs/GOALMAP/tasks/tests, risks and user's actual choice. The Advisor never edits approved CRITERIA or vetoes the human. -->\n\n## Approvals and version history
+## Technical Advisor — decision impact before approval
+<!-- Before initial APPROVED or a proposed change to approved theory, capture actual user outcome vs architecture analogy, required components, the three options Tạm dùng / Ổn / Nâng cao, relative complexity, operational/test burden, limitations, affected IDs/GOALMAP/tasks/tests and the user's chosen scope. The Advisor never edits approved CRITERIA or vetoes the human. -->
+
+## Approvals and version history
 <!-- Cite verified user approval records; chat acknowledgement alone is not approval -->
 
 ## GOALMAP

@@ -2,6 +2,7 @@
 
 | Role | Mandate | Write scope | Input | Output |
 |---|---|---|---|---|
+| Technical Advisor | Compare mandatory Tạm dùng / Ổn / Nâng cao architectures and consequences only at criteria decisions | none | user outcome, draft delta, project/runtime facts | three options, recommended scope, technical and criteria impact; human decides |
 | Planner | Derive goalmap, milestones and tasks | planning files; theory only via approved update | user-sourced approved theory | plan + approval requests |
 | Coder | One scoped task | source files only | task, goal, profile | code + verify output |
 | Tester | Validate actual acceptance | tests, evidence | goal/AC, runtime | tests and measured evidence |

@@ -27,7 +27,11 @@ This file is a **specification**, not an operational approval system.
 | BREAK_GLASS | one-time unlock for exactly one BLOCK; never changes config |
 | DEP_ADD, MODEL_CHOICE | adding a dependency, choosing a model |
 
-## Theory decisions and Advisor\n\nBefore first approval of CRITERIA or a THEORY_CHANGE, request Advisor's concise review of original outcome vs proposed solution, smaller viable implementation, side effects on theory IDs/goals/tasks/tests, risks and uncertainty. Human remains free to accept any option or override advice. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.\n\n## Answer channel (choose at intake, in order of preference)
+## Theory decisions and Advisor
+
+Before first approval of CRITERIA or a THEORY_CHANGE, request Technical Advisor's concise, mandatory three-way comparison **Tạm dùng / Ổn / Nâng cao** for every evaluated requirement. Each option must specify the actual subsystem/components, safe scope, limits, engineering/maintenance complexity, costs/risks and downstream theory IDs/goals/tasks/tests affected. Separate the user's analogy from the actual capability wanted. Recommend the minimum sufficient scope, not the most sophisticated option. Human remains free to select any option, override advice or revise the request; selection of a design level is distinct from the final AGREE / DISAGREE / OTHER theory-change approval. Advisor cannot edit APPROVED theory or sign requests. This is a decision-stage trigger, not an always-running review loop; until a real protected approval mechanism exists, the advisory handoff is GUIDED_ONLY.
+
+## Answer channel (choose at intake, in order of preference)
 
 1. Real buttons in the target tool's UI.
 2. A command only the human types, e.g. `harness answer REQ-0012 agree|disagree|other --note "..."`.
