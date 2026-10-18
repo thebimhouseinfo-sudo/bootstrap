@@ -1,6 +1,6 @@
 # Bootstrap: Codex-ready harness templates for coding agents
 
-[**English**](README.en.md) | [Tiếng Việt](README.vi.md)
+[**English**](README.en.md) | [Tiếng Việt](README.md)
 
 This repository is a **ready-made harness template library**, optimized for **Codex**. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
 
