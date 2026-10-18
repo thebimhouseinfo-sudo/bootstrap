@@ -29,7 +29,7 @@ def read_state():
 
 def stage_active():
     state = read_state()
-    return state is not None and state.get("phase") not in ("READY", "HANDOFF_COMPLETE")
+    return state is not None and state.get("phase") not in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE")
 
 
 def run(args, cwd=ROOT, data=None):
@@ -248,7 +248,7 @@ def host_test():
 
 def finalize(evidence):
     state = read_state()
-    if state is None or state.get("phase") != "READY":
+    if state is None or state.get("phase") not in ("READY", "READY_WITH_LIMITATIONS"):
         print("BLOCK: finalization requires completed final lock and post-lock checks")
         return 2
     if not check_lock(state):
@@ -262,14 +262,17 @@ def finalize(evidence):
     except (OSError, ValueError):
         print("BLOCK: post-lock evidence is invalid JSON")
         return 2
+    limited = state.get("phase") == "READY_WITH_LIMITATIONS"
+    required = (("fresh_session", "roles_loaded", "checks_executed", "post_lock_allow")
+                if limited else ("fresh_session", "hook_dispatched", "post_lock_allow", "post_lock_deny"))
     if (not isinstance(record, dict) or record.get("runtime") != state.get("runtime") or
             not isinstance(record.get("host_version"), str) or not record["host_version"].strip()
-            or any(record.get(k) is not True for k in
-                   ("fresh_session", "hook_dispatched", "post_lock_allow", "post_lock_deny"))
+            or any(record.get(k) is not True for k in required)
             or not isinstance(record.get("notes"), str) or not record["notes"].strip()):
-        print("BLOCK: post-lock native allow/deny evidence incomplete")
+        print("BLOCK: post-lock verification evidence incomplete")
         return 2
     updated = dict(state, phase="HANDOFF_COMPLETE",
+                   limited_native_hooks=limited,
                    post_lock_evidence_path=str(path.relative_to(ROOT)),
                    post_lock_evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
     temp = STATE.with_name("setup-state.json.new")
@@ -283,6 +286,8 @@ def finalize(evidence):
         if temp.exists():
             temp.unlink()
     print("HANDOFF_COMPLETE: manual observations recorded, NOT independently authenticated")
+    if limited:
+        print("LIMITATION: native blocking hooks NOT CONFIGURED, guided workflows only")
     print("PLANNER START PROMPT: Invoke Planner. Read approved CRITERIA, ARCHITECTURE,")
     print("PROJECT_PROFILE and codebase; create/review Implementation Plan and GOALMAP.")
     print("Start EVERY Plan section with a GOAL: why does this code exist and what")
@@ -299,7 +304,10 @@ def activate(evidence):
     if state.get("phase") in ("READY", "HANDOFF_COMPLETE"):
         print("READY: already activated; do not rewrite lock evidence")
         return 0
-    if audit() or smoke():
+    limited = state.get("runtime") in ("continue", "generic")
+    audit_result = audit()
+    smoke_result = smoke()
+    if audit_result or (smoke_result and not limited):
         print("BLOCK: setup audit/smoke incomplete")
         return 2
     path = pathlib.Path(evidence).resolve()
@@ -312,15 +320,21 @@ def activate(evidence):
         print("BLOCK: invalid evidence JSON")
         return 2
     if (not isinstance(item, dict) or item.get("runtime") != state.get("runtime") or
-            not isinstance(item.get("host_version"), str) or not item["host_version"].strip() or
-            any(item.get(name) is not True for name in
-                ("fresh_session", "hook_dispatched", "allow_observed", "deny_observed"))):
-        print("BLOCK: observed fresh-host hook evidence missing or mismatched")
+            not isinstance(item.get("host_version"), str) or not item["host_version"].strip()):
+        print("BLOCK: observed host evidence missing or mismatched")
+        return 2
+    required_observations = (("fresh_session", "roles_loaded", "checks_executed")
+        if limited else ("fresh_session", "hook_dispatched", "allow_observed", "deny_observed"))
+    if any(item.get(name) is not True for name in required_observations):
+        print("BLOCK: missing verified observations:", ", ".join(required_observations))
+        return 2
+    if limited and item.get("native_hook_available") is not False:
+        print("BLOCK: portable adapter must honestly record missing native hook")
         return 2
     if not isinstance(item.get("notes"), str) or not item["notes"].strip():
         print("BLOCK: provide concrete observation notes")
         return 2
-    updated = dict(state, phase="READY", evidence_path=str(path.relative_to(ROOT)),
+    updated = dict(state, phase="READY_WITH_LIMITATIONS" if limited else "READY", evidence_path=str(path.relative_to(ROOT)),
                    evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
                    locked_files=locked_files(state.get("runtime")))
 
@@ -334,7 +348,8 @@ def activate(evidence):
     finally:
         if temp.exists():
             temp.unlink()
-    print("READY: configuration activation recorded; requires POST-LOCK LIVE retest")
+    print("READY_WITH_LIMITATIONS: native hooks unavailable; GUIDED_ONLY" if limited
+          else "READY: configuration activation recorded; requires POST-LOCK LIVE retest")
     print("MANUAL_COORDINATION ONLY: file evidence does not authenticate human approval")
     return 0
 
