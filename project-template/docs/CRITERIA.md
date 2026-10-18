@@ -21,7 +21,7 @@ Status: DISCOVERY / NOT_CONFIGURED
 <!-- Initial discovery draft may live here as OPEN; no invented APPROVED status. Once theory has been approved, negotiate future changes with human without changing this file until Advisor reviews the settled delta and human authorizes its application. -->
 
 ## Technical Advisor decision checkpoint
-<!-- INITIAL: review the complete coherent draft before its first approval. CHANGE: after human/Planner settle exact delta and human requests apply, Advisor reviews existing APPROVED CRITERIA + delta BEFORE modifying this file. Show Tạm dùng / Ổn / Nâng cao, architecture components, fit to personal/commercial scale, proportional controls, exclusions, impacts and human choice. Do not persist speculative/unselected features as approved theory. -->
+<!-- INITIAL: review the complete coherent draft before its first approval. CHANGE: after human/Planner settle exact delta and human requests apply, Advisor reviews existing APPROVED CRITERIA + delta BEFORE modifying this file. Advisor uses CRITERIA as requirements source and may consult actual architecture, environment and narrowly relevant source only for feasibility/impact evidence; no Plan/Code review, no PASS/FAIL. Describe fit, constraints, complexity, prerequisites, possible architecture/data/operation rework and uncertainty. Show Tạm dùng / Ổn / Nâng cao only when genuinely useful alternatives exist, never force three. Do not persist speculative/unselected features as approved theory. -->
 
 ## Human approvals and versions
 <!-- Link actual authorization evidence; Advisor cannot approve for human; no fake signature. Changes touch only chosen IDs and mark dependent material STALE as appropriate. -->

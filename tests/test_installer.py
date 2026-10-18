@@ -105,27 +105,32 @@ class InstallTests(unittest.TestCase):
         source = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
         self.assertIn("entire proposed CRITERIA", source)
         self.assertIn("human", source.lower())
-        self.assertIn("no veto", source.lower())
+        self.assertIn("no approval impersonation", source.lower())
         for rel in (".codex/agents/advisor.toml", ".claude/agents/advisor.md",
                     ".continue/agents/advisor/config.yaml"):
             self.assertTrue((SOURCE / rel).is_file(), rel)
         instructions = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
         self.assertIn("No standing Advisor loop", instructions)
 
-    def test_technical_advisor_three_level_contract_and_native_parity(self):
+    def test_technical_advisor_feasibility_and_native_parity(self):
         advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
         required = (
-            "Technical Advisor", "Tạm dùng", "Ổn", "Nâng cao",
-            "ALWAYS present exactly three", "minimum", "maintenance",
-            "cwd is not an arbitrary-command sandbox",
-            "Human can select any option", "cannot edit CRITERIA",
-            "offline GitHub", "VM",
+            "Technical Advisor", "CRITERIA is the sole source",
+            "current technical state", "limited relevant source code",
+            "technical feasibility", "prerequisites", "complexity and cost",
+            "completed capabilities", "multiple subsystems", "substantial redesign",
+            "observed technical facts", "uncertain", "Plan/Code review",
+            "not Reviewer/CR", "no PASS/FAIL verdict",
+            "Tạm dùng", "Ổn", "Nâng cao", "OPTIONAL",
+            "offline GitHub", "multi-user",
         )
         for phrase in required:
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
+        self.assertNotIn("ALWAYS present exactly three", advisor)
+        self.assertIn("are OPTIONAL comparison levels", advisor)
+        self.assertIn("Human and Planner first discuss", advisor)
+        self.assertIn("before CRITERIA is edited or merged", advisor)
         self.assertIn("entire proposed CRITERIA", advisor)
-        self.assertIn("minimum necessary safety", advisor.lower())
-        self.assertIn("human can select any option", advisor.lower())
 
         try:
             import tomllib
@@ -134,7 +139,7 @@ class InstallTests(unittest.TestCase):
         with (SOURCE / ".codex/agents/advisor.toml").open("rb") as f:
             codex = tomllib.load(f)
         self.assertEqual(codex["name"], "advisor")
-        self.assertNotIn("sandbox_mode", codex, "role TOML cannot enforce per-agent sandbox")
+        self.assertNotIn("sandbox_mode", codex)
         self.assertIn(advisor.strip(), codex["developer_instructions"])
         claude = (SOURCE / ".claude/agents/advisor.md").read_text(encoding="utf-8")
         self.assertIn(advisor.strip(), claude)
@@ -142,18 +147,24 @@ class InstallTests(unittest.TestCase):
             import yaml
         except ImportError:
             self.skipTest("PyYAML unavailable")
-        continue_cfg = yaml.safe_load((SOURCE / ".continue/agents/advisor/config.yaml").read_text(encoding="utf-8"))
+        continue_cfg = yaml.safe_load(
+            (SOURCE / ".continue/agents/advisor/config.yaml").read_text(encoding="utf-8"))
         self.assertEqual(continue_cfg["schema"], "v1")
         self.assertIn(advisor.strip(), continue_cfg["rules"][0])
-        assignment = yaml.safe_load((SOURCE / ".agents/config/agent-assignment.yaml").read_text(encoding="utf-8"))
+        assignment = yaml.safe_load(
+            (SOURCE / ".agents/config/agent-assignment.yaml").read_text(encoding="utf-8"))
         self.assertIn("advisor", assignment["roles"])
-        self.assertEqual(assignment["roles"]["advisor"]["options"], ["tam_dung", "on_dinh", "nang_cao"])
+        self.assertEqual(assignment["roles"]["advisor"]["optional_comparison"],
+                         ["tam_dung", "on_dinh", "nang_cao"])
+        self.assertNotIn("options", assignment["roles"]["advisor"])
 
-        for rel in ("AGENTS.md", "docs/CRITERIA.md", "harness/specs/APPROVAL.md", "SETUP.md"):
+        for rel in ("AGENTS.md", "docs/CRITERIA.md",
+                    "harness/specs/APPROVAL.md", "SETUP.md"):
             value = (SOURCE / rel).read_text(encoding="utf-8")
             self.assertNotIn("\\n", value, rel)
             for label in ("Tạm dùng", "Ổn", "Nâng cao"):
                 self.assertIn(label, value, rel)
+            self.assertIn("when", value.lower(), rel)
         for rel in ("README.md", "README.en.md"):
             value = (ROOT / rel).read_text(encoding="utf-8")
             for label in ("Tạm dùng", "Ổn", "Nâng cao"):
@@ -164,24 +175,26 @@ class InstallTests(unittest.TestCase):
         advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
         reviewer = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
         critic = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
-        for phrase in ("Planner (not Advisor)", "personal-only", "commercial", "actual",
-                       "draft", "do not edit the approved CRITERIA",
-                       "before requesting **initial approval**", "human says the proposed changes are settled",
+        for phrase in ("Planner (not Advisor)", "personal-only", "commercial",
+                       "before requesting **initial approval**", "settled",
                        "read-only proposed delta", "before application"):
             self.assertIn(phrase.lower(), planner.lower(), phrase)
-        for phrase in ("full draft", "entire proposed CRITERIA",
-                       "existing approved CRITERIA plus the proposed read-only delta",
-                       "before editing or merging", "already discussed",
-                       "only the required decision stage", "Tạm dùng", "Ổn", "Nâng cao"):
-            if phrase != "only the required decision stage":
-                self.assertIn(phrase.lower(), advisor.lower(), phrase)
+        for phrase in ("entire proposed CRITERIA", "existing approved CRITERIA",
+                       "settle the proposed delta", "before CRITERIA is edited or merged",
+                       "not a review gate", "when feasibility or impact",
+                       "do not read or review Plan", "no PASS/FAIL", "OPTIONAL"):
+            self.assertIn(phrase.lower(), advisor.lower(), phrase)
+        self.assertNotIn("ALWAYS present exactly three", advisor)
+        self.assertIn("Human and Planner", advisor)
+        self.assertIn("no PASS/FAIL verdict", advisor)
         self.assertIn("OVERENGINEERING", reviewer)
         self.assertIn("UNDERSCOPING", reviewer)
         self.assertIn("approved CRITERIA", reviewer)
         self.assertIn("do not claim scope compliance", critic.lower())
         self.assertIn("No CRITERIA", critic)
         criteria = (SOURCE / "docs/CRITERIA.md").read_text(encoding="utf-8")
-        for phrase in ("personal-only", "commercial", "proportional", "complete coherent draft", "BEFORE modifying"):
+        for phrase in ("personal-only", "commercial", "proportional",
+                       "complete coherent draft", "BEFORE modifying"):
             self.assertIn(phrase.lower(), criteria.lower(), phrase)
         approval = (SOURCE / "harness/specs/APPROVAL.md").read_text(encoding="utf-8")
         self.assertIn("whole draft", approval)

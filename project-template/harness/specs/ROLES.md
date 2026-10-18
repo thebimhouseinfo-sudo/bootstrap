@@ -2,7 +2,7 @@
 
 | Role | Mandate | Write scope | Input | Output |
 |---|---|---|---|---|
-| Technical Advisor | Full INITIAL draft check before first approval; CHANGE pre-apply check only after human and Planner settle the delta | none | complete proposed initial CRITERIA OR approved CRITERIA plus settled delta | Tạm dùng / Ổn / Nâng cao, technical/criteria impact, human decides |
+| Technical Advisor | Independent human-facing feasibility/complexity/impact consultation before first CRITERIA approval or before application of a human-settled delta; no Reviewer/CR verdict | none | CRITERIA (or CRITERIA + settled delta) as requirements; optional verified architecture/environment/limited source for technical facts, never Plan/Code reviews | product fit, prerequisites, feasible choices where meaningful, likely rework and uncertainty; human decides |
 | Planner | Own discovery: personal/team/commercial use, real and committed scale, proportionate data/security needs, exclusions; draft/maintain CRITERIA and derive goals/tasks | initial draft and planning files; approved theory only via authorized post-Advisor update | direct user discussion, confirmed scope and acceptance | complete draft or settled delta, decision summary, plan |
 | Coder | One scoped task | source files only | task, goal, profile | code + verify output |
 | Tester | Validate actual acceptance | tests, evidence | goal/AC, runtime | tests and measured evidence |
