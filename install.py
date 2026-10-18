@@ -46,7 +46,7 @@ STATE_PATHS = (
     "harness/snapshots/", "harness/requests/",
     "docs/TRACE.md", ".claude/settings.local.json",
     "harness/setup-state.json", "harness/setup-live-evidence.json",
-    "harness/setup-postlock-evidence.json", "harness/recovery-backups/",
+    "harness/setup-postlock-evidence.json", "harness/setup-intake.json", "harness/recovery-backups/",
 )
 
 IGNORE_START = b"# BEGIN bootstrap local agent setup"
@@ -458,8 +458,8 @@ def safe_copy(root, source, target):
             temporary.unlink()
 
 def print_setup_questions():
-    """A single batch of questions for the AI to present in chat, NEVER install."""
-    print("PRE-ASK / ONE-BATCH SETUP QUESTIONS (COPY TO CHAT; NO COMMAND EXECUTION)")
+    """Developer-only question reference. Native host dialog must capture actual answers."""
+    print("PRE-ASK / ONE-BATCH SETUP QUESTIONS (DEVELOPER REFERENCE, NOT USER UI)")
     print("1. Target project directory and existing/new code? [required]")
     print("2. Tier: Lite / Standard (default) / Full?")
     print("3. Coding host: Codex / Antigravity / Claude Code / Continue / Other (generic)?")
@@ -473,9 +473,9 @@ def print_setup_questions():
     print("8. Reporting language and approval channel/preferences?")
     print("9. Keep harness configuration local (default), or track it in Git?")
     print("   Approvals remain local and are supported for one Human only.")
-    print("Reply ONCE in the chat with known answers. Agent fills known facts,")
-    print("previews with explicit --runtime/--target-app, requests ONE install approval,")
-    print("then calls --apply. Host command-permission dialogs are SEPARATE.")
+    print("Use a native host questionnaire for unresolved choices, not chat Q&A.")
+    print("Keep answers in harness/setup-intake.json for trace when permitted.")
+    print("Permission prompts are distinct; then preview and request --apply approval.")
     print("No files have been inspected or changed.")
 
 
@@ -508,7 +508,7 @@ def main():
     ap.add_argument("--tier", choices=TIERS, default="Standard")
     ap.add_argument("--runtime", choices=RUNTIMES, help="Explicit coding client or portable generic")
     ap.add_argument("--target-app", help="With --runtime generic: actual target host name, e.g. cline/qwen-code/deepseek/other")
-    ap.add_argument("--ask-first", action="store_true", help="Print ALL one-batch setup questions for the AI/chat; no prompts or install")
+    ap.add_argument("--ask-first", action="store_true", help="Print developer-only setup question reference; NOT a native dialog")
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
     ap.add_argument("--staged", action="store_true", help="First-time safe setup, defer blocking hooks until actual verification")
     ap.add_argument("--upgrade", action="store_true", help="Explicitly update only previously manifest-owned, unmodified files")
@@ -521,8 +521,8 @@ def main():
     if args.yes:
         print("IGNORED_FLAG: -y/--yes does not enable --apply or skip approval")
 
-    # No interactive prompts: setup questions are gathered in chat before any
-    # host tool permission dialogs; --ask-first never inspects or modifies files.
+    # Human answers come from the host-native dialog, NOT chat or permission prompts.
+    # --ask-first prints a developer reference; it never opens a user-facing dialog.
     if args.ask_first:
         if args.apply:
             ap.error("--ask-first is questions-only and cannot be combined with --apply")

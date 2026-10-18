@@ -40,6 +40,34 @@ def run(args, cwd=ROOT, data=None):
         return subprocess.CompletedProcess(args, 127, "", str(err))
 
 
+def setup_intake_recorded():
+    """Validate trace format, not host authentication or genuine user identity."""
+    path = ROOT / "harness/setup-intake.json"
+    if not path.is_file() or path.is_symlink():
+        return False
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        state = read_state()
+        if (not isinstance(obj, dict) or obj.get("schema_version") != 1
+                or obj.get("channel") != "native_dialog"
+                or not isinstance(obj.get("runtime"), str)
+                or (state and obj.get("runtime") != state.get("runtime"))
+                or not isinstance(obj.get("responses"), list) or not obj["responses"]):
+            return False
+        ids = set()
+        for entry in obj["responses"]:
+            if (not isinstance(entry, dict)
+                    or not isinstance(entry.get("id"), str) or not entry["id"].strip()
+                    or entry["id"] in ids
+                    or not isinstance(entry.get("value"), str) or not entry["value"].strip()
+                    or entry.get("source") != "native_dialog"):
+                return False
+            ids.add(entry["id"])
+        return True
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
 def configured_checks():
     try:
         obj = json.loads((ROOT / "harness/common/checks.json").read_text(encoding="utf-8"))
@@ -57,6 +85,12 @@ def audit():
     for item in missing:
         print("BLOCK: missing required setup file:", item)
     problems = list(missing)
+    if read_state() is not None:
+        if not setup_intake_recorded():
+            print("BLOCK: native-dialog setup-intake trace missing/invalid; permission is not an answer")
+            problems.append("native dialog trace")
+        else:
+            print("DIALOG_INTAKE: RECORDED (local trace; not authenticated host proof)")
     if "docs/CRITERIA.md" not in missing:
         criteria = (ROOT / "docs/CRITERIA.md").read_text(encoding="utf-8")
         if not any(x.strip().upper() == "STATUS: APPROVED" for x in criteria.splitlines()):
