@@ -1,45 +1,35 @@
-# Bootstrap — Coding agent harness template
+# Bootstrap — Coding agent setup
 
 [Tiếng Việt](../README.md) | [**English**](user-guide.en.md) | [For AI](FOR_AI.md)
 
-Bootstrap is a reusable harness of agent roles, skills, workflows, scripts and hooks for Codex, Google Antigravity, Claude Code, Continue and other coding agents. Give your agent **one of the setup prompts below**.
+Bootstrap helps **Codex, Claude Code, Antigravity**, and compatible coding agents set up project-specific agents, skills, hooks, scripts and workflows.
 
-## Choose one of two short setup prompts
+**How to use:** open a coding agent with access to the project folder and a command execution tool. Copy **one** prompt below and replace **only the folder path**. You do not need to clone Bootstrap, copy templates or run the installer yourself; the agent handles these steps when authorized.
 
-**Copy one prompt and replace only the project folder path.** The AI follows [For AI](FOR_AI.md) to handle discovery, configuration, testing and handoff; you provide missing information and approve decisions when requested.
+## 1. New project — no existing code
 
-### A. New project (no code yet)
+> Set up Bootstrap for my **new project** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Orchestrate setup and Discovery; ask me only for missing information or decisions requiring approval.
 
-> Set up Bootstrap for my **new project** at `<PROJECT_FOLDER_PATH>`. Follow the complete AI instructions: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Run setup and Discovery autonomously; ask me only for missing information or decisions requiring approval.
+## 2. Existing project — already has code
 
-### B. Existing project (has code)
+> Set up Bootstrap for my **existing codebase** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Inspect and preserve current code, orchestrate setup, and ask me only for missing information or decisions requiring approval.
 
-> Set up Bootstrap for my **existing codebase** at `<PROJECT_FOLDER_PATH>`. Follow the complete AI instructions: https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Inspect and preserve the current code; manage setup autonomously and ask me only for missing information or decisions requiring approval.
+## What the coding agent handles
 
-The AI needs a local checkout of Bootstrap, separate from your project: `git clone --depth 1 https://github.com/thebimhouseinfo-sudo/bootstrap.git <temporary-folder>`. A raw documentation URL alone cannot run the installer. Clone only after approval (or ask the user to run it when no terminal access is available).
+The agent identifies the host runtime, inspects the project, obtains and runs the installer in **staged mode**, coordinates CRITERIA and technical approval, configures Coder/Tester, audits files and runs smoke tests. It then asks for real host verification before final hook activation and handoff. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
 
-Use `python install.py --target PATH --runtime codex --tier Standard --staged` to preview, then append `--apply` **only after approval**. Choose your actual runtime. `--config-git local|tracked` selects whether non-private harness configuration can be committed; private approvals/state are never included in tracked mode.
+**Environment:** Codex CLI/App, Claude Code and compatible coding agents can run shell/terminal commands **when permitted by the host and user**. A sandbox, blocked network, or missing filesystem access must be reported, not silently assumed away. **Web-only Claude sessions are not substitutes for coding agents with access to the target project.**
 
-## First-use sequence
+### ⚠️ Keep the setup session open
 
-Preliminary setup → CRITERIA discovery and approval → technical direction and approval → Coder/Tester specialization → complete configuration audit → simulated smoke tests → fresh host session test → final hook lock → post-lock live test → handoff.
+If instructed to open a fresh coding-agent session for hook testing, **do not close the original setup session**. Return errors there for diagnosis. **The Human personally runs** `activate` and `finalize` from an independent interactive terminal. Close the setup session only after post-lock verification and handoff.
 
-**WARNING: DO NOT CLOSE THE SETUP TAB.** When asked to open a new coding-agent tab to validate native hooks, keep the original setup tab open. Return to it with any BLOCK/error for repair. Close it only after post-lock verification and successful handoff. The Human personally runs interactive `activate` and `finalize` from an independent terminal; the agent prepares evidence but does not attest its own approval. Use `python harness/common/setup_lifecycle.py host-test` for the host-specific instructions. A saved checkpoint and independent recovery instructions must be available.
+## After handoff
 
-## Prompt after successful handoff
+The agent supplies the Planner kickoff prompt. If needed manually:
 
-> Invoke Planner following `AGENTS.md`. Read approved CRITERIA, create/review the Implementation Plan (GOALMAP and a GOAL at the start of every section), derive Milestones and ask for my approval before creating Tasks or coding.
+> Invoke **Planner** to review approved CRITERIA, draft/revise the Implementation Plan (GOALMAP inside the Plan, each section beginning with an outcome GOAL) and Milestones, then ask for my approval before Tasks or coding.
 
-Open future sessions in the installed project folder and follow `AGENTS.md`. You do not need to run the Bootstrap installer again.
-
-## Lightweight Lite mode
-
-For very small projects choose `--tier Lite --staged`; Lite lacks the full Planner and Tester roles, so it cannot promise the guided CRITERIA → Plan → Milestone sequence. Standard is recommended for the complete setup flow.
-
-## Technical details and status
-
-Bootstrap supports `local` (default) and `tracked` Git config. Switching modes requires `--change-config-git`; ignore rules cannot untrack previously committed files. Script tests are not native-host proof: distinguish SCRIPT_TESTED, RUNTIME_VERIFIED and ENFORCED. For setup scripts, actual hooks, adapter constraints and safe recovery see [For AI](FOR_AI.md).
-
-For controlled upgrades, review `--upgrade`: only unchanged, manifest-owned files may update. Unrecognized or edited files remain conflicts. A separate interactive `harness/common/recover.py` will preserve backups for hook repairs.
+For `local/tracked` settings, upgrades, rollback, Lite limitations, and detailed tests, see [For AI](FOR_AI.md) and the [technical setup guide](../project-template/SETUP.md). Script PASS is not proof of native host enforcement.
 
 [License](../LICENSE).

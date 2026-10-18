@@ -8,7 +8,7 @@
 
 
 
-AI installs from repo root using `python install.py --target PATH --tier Standard --runtime RUNTIME --apply` **after explicitly choosing one of antigravity/codex/claude/continue/generic (generic additionally requires --target-app), preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
+AI installs from a verified local Bootstrap checkout using `python install.py --target PATH --tier Standard --runtime RUNTIME --staged --apply` **after explicitly choosing one of antigravity/codex/claude/continue/generic (generic additionally requires --target-app), preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
 
 **Git mode local/tracked:** the installer also manages a marked block at the end of the target `.gitignore`, preserving existing rules. Agent directories, harness/runtime state, local AGENTS/CLAUDE/TASKS, project environment profile, generated trace and report templates stay local. Product source and actual product docs remain trackable. Preview lists `UPDATE .gitignore`; apply atomically updates that managed content. Already tracked setup is reported as `TRACKED_LOCAL_SETUP` with exit 2; ignore rules cannot untrack it. Do not automatically delete files, rewrite history or remove index entries. The canonical `project-template/` in bootstrap remains versioned source.
 

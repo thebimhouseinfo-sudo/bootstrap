@@ -321,6 +321,18 @@ class StagedSetupTests(unittest.TestCase):
             self.assertFalse((self.root / "harness/.bootstrap-manifest.json").exists())
             self.assertFalse((self.root / "AGENTS.md").exists())
 
+    def test_user_guides_target_coding_agents_not_web_reviewers(self):
+        vi = (REPO / "README.md").read_text(encoding="utf-8")
+        en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
+        ai = (REPO / "docs/FOR_AI.md").read_text(encoding="utf-8")
+        for guide in (vi, en):
+            self.assertNotIn("git clone --depth", guide)
+            self.assertNotIn("python install.py --target", guide)
+            self.assertIn("raw.githubusercontent.com", guide)
+        self.assertIn("Coding-agent execution and capability boundary", ai)
+        self.assertIn("do not claim setup was performed", ai)
+        self.assertIn("CONFIRM", (REPO / "project-template/harness/common/setup_lifecycle.py").read_text(encoding="utf-8"))
+
     def test_user_guides_have_two_compact_onboarding_prompts(self):
         vi = (REPO / "README.md").read_text(encoding="utf-8")
         en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
