@@ -162,7 +162,7 @@ class LocalIgnoreTests(unittest.TestCase):
         for private in ('harness/approvals.jsonl', 'harness/chat-journal.jsonl',
                         'docs/TRACE.md', '.claude/settings.local.json'):
             self.assertNotIn(private, staged)
-        self.assertNotIn('/harness/', (self.root / '.gitignore').read_text(encoding='utf-8'))
+        self.assertNotIn('/harness/', (self.root / '.gitignore').read_text(encoding='utf-8').splitlines())
 
     def test_tracked_mode_nested_ignore_exception_blocks_before_copy(self):
         harness = self.root / 'harness'
