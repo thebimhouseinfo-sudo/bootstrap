@@ -1,10 +1,10 @@
 # Harness — instructions to implement, not prebuilt implementation
 
-Copy these contracts as the project tree. After approval, Bootstrap implements the real mechanisms per VERIFIED agent runtime, OS, shell, product host, version and available tool capabilities. Prefer existing trusted native facilities; avoid overengineering.
+Copy these contracts as the project tree. After approval, Bootstrap implements any missing runtime-specific mechanisms per VERIFIED agent runtime, OS, shell, product host, version and available tool capabilities. Prefer existing trusted native facilities; avoid overengineering.
 
 | Area | Instruction contract | Expected implementation |
 |---|---|---|
-| verify | specs/VERIFY.md | actual executable script/command |
+| verify | specs/VERIFY.md | shared `common/verify.py` and configured `common/checks.json` |
 | snapshot/restore | specs/SNAPSHOT.md | safe backup and restore |
 | hooks | specs/HOOKS.md | native hooks when supported, else manual/task-runner fallback |
 | loop | specs/REVIEW_LOOP.md | verified review/repair trigger and state |

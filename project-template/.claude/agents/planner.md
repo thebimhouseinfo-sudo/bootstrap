@@ -2,6 +2,7 @@
 name: planner
 description: Reusable planner agent for project-scoped work.
 model: opus
+effort: high
 ---
 
 # planner — reusable role instructions

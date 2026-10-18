@@ -33,7 +33,6 @@ Chỉ [`project-template/`](project-template/) là nguồn cài đặt. Copy **n
 ```text
 project-template/
   AGENTS.md
-  README.md
   SETUP.md
   TASKS.md
   docs/
@@ -49,18 +48,25 @@ project-template/
     skills/
     config/
     knowledge/
-  .codex/
+  .codex/                   # khi chọn Codex
     config.toml
+    agents/
+  .claude/                  # khi chọn Claude Code
+    agents/
+    skills/
+  .continue/                # khi chọn Continue
+    agents/
   harness/
-    codex/
+    common/                   # verify + inventory cho cả ba runtime
+    codex/                    # Codex preflight
     specs/
     HARNESS_SPEC.md
   lessons/
 ```
 
-Với Codex, tái sử dụng `AGENTS.md`, hướng dẫn role, skill generic và script nền `doctor.py`, `verify.py`. **Có file không có nghĩa named subagent, hook, gate, approval hoặc loop tự động đã hoạt động.** Phải kiểm tra khả năng của đúng runtime trước khi tuyên bố được kích hoạt.
+Với Codex, các subagent TOML và model theo vai đã được cấu hình sẵn; verifier/inventory chạy từ `harness/common/`. **Có file không chứng minh subagent đã được runtime nạp, hoặc hook/gate/approval tự động đã hoạt động.** Phải kiểm tra khả năng của đúng runtime trước khi tuyên bố được kích hoạt.
 
-Với Claude Code, GitHub Copilot, Cline và runtime khác, giữ nguyên logic generic, chỉ chỉnh phần tích hợp đặc thù: cách đăng ký agent, đường dẫn skill, model, quyền, hook, script, shell và kênh duyệt.
+Với Claude Code, adapter agent và skills native được cài sẵn. Continue có template config theo vai và cần điền model/provider. Với Copilot, Cline và runtime khác, giữ nguyên logic generic, chỉ chỉnh phần tích hợp đặc thù: cách đăng ký agent, đường dẫn skill, model, quyền, hook, script, shell và kênh duyệt.
 
 ### Nguyên tắc cốt lõi (không được nới)
 
@@ -107,7 +113,7 @@ Gửi **Approval Request loại `HARNESS_PATCH`**, rồi dừng trước thay đ
 
 #### Bước 3. AI tự copy, tùy chỉnh và triển khai
 
-**AI chịu trách nhiệm copy, không giao user tự tìm file.** Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
+**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime codex` để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
 
 Giữ nguyên role và skill generic khi phù hợp. Điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Dùng script Codex có sẵn khi phù hợp; phần còn thiếu triển khai theo `harness/specs/`. Không biến NOT_CONFIGURED thành PASS.
 
@@ -149,7 +155,7 @@ Nếu thay đổi cấp thêm quyền hoặc làm yếu ranh giới bảo vệ, 
 
 ## Khi bị chặn
 
-Đọc thông báo `BLOCK`: mã, luật, nơi định nghĩa, lý do, bằng chứng và điều kiện mở khóa. Nếu nghi harness bị cấu hình sai, dùng doctor hoặc harness-fixer (Full), tái hiện lỗi và kiểm thử hồi quy. **Sửa để khớp ý định đã duyệt, không nới luật để qua chặn.** Trường hợp ngoại lệ cần request `BREAK_GLASS` giới hạn đúng một lần.
+Đọc thông báo `BLOCK`: mã, luật, nơi định nghĩa, lý do, bằng chứng và điều kiện mở khóa. Nếu nghi harness bị cấu hình sai, dùng inventory/preflight hoặc harness-fixer (Full), tái hiện lỗi và kiểm thử hồi quy. **Sửa để khớp ý định đã duyệt, không nới luật để qua chặn.** Trường hợp ngoại lệ cần request `BREAK_GLASS` giới hạn đúng một lần.
 
 ---
 

@@ -2,6 +2,7 @@
 name: tester
 description: Reusable tester agent for project-scoped work.
 model: sonnet
+effort: medium
 ---
 
 # tester — reusable role instructions

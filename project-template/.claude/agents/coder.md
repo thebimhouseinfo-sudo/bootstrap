@@ -2,6 +2,7 @@
 name: coder
 description: Reusable coder agent for project-scoped work.
 model: sonnet
+effort: medium
 ---
 
 # coder — reusable role instructions

@@ -2,6 +2,7 @@
 name: critic
 description: Reusable critic agent for project-scoped work.
 model: opus
+effort: high
 ---
 
 # critic — reusable role instructions
