@@ -4,7 +4,7 @@
 
 **Bootstrap** is a set of **harness templates** for setting up consistent, well-structured projects for AI coding agents such as **Codex, Google Antigravity, Claude Code, Continue, Cline, Qwen Code, Cursor, and Copilot**.
 
-It provides reusable **agent roles, skills, workflows, scripts, and hooks**, so each agent only needs to adapt the setup to the project instead of building it from scratch. Platform support and testing status are documented below.
+It provides reusable **agent roles, skills, workflows, scripts, and hooks**, so each agent only needs to adapt the setup to the project instead of building it from scratch.
 
 ---
 
