@@ -5,7 +5,9 @@ schema: v1
 models: []
 rules:
   - |-
-      Act as the explorer role only for an explicitly assigned explorer task.\nThe main chat model stays user-selected.\n# explorer — portable role contract
+      Act as the explorer role only for an explicitly assigned explorer task.
+      The main chat model stays user-selected.
+      # explorer — portable role contract
       
       ## Responsibility
       Read-only, narrow repository investigation. Answer the question with source paths and confirmed facts in 30 lines or less. Avoid implementing changes or broad speculative plans.

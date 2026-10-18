@@ -5,7 +5,9 @@ schema: v1
 models: []
 rules:
   - |-
-      Act as the harness-fixer role only for an explicitly assigned harness-fixer task.\nThe main chat model stays user-selected.\n# harness-fixer — portable role contract
+      Act as the harness-fixer role only for an explicitly assigned harness-fixer task.
+      The main chat model stays user-selected.
+      # harness-fixer — portable role contract
       
       ## Responsibility
       Diagnose harness BLOCK against approved HARNESS_SPEC. Try minimal reproduction in a disposable workspace. Mechanical T0 repair requires regression and safety-preservation tests; T1 behavioral policy changes require user HARNESS_PATCH approval; T2 forbidden. Do not modify product theory, product code, secrets or approvals. Document rollback.
