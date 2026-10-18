@@ -4,7 +4,7 @@ The authoritative machine-readable inventory is `harness/common/capabilities.jso
 
 ## Two different readiness questions
 
-**Generic template usability:** Codex and Google Antigravity IDE are `GENERIC READY` based on the Human's installed-app use: copy the prepared generic coding-agent package without rewriting shared roles, skills or hooks merely to start using it. Claude Code has a complete prepared adapter/configuration but is not host-tested. Continue has prepared role configs/rules and is near generic-ready, subject to actual provider/model selection and Continue host checks. Other coding agents may port adapters following the supplied instructions. The central product purpose is to **save setup tokens/quota** by reusing template content.
+**Generic template usability:** Codex and Google Antigravity IDE are `GENERIC READY` based on tested installed-app use: copy the prepared generic coding-agent package without rewriting shared roles, skills or hooks merely to start using it. Claude Code has a complete prepared adapter/configuration but is not host-tested. Continue has prepared role configs/rules and is near generic-ready, subject to actual provider/model selection and Continue host checks. Other coding agents may port adapters following the supplied instructions. The central product purpose is to **save setup tokens/quota** by reusing template content.
 
 **Project/host capability verification:** Each target project still needs actual requirements, stack, host/API, paths, build/test commands, Git branch choice and optional model settings. `RUNTIME_VERIFIED`, `ENFORCED` and the capability inventory measure specific evidenced host behaviors and guard implementations, **not whether users can copy a generic agent template and start using it**. Do not edit `capabilities.json` to treat generic readiness as a signed-gate, runtime-hook trust or sandbox test.
 
@@ -25,3 +25,6 @@ Labels:
 - UNVERIFIED = actual host behavior not tested.
 
 Codex subagents inherit effective parent permission policy; a "read-only" instruction is not an isolated security boundary. A manual chat instruction authorizes bounded coordination through host controls only, not an authenticated gate signature. See `APPROVAL.md` and `APPROVAL_MAINTENANCE.md`.
+
+## Staged setup and handoff (new)
+`harness/common/setup_lifecycle.py` provides an optional `--staged` setup coordinator (installer flag), config audit, disposable positive/negative Python smoke, a host-test checklist, hash-based operational lock and separate post-lock handoff. It is NOT an authenticated gate/immutable policy; user approval is manual coordination. Native hook enforcement must be verified separately on the actual client. Continue/generic may finish as READY_WITH_LIMITATIONS only when role and check evidence exists, never claim a native blocking hook was installed.

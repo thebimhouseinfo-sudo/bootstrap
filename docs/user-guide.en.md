@@ -18,9 +18,9 @@ Use `python install.py --target PATH --runtime codex --tier Standard --staged` t
 
 ## First-use sequence
 
-Preliminary setup → CRITERIA discovery and approval → technical direction and approval → Coder/Tester specialization → complete configuration audit → simulated smoke tests → fresh host session test → final hook lock → handoff.
+Preliminary setup → CRITERIA discovery and approval → technical direction and approval → Coder/Tester specialization → complete configuration audit → simulated smoke tests → fresh host session test → final hook lock → post-lock live test → handoff.
 
-**WARNING: DO NOT CLOSE THE SETUP TAB.** When asked to open a new coding-agent tab to validate native hooks, keep the original setup tab open. Return to it with any BLOCK/error for repair. Close it only after successful handoff. A saved checkpoint and independent recovery instructions must be available.
+**WARNING: DO NOT CLOSE THE SETUP TAB.** When asked to open a new coding-agent tab to validate native hooks, keep the original setup tab open. Return to it with any BLOCK/error for repair. Close it only after post-lock verification and successful handoff. Use `python harness/common/setup_lifecycle.py host-test` for the host-specific instructions. A saved checkpoint and independent recovery instructions must be available.
 
 ## Prompt after successful handoff
 

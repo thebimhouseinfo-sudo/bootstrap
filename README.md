@@ -24,7 +24,7 @@
 4. **Coder/Tester:** bổ sung skill/knowledge thích hợp; xác minh phiên bản công cụ và phương pháp test.
 5. **Audit + smoke test:** AI rà mọi cấu hình bắt buộc, viết và chạy test hợp lệ/bị cấm trên bản sao; sửa lỗi rồi kiểm tra lại.
 6. **Live verification:** nếu cần, AI đưa đúng prompt/lệnh cho bạn mở phiên mới kiểm tra hook và script thật.
-7. **Final lock + handoff:** sau khi xác minh, AI chốt hook/policy, kiểm tra sau khóa, đưa prompt khởi động Planner.
+7. **Final lock + post-lock test:** sau khi xác minh runtime thật, AI chốt trạng thái hook/policy, lưu hash và kiểm tra lại một phiên mới sau khóa. Chỉ khi PASS mới xác nhận handoff và đưa prompt Planner.
 
 ### <warning>KHÔNG ĐÓNG TAB ĐANG SETUP</warning>
 
@@ -49,9 +49,10 @@ python install.py --target PATH --tier Standard --runtime codex --config-git tra
 python install.py --target PATH --tier Standard --runtime codex --config-git tracked --staged --apply
 python PATH/harness/common/setup_lifecycle.py audit
 python PATH/harness/common/setup_lifecycle.py smoke
+python PATH/harness/common/setup_lifecycle.py host-test
 ```
 
-Các lệnh `audit` và `smoke` nêu vấn đề còn thiếu; không tự tạo ra APPROVED CRITERIA hay bằng chứng test trên host. Tham khảo [English](docs/user-guide.en.md) và [For AI](docs/FOR_AI.md).
+Các lệnh `audit` và `smoke` nêu vấn đề còn thiếu; `host-test` in hướng dẫn mở phiên mới. AI quản lý bước `activate` và `finalize` sau khi có bằng chứng và Human cho phép; không tự tạo ra APPROVED CRITERIA hay bằng chứng test trên host. Tham khảo [English](docs/user-guide.en.md) và [For AI](docs/FOR_AI.md).
 
 ## License
 

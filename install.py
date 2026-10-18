@@ -46,6 +46,7 @@ STATE_PATHS = (
     "harness/snapshots/", "harness/requests/",
     "docs/TRACE.md", ".claude/settings.local.json",
     "harness/setup-state.json", "harness/setup-live-evidence.json",
+    "harness/setup-postlock-evidence.json",
 )
 
 IGNORE_START = b"# BEGIN bootstrap local agent setup"
