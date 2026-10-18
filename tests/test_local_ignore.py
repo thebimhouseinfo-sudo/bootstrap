@@ -24,7 +24,7 @@ class LocalIgnoreTests(unittest.TestCase):
 
     def install(self, *args):
         return subprocess.run([sys.executable, str(REPO / 'install.py'), '--target',
-                               str(self.root), *args], capture_output=True, text=True,
+                               str(self.root), *([] if '--runtime' in args else ['--runtime', 'codex']), *args], capture_output=True, text=True,
                               encoding='utf-8', errors='replace', timeout=30)
 
     def test_existing_ignore_preserved_preview_and_apply_are_idempotent(self):
