@@ -45,9 +45,9 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertIn('SAME .gitignore', again.stdout)
 
     def test_git_add_keeps_only_source_and_product_docs_for_all_runtimes(self):
-        for runtime in ('codex', 'antigravity', 'claude', 'continue'):
+        for runtime in ('codex', 'antigravity', 'claude', 'continue', 'generic'):
             with self.subTest(runtime=runtime):
-                installed = self.install('--runtime', runtime, '--apply')
+                installed = self.install('--runtime', runtime, *(['--target-app', 'cline'] if runtime == 'generic' else []), '--apply')
                 self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
         (self.root / 'src').mkdir()
         (self.root / 'src/app.py').write_text('print(1)', encoding='utf-8')
@@ -59,7 +59,7 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertTrue({'src/app.py', 'docs/product.md', 'README.md', '.gitignore'} <= tracked)
         self.assertTrue({'docs/CRITERIA.md', 'docs/ARCHITECTURE.md'} <= tracked)
         for path in tracked:
-            self.assertFalse(path.startswith(('.codex/', '.antigravity/', '.claude/', '.agents/', '.continue/',
+            self.assertFalse(path.startswith(('.codex/', '.antigravity/', '.claude/', '.agents/', '.continue/', '.generic/',
                                               'harness/', 'lessons/')), path)
         for path in ('AGENTS.md', 'CLAUDE.md', 'TASKS.md', 'docs/PROJECT_PROFILE.md',
                      'docs/TRACE.md', 'docs/reports/_TEMPLATE.md', 'docs/reports/_REVIEW_TEMPLATE.md'):
