@@ -39,12 +39,37 @@ LOCAL_SETUP_PATHS = (
     "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
 )
+STATE_PATHS = (
+    "harness/chat-journal.jsonl", "harness/decisions.jsonl",
+    "harness/approvals.jsonl", "harness/state.json",
+    "harness/last-block.json", "harness/inbox.html",
+    "harness/snapshots/", "harness/requests/",
+    "docs/TRACE.md", ".claude/settings.local.json",
+)
+
 IGNORE_START = b"# BEGIN bootstrap local agent setup"
 IGNORE_END = b"# END bootstrap local agent setup"
 
 
-def ignored_setup_bytes(original):
-    """Keep product rules verbatim; put one managed local-only block last."""
+def ignored_paths(mode):
+    if mode not in ("local", "tracked"):
+        raise ValueError("invalid Git config mode")
+    return STATE_PATHS if mode == "tracked" else LOCAL_SETUP_PATHS
+
+
+def existing_mode(root):
+    path = root / ".gitignore"
+    if not path.is_file():
+        return None
+    data = path.read_bytes()
+    if IGNORE_START not in data:
+        return None
+    match = re.search(rb"^# mode: (local|tracked)\r?$", data, re.M)
+    return match.group(1).decode("ascii") if match else "local"
+
+
+def ignored_setup_bytes(original, mode):
+    """Keep product rules verbatim; put one managed block last."""
     lines = original.splitlines(keepends=True)
     starts = [i for i, line in enumerate(lines) if line.rstrip(b"\r\n") == IGNORE_START]
     ends = [i for i, line in enumerate(lines) if line.rstrip(b"\r\n") == IGNORE_END]
@@ -55,24 +80,25 @@ def ignored_setup_bytes(original):
     newline = b"\r\n" if b"\r\n" in original else b"\n"
     if original and not original.endswith(b"\n"):
         original += newline
-    block = [IGNORE_START, b"# Local agent configuration/state; product source and docs remain trackable."]
-    block.extend(("/" + path).encode("ascii") for path in LOCAL_SETUP_PATHS)
+    block = [IGNORE_START, b"# mode: " + mode.encode("ascii"),
+             b"# Local agent configuration/state; product source and docs remain trackable."]
+    block.extend(("/" + path).encode("ascii") for path in ignored_paths(mode))
     return original + newline.join(block + [IGNORE_END, b""])
 
 
-def ignore_contents(root, source):
+def ignore_contents(root, source, mode):
     target = root / ".gitignore"
     confine(root, target)
     if target.exists() and not target.is_file():
         raise ValueError(".gitignore must be a regular file")
-    return ignored_setup_bytes(target.read_bytes() if target.exists() else source.read_bytes())
+    return ignored_setup_bytes(target.read_bytes() if target.exists() else source.read_bytes(), mode)
 
 
-def write_ignore(root, source):
+def write_ignore(root, source, mode):
     target = root / ".gitignore"
     confine(root, target)
     before = target.read_bytes() if target.exists() else None
-    rendered = ignore_contents(root, source)
+    rendered = ignore_contents(root, source, mode)
     if before == rendered:
         return
     if before is None:
@@ -111,24 +137,24 @@ def git_worktree(root):
     return False
 
 
-def tracked_local_setup(root):
+def tracked_local_setup(root, mode):
     """Inspect the real index; ignore rules cannot hide already tracked files."""
     if not git_worktree(root):
         return []
     result = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--",
-                             *[path.rstrip("/") for path in LOCAL_SETUP_PATHS]],
+                             *[path.rstrip("/") for path in ignored_paths(mode)]],
                             capture_output=True, timeout=15)
     if result.returncode:
         raise ValueError("cannot inspect Git index for tracked local setup")
     return sorted(set(os.fsdecode(path) for path in result.stdout.split(b"\0") if path))
 
 
-def exposed_local_setup(root):
+def exposed_local_setup(root, mode):
     """Use Git's actual rule precedence, including nested .gitignore exceptions."""
     if not git_worktree(root):
         return []
     probes = {path + "__bootstrap_local_probe__" if path.endswith("/") else path: path
-              for path in LOCAL_SETUP_PATHS}
+              for path in ignored_paths(mode)}
     result = subprocess.run(["git", "-C", str(root), "check-ignore", "--no-index", "-z", "--stdin"],
                             input=b"\0".join(os.fsencode(p) for p in probes) + b"\0",
                             capture_output=True, timeout=15)
@@ -253,13 +279,13 @@ def classify(root, src, target):
         return "SAME" if digest(src) == digest(target) else "CONFLICT"
     return "ADD"
 
-def plan(dest, tier, runtime):
+def plan(dest, tier, runtime, mode):
     ops = []
     for src, rel in entries(tier, runtime):
         target = dest / rel
         if rel.as_posix() == ".gitignore":
             # Existing product rules are mergeable; unsafe or malformed files raise.
-            rendered = ignore_contents(dest, src)
+            rendered = ignore_contents(dest, src, mode)
             state = ("SAME" if target.read_bytes() == rendered else "UPDATE") if target.exists() else "ADD"
         else:
             state = classify(dest, src, target)
@@ -296,19 +322,25 @@ def print_setup_questions():
     print("7. Provider/model: retain working native presets, or choose available model?")
     print("   Continue: provider/model selection needed; native role configs already exist.")
     print("8. Reporting language and approval channel/preferences?")
+    print("9. Keep harness configuration local (default), or track it in Git?")
+    print("   Approvals remain local and are supported for one Human only.")
     print("Reply ONCE in the chat with known answers. Agent fills known facts,")
     print("previews with explicit --runtime/--target-app, requests ONE install approval,")
     print("then calls --apply. Host command-permission dialogs are SEPARATE.")
     print("No files have been inspected or changed.")
 
 
-def print_pre_ask_block(dest, tier, runtime, target_app):
+def print_pre_ask_block(dest, tier, runtime, target_app, mode):
     """Display confirmed CLI package selection, not invented project answers."""
     print("=" * 72)
     print("INSTALL PREVIEW CONFIGURATION (EXPLICIT CLI CHOICES)")
     print("  Target Directory :", dest)
     print("  Tier             :", tier)
     print("  Runtime          :", runtime)
+    print("  Config in Git    :", mode)
+    if mode == "tracked":
+        print("  ALWAYS_LOCAL     :", ", ".join(STATE_PATHS))
+        print("  WARNING          : approvals are local and do not support multiple Humans")
     if runtime == "generic":
         print("  Target app/client:", target_app)
         print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
@@ -329,8 +361,14 @@ def main():
     ap.add_argument("--target-app", help="With --runtime generic: actual target host name, e.g. cline/qwen-code/deepseek/other")
     ap.add_argument("--ask-first", action="store_true", help="Print ALL one-batch setup questions for the AI/chat; no prompts or install")
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
-    ap.add_argument("-y", "--yes", action="store_true", help="Compatibility alias; --apply is already explicit")
+    ap.add_argument("--config-git", choices=("local", "tracked"), default="local",
+                    help="Keep agent setup local (default) or track configuration in Git")
+    ap.add_argument("--change-config-git", action="store_true",
+                    help="Explicitly allow changing the existing managed Git configuration mode")
+    ap.add_argument("-y", "--yes", action="store_true", help="Ignored compatibility flag; does NOT enable --apply")
     args = ap.parse_args()
+    if args.yes:
+        print("IGNORED_FLAG: -y/--yes does not enable --apply or skip approval")
 
     # No interactive prompts: setup questions are gathered in chat before any
     # host tool permission dialogs; --ask-first never inspects or modifies files.
@@ -354,11 +392,21 @@ def main():
         ap.error("target must be an existing project outside the bootstrap checkout")
     tier = args.tier
     runtime = args.runtime
-    print_pre_ask_block(dest, tier, runtime, args.target_app)
+    mode = args.config_git
+    try:
+        prev = existing_mode(dest)
+    except OSError as exc:
+        print("NOT_CONFIGURED: cannot inspect existing .gitignore:", exc)
+        return 2
+    if prev and prev != mode and not args.change_config_git:
+        print(f"MODE_CHANGE_REQUIRES_APPROVAL: {prev} -> {mode}")
+        print("Preview with --change-config-git to inspect changes; --apply also requires this flag")
+        return 2
+    print_pre_ask_block(dest, tier, runtime, args.target_app, mode)
 
     try:
-        ops = plan(dest, tier, runtime)
-        tracked = tracked_local_setup(dest)
+        ops = plan(dest, tier, runtime, mode)
+        tracked = tracked_local_setup(dest, mode)
     except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
         print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
         return 2
@@ -367,11 +415,12 @@ def main():
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
     merge = (dest / "AGENTS.md") in conflicts and (dest / "AGENTS.md").is_file()
     summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "CONFLICT")}
-    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, target_app=args.target_app, **summary), sort_keys=True))
+    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, target_app=args.target_app,
+                                      config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
         print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
     for name in tracked:
-        print("TRACKED_LOCAL_SETUP:", name)
+        print("TRACKED_LOCAL_STATE:" if mode == "tracked" else "TRACKED_LOCAL_SETUP:", name)
     if tracked:
         print("PRIVACY_REVIEW_REQUIRED: .gitignore does not untrack existing index entries; no files/index entries removed")
 
@@ -392,12 +441,13 @@ def main():
         ignore_op = next(op for op in ops if op[2].name == ".gitignore")
         if ignore_op[0] == "CONFLICT":
             raise ValueError("cannot safely install local-only .gitignore policy")
-        write_ignore(dest, ignore_op[1])
-        exposed = exposed_local_setup(dest)
+        write_ignore(dest, ignore_op[1], mode)
+        exposed = exposed_local_setup(dest, mode)
         if exposed:
             for name in exposed:
-                print("LOCAL_SETUP_NOT_IGNORED:", name)
+                print("LOCAL_STATE_NOT_IGNORED:" if mode == "tracked" else "LOCAL_SETUP_NOT_IGNORED:", name)
             print("BLOCK: reconcile nested Git ignore exceptions before installing local setup")
+            print("NOTE: .gitignore was already updated; no template files were copied")
             return 2
         if merge:
             candidate = dest / "AGENTS.bootstrap.md"
@@ -412,7 +462,7 @@ def main():
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         print("ERROR: incomplete non-destructive install; inspect newly added files:", exc)
         return 1
-    print("APPLIED: new files and local-only ignore policy" if not conflicts else "APPLIED_WITH_CONFLICTS: merge/reconcile required")
+    print("APPLIED: new files and managed Git ignore policy" if not conflicts else "APPLIED_WITH_CONFLICTS: merge/reconcile required")
     return 2 if conflicts or tracked else 0
 
 if __name__ == "__main__":
