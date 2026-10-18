@@ -1,6 +1,6 @@
 name: bootstrap-project
 version: 1.0.0
 schema: v1
-# Select an available user-authorized model/provider before using Agent mode.
-# Local config may need explicit selection (cn --config ./.continue/config.yaml).
+# Fill with verified Continue provider/model connection, not invented credentials.
+# Generic workspace rules live in .continue/rules/.
 models: []
