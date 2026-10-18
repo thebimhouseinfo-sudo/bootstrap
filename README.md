@@ -168,3 +168,7 @@ Nếu thay đổi cấp thêm quyền hoặc làm yếu ranh giới bảo vệ, 
 MIT. Xem [LICENSE](LICENSE).
 
 **Codex-first:** `.codex/hooks.json` gọi `harness/codex/hook.py`; Python chung nằm tại `harness/common/`. Claude Code/IDE khác sẽ chuyển đổi hook theo cơ chế native, không nhân bản cả harness. Trước khi chốt READY phải kiểm tra `/hooks` trên Codex thật và test chặn/tiếp tục; script CI PASS chưa thay được bước này.
+
+### Nhánh phát triển chính và đóng băng main
+
+Bootstrap cung cấp `harness/common/branch_authority.py` cho **mọi tier có Git**. Human chọn nhánh phát triển chính (ví dụ `v5`), các nhánh đóng băng (như `main`) và work branch được phép; policy sống trong Git common directory nên không bị đổi theo checkout. Planner/Coder phải kiểm tra trước khi lập kế hoạch/sửa code và trước khi merge/push; không được tự suy luận `main`. Trong Codex, `PreToolUse` chặn direct apply_patch khi checkout không hợp lệ. Không bao phủ mọi shell/MCP/GitHub API hoặc ngăn push phía server; cần branch protection thực để khóa remote. Xem [BRANCH_AUTHORITY.md](project-template/harness/specs/BRANCH_AUTHORITY.md).

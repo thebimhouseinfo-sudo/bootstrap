@@ -18,7 +18,7 @@ A specification, not a gate engine. PLAN, CODE and TEST are evaluated against ex
 | G9 | critic + reviewer | tests | tests are not weak (mutation-style check on a copy) |
 | G10 | reviewer | milestone | no drift or unauthorized extra infrastructure from approved scope; everything traces to IDs |
 | G11 | user (request) | milestone | acceptance (MILESTONE_ACCEPT) |
-| G12 | git-admin (Full) | repo | this task's change is integrated at the target; NOT_APPLICABLE without Git |
+| G12 | git-admin (Full) | repo | this task's change is integrated at the Human-authorized active development branch, never inferred from Git default; NOT_APPLICABLE without Git |
 | G13 | trace | plan + code + tests | links valid, no OPEN/STALE in scope, every in-scope ID has task and test |
 | G14 | tester + reviewer (Full) | running product | goal flows, invariants and errors verified on the real product; unresolved THEORY_GAP blocks PASS |
 

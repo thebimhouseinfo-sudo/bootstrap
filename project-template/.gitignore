@@ -19,3 +19,6 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Git branch authority lives under Git common dir, not in tracked worktree
+# harness/config/branch-authority.example.json is documentation only

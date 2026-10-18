@@ -41,6 +41,11 @@ class InstallTests(unittest.TestCase):
                     self.assertFalse((root / "README.md").exists())
                     self.assertTrue((root / "harness/common/verify.py").is_file())
                     self.assertTrue((root / "harness/common/checks.json").is_file())
+                    self.assertTrue((root / "harness/common/branch_authority.py").is_file())
+                    self.assertTrue((root / "harness/config/branch-authority.example.json").is_file())
+                    self.assertFalse((root / ".git/bootstrap/branch-authority.json").exists())
+                    branch = run(root / "harness/common/branch_authority.py", "status")
+                    self.assertEqual(branch.returncode, 2, branch.stdout + branch.stderr)
                     installed = {x.stem for x in (root / ".agents/roles").glob("*.md")}
                     self.assertEqual(installed, EXPECTED[tier])
                     for other in RUNTIMES:

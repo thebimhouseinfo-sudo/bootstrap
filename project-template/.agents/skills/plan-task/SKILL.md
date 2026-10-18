@@ -6,7 +6,7 @@ description: Use to derive delivery tasks from approved CRITERIA without expandi
 # plan-task
 
 ## Procedure
-1. Read approved CRITERIA/GOALMAP and confirmed use class, actual scale, trust boundaries, proportionate safeguards and explicit exclusions.
+1. For Git projects check `harness/common/branch_authority.py status` before choosing any development/integration target; never guess `main`, and stop if policy is missing. Read approved CRITERIA/GOALMAP and confirmed use class, actual scale, trust boundaries, proportionate safeguards and explicit exclusions.
 2. Choose one approved goal and simplest implementation that meets its measurable acceptance and safety constraints; no speculative enterprise hardening or future-market infrastructure.
 3. Define scoped tasks and tests with concrete prerequisites; mark out-of-scope "nice to have" as suggestions, not must-pass.
 4. Detect OPEN/STALE gaps and overengineering **and** underscoping for approved commercial/market scale.

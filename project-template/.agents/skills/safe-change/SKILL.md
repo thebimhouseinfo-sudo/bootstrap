@@ -6,7 +6,7 @@ description: Use for safe change work when the task calls for this repeatable wo
 # safe-change
 
 ## Procedure
-1. Inspect status and allowed paths.
+1. Inspect status, allowed paths, and for Git projects run `harness/common/branch_authority.py check-write`; block on frozen/unknown/detached branch.
 2. preserve user changes.
 3. snapshot scoped files and a tested restore path.
 4. make small isolated edit.
