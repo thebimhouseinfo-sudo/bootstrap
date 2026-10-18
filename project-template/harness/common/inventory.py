@@ -34,7 +34,7 @@ def check_skill(path):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue"], required=True)
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "generic"], required=True)
     options = parser.parse_args(args)
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -56,6 +56,14 @@ def main(args=None):
                        "harness/common/snapshot.py", "harness/common/task.py",
                        "harness/hook-policy.json", "harness/active-task.json"])
         needed += [".codex/agents/" + role + ".toml" for role in sorted(roles)]
+    if options.runtime == "generic":
+        needed += [".generic/README.md", ".generic/PORTING.md",
+                   ".generic/platforms/cline.md", ".generic/platforms/qwen-code.md",
+                   ".generic/platforms/deepseek.md"]
+        needed += [".generic/agents/" + role + ".md" for role in sorted(roles)]
+    if options.runtime == "continue":
+        needed += [".continue/config.yaml", ".continue/rules/00-bootstrap.md",
+                   ".continue/README.md"]
     needed += [".claude/agents/" + role + ".md" for role in sorted(roles)] if options.runtime == "claude" else []
     needed += [".continue/agents/" + role + "/config.yaml" for role in sorted(roles)] if options.runtime == "continue" else []
     if options.runtime == "claude":
