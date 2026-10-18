@@ -276,6 +276,22 @@ class StagedSetupTests(unittest.TestCase):
             self.assertEqual(rejected.returncode, 2, rejected.stdout + rejected.stderr)
             self.assertEqual(target.read_text(encoding="utf-8"), "HUMAN EDIT\n")
 
+
+    def test_missing_template_gitignore_fails_cleanly_without_partial_install(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            checkout = pathlib.Path(tmp) / "clone"
+            checkout.mkdir()
+            shutil.copy2(REPO / "install.py", checkout / "install.py")
+            shutil.copytree(REPO / "project-template", checkout / "project-template")
+            (checkout / "project-template/.gitignore").unlink()
+            result = call(sys.executable, checkout / "install.py", "--target", self.root,
+                          "--runtime", "codex", "--staged", "--apply")
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("missing required .gitignore source", result.stdout)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertFalse((self.root / "AGENTS.md").exists())
+            self.assertFalse((self.root / ".gitignore").exists())
+
     def test_mid_install_failure_rolls_back_files_and_gitignore(self):
         with tempfile.TemporaryDirectory() as temp:
             checkout = pathlib.Path(temp) / "checkout"
