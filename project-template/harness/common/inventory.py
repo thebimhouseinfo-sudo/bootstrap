@@ -34,7 +34,7 @@ def check_skill(path):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "generic", "generic"], required=True)
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "generic"], required=True)
     options = parser.parse_args(args)
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -51,9 +51,6 @@ def main(args=None):
     if options.runtime == "antigravity":
         needed.extend([".agents/hooks.json", ".agents/MODEL_SELECTION.md", ".antigravity/README.md"])
         needed += [".antigravity/agents/" + role + ".md" for role in sorted(roles)]
-    elif options.runtime == "generic":
-        needed.extend([".generic/README.md", ".generic/PORTING.md"])
-        needed += [".generic/agents/" + role + ".md" for role in sorted(roles)]
     elif options.runtime == "codex":
         needed.extend([".codex/hooks.json", "harness/codex/hook.py",
                        "harness/common/snapshot.py", "harness/common/task.py",
@@ -71,9 +68,6 @@ def main(args=None):
     needed += [".continue/agents/" + role + "/config.yaml" for role in sorted(roles)] if options.runtime == "continue" else []
     if options.runtime == "claude":
         needed.append("CLAUDE.md")
-    if options.runtime == "continue":
-        needed.extend([".continue/README.md", ".continue/config.yaml",
-                       ".continue/rules/00-bootstrap.md"])
     missing = [rel for rel in needed if not (ROOT / rel).is_file()]
     for rel in missing:
         print("MISSING:", rel)
