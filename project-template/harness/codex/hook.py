@@ -47,7 +47,7 @@ def patch_paths(payload):
     # Exact apply_patch file headers only. Do not pretend to cover shell/MCP edits.
     paths = []
     for line in command.splitlines():
-        match = re.match(r"^\*\*\* (?:Update|Delete|Move to) File: (.+)$", line)
+        match = re.match(r"^\*\*\* (?:(?:Add|Update|Delete) File|Move to): (.+)$", line)
         if match:
             paths.append(match.group(1).strip())
     return list(dict.fromkeys(paths))

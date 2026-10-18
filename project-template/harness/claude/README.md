@@ -2,7 +2,7 @@
 
 The main chat model/effort and effective sandbox/approval are chosen by the user/host. `.claude/agents/*.md` already contains role presets; no independent sandbox is promised for Advisor/Critic/Explorer.
 
-**Executable project-local native hooks:** `.claude/settings.json` → `harness/claude/hook.py`. The adapter discovers the project root at `parents[2]` relative to this file. Python 3.9+ must be available as `python` on PATH. The `CLAUDE_HOOK_EVENT` env var must be set by Claude Code when invoking each hook; JSON payload arrives on stdin.
+**Executable project-local native hooks:** `.claude/settings.json` → `harness/claude/hook.py`. Hook commands search cwd and its parents for the adapter, so nested project directories work. The adapter discovers the project root at `parents[2]` relative to its file. Python 3.9+ must be available as `python` on PATH. Native `hook_event_name` and tool payload arrive as JSON stdin; `CLAUDE_HOOK_EVENT` is an optional custom-wrapper override.
 
 - `UserPromptSubmit` (all tools) — injects short project context on each prompt.
 - `PreToolUse` (matcher `Edit|Write|Create|MultiEdit|str_replace_editor|Bash`) — checks Git branch authority for write tools; snapshots recognized file paths when policy enables it; warns on protected paths. Bash coverage is best-effort; no universal shell-write protection.
@@ -16,4 +16,4 @@ The main chat model/effort and effective sandbox/approval are chosen by the user
 
 **Setup:** install with `python install.py --runtime claude --apply`, open project in Claude Code, verify hook fires (context message on first prompt), then smoke-test block and stop behaviors. Record results; do not claim RUNTIME_VERIFIED without observation.
 
-Run `python harness/common/status.py --tier Standard --runtime claude` and `python harness/claude/preflight.py` to check file presence and policy. Update `harness/common/capabilities.json` → `runtime_smoke.claude` to `RUNTIME_VERIFIED` after confirmed smoke test.
+Run `python harness/common/status.py --tier Standard --runtime claude` and `python harness/claude/preflight.py` to check file presence and policy. Save actual smoke observations, client/version and exact source hashes; do not substitute an edited capability label for real host evidence. Missing Standard engines remain NOT_CONFIGURED.

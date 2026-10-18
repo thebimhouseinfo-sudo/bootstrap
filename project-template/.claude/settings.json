@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python harness/claude/hook.py",
+            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
             "timeout": 10
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python harness/claude/hook.py",
+            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
             "timeout": 15
           }
         ]
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python harness/claude/hook.py",
+            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
             "timeout": 135
           }
         ]

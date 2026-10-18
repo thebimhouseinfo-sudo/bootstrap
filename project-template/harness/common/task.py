@@ -3,6 +3,7 @@
 import argparse
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -27,7 +28,7 @@ def validate(path=CONFIG, stage="delivery"):
         raise ValueError("planned test links missing")
     criteria = (ROOT / "docs/CRITERIA.md").read_text(encoding="utf-8")
     for theory_id in theory:
-        if theory_id not in criteria:
+        if not re.search(r"(?<![\w-])" + re.escape(theory_id) + r"(?![\w-])", criteria):
             raise ValueError("theory ID not found: " + theory_id)
     if stage == "delivery":
         if not isinstance(evidence, list) or not evidence or not all(isinstance(x, str) and x.strip() for x in evidence):

@@ -2,6 +2,7 @@
 """Codex project config + hook preflight; no claim of native hook trust/enforcement."""
 import argparse
 import json
+import math
 import pathlib
 import shutil
 import subprocess
@@ -34,13 +35,18 @@ def validate_hooks(path):
         if not isinstance(groups, list) or not groups:
             raise ValueError("missing hook group for " + event)
         for group in groups:
-            if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
+            if (not isinstance(group, dict) or not isinstance(group.get("hooks"), list)
+                    or not group["hooks"]):
                 raise ValueError("invalid hook group")
             for item in group["hooks"]:
                 if (not isinstance(item, dict) or item.get("type") != "command"
                         or not isinstance(item.get("command"), str)
                         or "harness/codex/hook.py" not in item["command"]):
                     raise ValueError("hook command cannot resolve Codex Python adapter")
+                timeout = item.get("timeout", 600)
+                if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
+                        or not math.isfinite(timeout) or timeout <= 0):
+                    raise ValueError("hook timeout must be a finite positive number")
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)

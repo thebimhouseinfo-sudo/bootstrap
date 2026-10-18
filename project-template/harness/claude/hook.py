@@ -81,7 +81,12 @@ def extract_file_paths(tool_name, tool_input):
         if isinstance(p, str) and p.strip():
             paths.append(p.strip())
     elif tool_name == "MultiEdit":
-        for edit in tool_input.get("edits", []):
+        # Legacy MultiEdit applies several replacements to one top-level file.
+        p = tool_input.get("file_path")
+        if isinstance(p, str) and p.strip():
+            paths.append(p.strip())
+        edits = tool_input.get("edits", [])
+        for edit in edits if isinstance(edits, list) else []:
             p = edit.get("file_path") if isinstance(edit, dict) else None
             if isinstance(p, str) and p.strip():
                 paths.append(p.strip())
@@ -109,8 +114,14 @@ def pretool(payload):
     # 3. Protected-path guidance (cannot authenticate human; guidance only).
     warnings = []
     for p in paths:
-        rel = p.lstrip("/").lstrip("\\")
-        if any(rel == prot or rel.startswith(prot) for prot in PROTECTED_PATHS):
+        relpath = pathlib.Path(p)
+        if relpath.is_absolute():
+            try:
+                relpath = relpath.relative_to(ROOT)
+            except ValueError:
+                continue  # Snapshot validation below handles out-of-project paths.
+        rel = relpath.as_posix()
+        if any(rel == prot or rel.startswith(prot + "/") for prot in PROTECTED_PATHS):
             warnings.append(
                 f"PROTECTED-SCOPE GUIDANCE: '{rel}' requires explicit human "
                 "authorization. This hook cannot authenticate the human."
@@ -150,8 +161,10 @@ def pretool(payload):
             return 2
 
     if warnings:
-        # Print as context to stdout; Claude reads this as additional context.
-        print("\n".join(warnings))
+        # PreToolUse context must use native JSON; plain stdout is not injected.
+        print(json.dumps({"hookSpecificOutput": {
+            "hookEventName": "PreToolUse", "additionalContext": "\n".join(warnings)
+        }}, ensure_ascii=True))
     return 0
 
 
@@ -240,8 +253,8 @@ def handle(payload, event):
 
 
 def main():
-    # Claude Code passes event name via CLAUDE_HOOK_EVENT env var
-    # and JSON payload on stdin.
+    # Native event identity arrives in JSON stdin. Keep the environment override
+    # for explicitly configured wrappers; do not require the host to set it.
     event = os.environ.get("CLAUDE_HOOK_EVENT", "")
     try:
         raw = sys.stdin.read(1_048_576)

@@ -2,6 +2,7 @@
 """Claude Code project config + hook preflight; no claim of native hook trust/enforcement."""
 import argparse
 import json
+import math
 import pathlib
 import shutil
 import subprocess
@@ -31,13 +32,18 @@ def validate_hooks(path):
         if not isinstance(groups, list) or not groups:
             raise ValueError("missing hook group for " + event)
         for group in groups:
-            if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
+            if (not isinstance(group, dict) or not isinstance(group.get("hooks"), list)
+                    or not group["hooks"]):
                 raise ValueError("invalid hook group for " + event)
             for item in group["hooks"]:
                 if (not isinstance(item, dict) or item.get("type") != "command"
                         or not isinstance(item.get("command"), str)
                         or "harness/claude/hook.py" not in item["command"]):
                     raise ValueError("hook command must reference harness/claude/hook.py")
+                timeout = item.get("timeout", 600)
+                if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
+                        or not math.isfinite(timeout) or timeout <= 0):
+                    raise ValueError("hook timeout must be a finite positive number")
 
 
 def main(argv=None):
@@ -66,12 +72,17 @@ def main(argv=None):
         return 2
     try:
         policy = json.loads((ROOT / "harness/hook-policy.json").read_text(encoding="utf-8"))
+        if not isinstance(policy, dict) or any(
+                not isinstance(policy.get(key), bool)
+                for key in ("snapshot_apply_patch", "stop_verify")):
+            raise ValueError("policy must contain boolean snapshot_apply_patch and stop_verify")
         print("HOOK_POLICY: snapshot_apply_patch=" + str(policy.get("snapshot_apply_patch")),
               "stop_verify=" + str(policy.get("stop_verify")))
-    except (OSError, ValueError):
-        print("HOOK_POLICY: UNREADABLE")
+    except (OSError, ValueError) as exc:
+        print("HOOK_POLICY: INVALID", str(exc))
+        return 2
     print("PROJECT_TRUST:", args.project_trusted)
-    print("HOOK_ENV_VAR: CLAUDE_HOOK_EVENT must be set by host; not verifiable from preflight")
+    print("HOOK_EVENT: read hook_event_name from native JSON stdin; optional wrapper env override")
     print("HOOK_TRUST: UNVERIFIED until Claude Code actually dispatches hooks with correct env/schema")
     print("NATIVE_AGENTS: .claude/agents/*.md presence is not proof of runtime subagent discovery")
     if args.project_trusted != "yes":
