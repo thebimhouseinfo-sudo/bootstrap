@@ -29,6 +29,8 @@ jobs:
         run: python tests/test_setup_smoke.py
       - name: Local agent setup excluded from target Git index
         run: python tests/test_local_ignore.py
+      - name: Staged installation, hook smoke and handoff regression
+        run: python tests/test_staged_setup.py
       - name: Codex hook preflight schema
         run: python project-template/harness/codex/preflight.py
       - name: Template inventory smoke
