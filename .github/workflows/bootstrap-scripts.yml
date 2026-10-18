@@ -1,0 +1,21 @@
+name: bootstrap script regression
+on:
+  push:
+  pull_request:
+jobs:
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Regression suite
+        run: python project-template/harness/codex/test_baseline.py
+      - name: Inventory smoke
+        run: python project-template/harness/codex/doctor.py

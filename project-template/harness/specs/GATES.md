@@ -27,7 +27,7 @@ A specification, not a gate engine. Milestones, triggers and gate selection are 
 - light: G3, G4 (+G5 if there is a real-run criterion)
 - standard: G3, G4, G5, G7
 - heavy: G3-G9 (plan through G1+G2)
-- G13 applies to every task in every profile. G12 applies when the change must be integrated. G14 at milestone end and before release.
+- G13 applies to Standard and Full tasks only. At plan stage check planned links and coverage; at delivery stage check real files/tests/evidence. Lite has no G13. G12 applies when the change must be integrated. G14 applies only in Full at milestone end and before release.
 - Sample escalation thresholds (tune per project): diff >=150 lines / 5 files -> standard; >=400 lines / 12 files -> heavy; touching `harness/sensitive-paths`, dependencies, or a goal with an invariant -> heavy; edited or deleted tests -> G6 and G9 mandatory; verify failing 3 times or 2 review rounds -> raise one level, still failing -> stop and open a request.
 
 ## State and expiry
@@ -56,3 +56,6 @@ A specification, not a gate engine. Milestones, triggers and gate selection are 
 ## Honest limits
 
 A signed gate by an agent is not proof of who signed unless permissions are enforced. Gates are only as good as the acceptance conditions; vague conditions make PASS meaningless.
+
+## Canonical tier source
+Read `TIER_MANIFEST.json` for tier applicability. Neither this prose nor the full v9 prompt may override that machine-readable manifest. No milestone => NOT_CONFIGURED. User gates without authenticated authorization => AWAITING_USER, not PASS.

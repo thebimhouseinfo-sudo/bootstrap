@@ -18,8 +18,11 @@ Each test needs one violating case that is correctly blocked and one legitimate 
 11. Request rules: DISAGREE cancels and the identical request is not resent; OTHER without a note is rejected, with a note it supersedes; an old pending request still blocks; changing content after approval voids the approval.
 12. Missing model gives `BLOCKED/NEEDS_USER_CHOICE`, never a silent fallback; two sample projects of different stacks do not leak profiles.
 
-## Full (add)
+## Standard (continued)
 13. G13: task without goal blocked; in-scope ID without task/test reported; OPEN blocks dependants; silent theory gives `THEORY_GAP` instead of invention.
+## Full (add)
 14. G14: operating scenarios run on a fake product; unresolved `THEORY_GAP` prevents PASS.
 15. Git: unintegrated commit keeps G12 not PASS for the right scope; integrated commit recognized; unknown branch never auto-merged or deleted; no Git gives `NOT_APPLICABLE`; raw push blocked; `git-admin push` works only with an AGREE'd PUSH request and G12 PASS.
 16. Fixer: every BLOCK prints code/rule/location/unlock; doctor catches seeded faults (wrong hook path, wrong schema version, two rules demanding opposites); T0 fix comes with a regression test and CHANGELOG; T1 is never auto-applied; weakening detector blocks loosening; "approved push still blocked" is diagnosed correctly; at most 2 attempts; failed protective test or selftest rolls back.
+
+Tier applicability is defined by `TIER_MANIFEST.json`; test G13 plan-stage links separately from delivery-stage file/test evidence. Lite must never be blocked on Standard/Full gates.
