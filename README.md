@@ -14,6 +14,8 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 > Thiết lập Bootstrap cho **dự án đã có code** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Khảo sát, bảo toàn code hiện tại và tự điều phối toàn bộ setup; chỉ hỏi khi cần tôi quyết định hoặc phê duyệt.
 
+**Lưu ý về dialog:** Trước khi cài đặt, bạn có thể thấy **dialog cấp quyền**. Sau khi cấp quyền, agent sẽ mở **dialog câu hỏi cấu hình**. Hãy đọc kỹ và trả lời: đây không phải một yêu cầu cấp quyền nữa. Đáp án được ghi vào trace; **không hỏi đáp cấu hình bằng chat**.
+
 ## AI sẽ tự làm gì?
 
 Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**, đưa CRITERIA và phương hướng kỹ thuật cho Human duyệt, cấu hình Coder/Tester, audit và chạy smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
