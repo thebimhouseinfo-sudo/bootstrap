@@ -4,27 +4,28 @@
 
 **Source of truth:** `../project-template/` is the distributable canonical template. This guide instructs the **Environment Architect** during bootstrap; the installed `AGENTS.md` controls normal product work. Follow the staged workflow below. The installer does not automatically research product requirements, approve theory, or guarantee native hook activation.
 
-## First-install staged contract
+## Single authoritative first-install workflow
 
-**Tier prerequisite:** the fully guided Planner Discovery → technical direction → Coder/Tester → Plan/Milestones flow requires Standard or Full. Lite does not package Planner and Tester; do not promise the full experience for Lite. Ask for approval before switching tiers. Native host behaviors remain subject to runtime verification.
+**Mandatory setup source:** Bootstrap must be available as a local checkout; `install.py` reads `project-template/` relative to itself, not from a GitHub page. With human approval, clone using `git clone --depth 1 https://github.com/thebimhouseinfo-sudo/bootstrap.git <temporary-checkout>` into a safe, separate folder **outside the target project**, or reuse a verified existing checkout. Inspect local files from that checkout. GitHub's `blob` URL is for a file; GitHub's `tree` URL is for a folder. For just the English instructions, fetch `https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md`; the full installer cannot run from a raw-file URL alone. Preserve target project Git history and source.
 
-1. Identify **new** (no code) vs **existing** (working code) project. Inventory its host, stack, Git and existing files. Batch only missing questions. Avoid touching existing product code.
-2. **Preliminary install:** preview `python install.py --target PATH --tier Standard --runtime RUNTIME --staged`, obtain approval, then append `--apply`. Staged installs leave blocking hooks in BOOTSTRAPPING mode. Old installs without staged state retain legacy behavior; do not silently override them.
-3. **Planner Discovery:** immediately check status of `docs/CRITERIA.md`. If new, brainstorm with human. If existing code, reconstruct verified observed behavior, distinguish CURRENT/REQUESTED/GAP, and ask what human wants. Never equate code to approved requirements; never overwrite an already approved CRITERIA without the settled-delta/Advisor/human process.
-4. **Technical direction:** after CRITERIA approval, propose evidence-based stack/architecture for new projects or continuation/refactor options with compatibility/regression risks for existing ones. Discuss feasibility and costs with the human; obtain explicit technical direction approval. Record HOW in ARCHITECTURE and PROJECT_PROFILE, not product GOALMAP.
-5. **Project specialization:** configure optional focused knowledge/skills for Coder (host SDK, dialect, API, build) and Tester (unit, integration, live-host, regression). Load relevant context per task; lack of optional packs does not disable normal generic agents. Configure `harness/common/checks.json` from real commands only.
-6. **Configuration audit:** inspect every required installed artifact, unresolved placeholders, selected roles, interpreter paths, Git branch authority and recovery. Mark genuinely optional capabilities NOT_APPLICABLE/UNVERIFIED rather than claiming PASS.
-7. **Self-generated smoke:** derive positive and negative test cases from installed hooks/scripts. Use safe disposable artifacts/worktrees and subprocess fixtures. Test legitimate operations are not incorrectly blocked and forbidden actions are blocked at the declared interception boundary. Fix approved configuration errors and rerun relevant regressions. Do not weaken an enforced rule to pass tests.
-8. **Fresh real-host session:** provide an exact host-specific prompt/commands when the setup session cannot prove native event dispatch. **Warn loudly: NEVER CLOSE THE ORIGINAL SETUP TAB.** Save checkpoint/recovery guidance first; human opens a second tab in the same project, runs positive/negative live tests, and reports observations back. If the second tab BLOCKS, use the original setup tab/independent recovery, not a self-bypass.
-9. **Final lock:** run `python harness/common/setup_lifecycle.py host-test` to generate a host-specific fresh-session checklist; retain original setup tab. Pre-lock negative blocking must be tested in a DISPOSABLE clone with its own safe Git authority, because the real project deliberately defers blocking while BOOTSTRAPPING. Record actual observations in `harness/setup-live-evidence.json`, get explicit human authorization, run `python harness/common/setup_lifecycle.py activate --evidence harness/setup-live-evidence.json --human-approved`. This validates required audit and subprocess smoke; saves lock hashes, but is NOT cryptographic/human-only authorization. Portable clients lacking native blocking hooks may only reach READY_WITH_LIMITATIONS with truthful role/checks evidence.
-10. **Post-lock & handoff:** after activation retest safe native operations and blocking in an isolated worktree/clone using a fresh host session. Record `harness/setup-postlock-evidence.json` and obtain human consent, then run `python harness/common/setup_lifecycle.py finalize --post-lock-evidence harness/setup-postlock-evidence.json --human-approved`. This checks hash drift and records HANDOFF_COMPLETE. Failed or missing live proof means DO NOT hand off; keep setup tab open. For clients with no native hooks, record the GUIDED_ONLY limitation honestly. Report actual PASS/FAIL/UNVERIFIED and remaining limitations. Provide one **Planner** kickoff prompt to read approved CRITERIA and build **Implementation Plan + GOALMAP**, then Milestones for human approval; only then Tasks and development. This is the main workflow, not a second setup.
+**Tier prerequisite:** Standard or Full is required for the full Planner and Tester workflow. Lite is a lightweight, manually guided mode; do not promise autonomous Planner/Tester operation, hooks or approvals absent from its installed tier.
 
-**GOALMAP lives in `docs/IMPLEMENTATION_PLAN.md`, never in CRITERIA.** Each Plan section begins with the **GOAL** (observable product outcome and why code exists), then CRITERIA IDs, implementation strategy, dependencies, acceptance and test evidence. No milestone or task is approved simply by existing in the template.
+**Use this ONE sequence; the reference material below is not a second setup process:**
 
-**Recovery:** do not treat text instructions as a trusted host bypass. Before activating blocking hooks, back up policies/configuration and confirm a separate human-authorized maintenance procedure; if hooks are broken, use host controls or offline repair. Automatic authenticated gates, user-only ledger signatures and universal shell interception are NOT_CONFIGURED.
+1. **Intake and project classification.** Run `python install.py --ask-first` to gather genuinely missing choices in one message. Determine new idea/no code vs existing code, host/runtime, tier, actual target folder, OS, Git active/frozen branches, target Git config mode, working build/test tools, and approval channel. Inventory the target before proposing writes.
+2. **Preliminary staged install.** From the verified local Bootstrap checkout, preview `python install.py --target TARGET --tier Standard --runtime RUNTIME --config-git local --staged` (or `tracked`, with `--target-app CLIENT` for generic), show the diff, resolve conflicts and obtain authorization. Then rerun with `--apply`. `--staged` is mandatory for a first setup with blocking hooks; if it was omitted do not reopen a new agent tab before inspection. Never use an unstaged install merely to bypass this step.
+3. **CRITERIA Discovery and approval.** Check the existing CRITERIA status first. For a new idea: brainstorm and research with Human. For existing code: inspect actual behavior, tests and source; distinguish CURRENT, DESIRED and GAP before revising the draft. An already-approved CRITERIA requires settled-delta, Advisor consultation and explicit approval for changes.
+4. **Technical direction.** After CRITERIA approval, recommend an appropriate stack/architecture for new projects or compatible continuation/refactor options based on existing code. State tradeoffs and regression risks. Human approves before changing the technical direction; record the selected HOW in ARCHITECTURE and PROJECT_PROFILE.
+5. **Specialize Coder/Tester and complete audit.** Configure focused SDK/dialect/API knowledge, verified build/test commands, working Git branch policy, real host integration and regression procedure. Optional packs do not block generic agents. Run `python TARGET/harness/common/setup_lifecycle.py audit` and repair all mandatory gaps without weakening guards.
+6. **Automatic smoke and recovery readiness.** Derive positive ALLOW and negative DENY cases for **installed** hooks/scripts; run `python TARGET/harness/common/setup_lifecycle.py smoke` and additional safe disposable fixtures. Verify isolated rollback/recovery and preserve existing product files. Do not mistake script PASS for native host hook evidence.
+7. **Real fresh-session host verification.** Run `python TARGET/harness/common/setup_lifecycle.py host-test` for host-specific actions. **WARNING: NEVER CLOSE THE ORIGINAL SETUP TAB.** Keep it as the repair coordinator. Open a separate tab, perform safe positive tests and forbidden-action tests only in a disposable clone/worktree, and report precise logs/version. If BLOCKED, return to original tab or a verified offline recovery tool.
+8. **Human-operated final lock.** Save real observations to `harness/setup-live-evidence.json`. Ask the Human to personally open an independent terminal and run `python harness/common/setup_lifecycle.py activate --evidence harness/setup-live-evidence.json` **without automated input**, review prompts and type the requested confirmation. A regular agent tool execution or non-interactive pipe is refused. This is friction against accidental self-approval, not a cryptographic identity guarantee; a tool with terminal control can spoof a TTY, so do not claim ENFORCED human authentication.
+9. **Post-lock host test.** Test again after activation on a new agent session with the original setup tab retained. Record actual `harness/setup-postlock-evidence.json`; Human personally runs `python harness/common/setup_lifecycle.py finalize --post-lock-evidence harness/setup-postlock-evidence.json` in an independent interactive terminal, with confirmation. Leave defects BLOCKED and preserve recovery access.
+10. **Handoff.** Only after post-lock validation, report DONE/READY_WITH_LIMITATIONS and what was truly tested. Provide the single kickoff prompt calling Planner to read approved CRITERIA and create/revise `docs/IMPLEMENTATION_PLAN.md` (**GOALMAP is inside this Plan, not CRITERIA; each Plan section starts with user-observable GOAL**), then Milestones. Human approves plan before Tasks and coding.
+
+**Safe upgrades:** never overwrite product or customized harness files as a side effect of reinstall. Use the source-file hash manifest and an explicit `--upgrade` preview. A file modified since the prior install is CONFLICT and requires manual reconciliation. Use `harness/common/recover.py` from an independent terminal for exceptional hook repair; it must back up affected files and request explicit human confirmation. Both tools are coordination and integrity checks, not OS sandboxing or authenticated approvals.
 
 ---
-
 ## For AI agents: mandatory instructions
 
 ### Your role
@@ -37,7 +38,7 @@ Planner handles product content in two modes: **Discovery**, brainstorming and r
 
 ### Canonical template structure
 
-Only [`project-template/`](../project-template/) is the installation source. Copy its **contents** into the target project's root, not into an extra nested directory, and only after inspecting existing files and obtaining the required authorization.
+Only [`project-template/`](https://github.com/thebimhouseinfo-sudo/bootstrap/tree/main/project-template) is the installation source. Copy its **contents** into the target project's root, not into an extra nested directory, and only after inspecting existing files and obtaining the required authorization.
 
 ```text
 project-template/
@@ -102,47 +103,16 @@ project-template/
 12. **Report actual readiness.** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED and UNVERIFIED are different states.
 13. **Evidence-specific compatibility:** Codex and Antigravity are GENERIC READY and Tested; Claude Code is fully configured but lacks host testing; Continue is nearly ready pending provider/model selection and host testing; other runtimes should port only necessary adapters. Never equate this generic readiness with `ENFORCED` or claim `RUNTIME_VERIFIED` without corresponding evidence.
 
-### Setup workflow
+### Setup reference (not another sequence)
 
-**One-message Pre-Ask:** `python install.py --ask-first` prints the whole question set only (never installs and never asks sequential terminal questions). Before running setup tools or mixing in host tool-permission dialogs, gather all genuinely missing choices (project path, tier, runtime, Git branch, model, host/testing needs and approval channel) **in one chat message**, reusing context already known. After the human responds, inspect and install; do not drip-feed setup questions across command authorization prompts. This saves interaction time and quota.
+Use the ten-step **Single authoritative first-install workflow** above. `--ask-first` prints the one-batch intake questions; use the installer preview and staged apply exactly as described there. When in doubt, do not start coding, mark host-specific checks UNVERIFIED and request missing evidence. The configuration table below describes artifacts, not an additional Step 0–5 process.
 
-#### Step 0. Classify the project
+| Artifact | Target | Purpose |
+| --- | --- | --- |
+| `AGENTS.md` | Project root | Agent operating contract |
+| `.agents/skills/*` | Runtime-native skill paths | Reusable skills, host registration when supported |
+| `harness/specs/*` | `harness/specs/` | Contracts; NOT_CONFIGURED components are not functioning tools |
 
-- **A — Existing code:** inspect source, configuration, tests and documentation. If operating theory is absent, record that fact; do not invent its behavior.
-- **B — New project with approved specifications:** use approved information to identify product and technical constraints. Planner consolidates theory into CRITERIA; Bootstrap does not approve or rewrite its product logic.
-- **C — New project without approved theory:** enable a **minimal Planner Discovery Mode** (brainstorming, research, CRITERIA placeholder, available conversation and approval channel). Do not force the user to finish requirements first. Do not choose the final stack, start product tasks or claim a full harness exists yet.
-
-#### Step 1. Collect only missing information
-
-Inspect known information first. Determine: Lite/Standard/Full tier (Standard is the typical default), agent runtime/version (chosen from the actual installed app, never presumed), OS and shell, Git/remote/branch, product type and host, existing stack, real integration test availability, models/tools actually supported, language dialect and API version requirements, reporting language, and the available human approval channel.
-
-For case C, collect only what is necessary to begin Discovery. If a runtime has no hooks or human-only approval controls, disclose any journal and authorization integrity that remains `GUIDED_ONLY`.
-
-#### Step 2. Propose changes before writing files
-
-Inventory the canonical project tree and current target files. Show:
-
-| Source template | Target path | Action | Reason / failure prevented | Adaptation needed |
-| --- | --- | --- | --- | --- |
-| `AGENTS.md` | `AGENTS.md` | Keep / adapt / omit | Agent workflow | Verified project commands |
-| `.agents/skills/*` | Runtime-native skill paths | Keep / adapt / omit | Repeatable skills | Registration if required |
-| `harness/specs/*` | `harness/specs/` | Keep contract / implement | Hooks, gates and approvals | Runtime-specific scripts |
-
-Include the tier, a role → model/reasoning/permission matrix, the enforcement table (`ENFORCED` / `GUIDED_ONLY` / `UNVERIFIED` / `NOT_CONFIGURED`), conflicts, rollback approach and tests. Submit a `HARNESS_PATCH` Approval Request, then stop before modifying protected files. If the approval mechanism itself is not yet installed, present the initial setup proposal in chat and state explicitly that this exception is **not technically enforced authorization**.
-
-#### Step 3. The AI installs and customizes
-
-**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME --config-git local` (or `--config-git tracked`) (choose `antigravity`, `codex`, `claude`, `continue`, or `generic` explicitly; for `generic`, also pass `--target-app cline` or another actual client); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
-
-For Codex and Antigravity, **the GENERIC READY template can be copied and used for generic agent work without modifying shared roles/skills/scripts**. Then fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands for the **specific project**. Claude Code has its generic configuration prepared but needs host testing; Continue primarily needs provider/model mapping and host testing. Other platforms should adapt only necessary adapters following `project-template/SETUP.md` and `harness/specs/`, saving setup quota rather than rebuilding. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
-
-#### Step 4. Validate
-
-Test using a disposable copy and fake data, following [`harness/specs/TESTS.md`](../project-template/harness/specs/TESTS.md). Each enforced boundary must demonstrate a prohibited operation that is blocked and a legitimate operation that passes. Check actual role/skill activation, verification, approvals, hooks and gates for the selected tier. Missing execution or host access means `UNVERIFIED`, never PASS.
-
-#### Step 5. Report concisely
-
-Report installed components and why they exist; actual enforcement versus guidance; role/model availability; exact tests and evidence; unverified items; how to use the harness day to day (no more than five lines); and any remaining user action.
 
 ---
 
@@ -192,8 +162,8 @@ The installer supports two modes through `--config-git`:
 The approvals ledger remains specific to **one Human**. Multi-person approval authentication or synchronization through Git is not supported. Product documentation such as `docs/CRITERIA.md`, `ARCHITECTURE.md`, `MILESTONES.md`, and `BACKLOG.md` remains trackable in either mode.
 
 ```bash
-python install.py --target PATH --tier Standard --runtime codex --config-git tracked
-python install.py --target PATH --tier Standard --runtime codex --config-git tracked --apply
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked --staged
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked --staged --apply
 # To switch modes, add --change-config-git to both preview and --apply
 ```
 

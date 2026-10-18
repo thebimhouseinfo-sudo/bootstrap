@@ -8,11 +8,13 @@
 
 ### A. Dự án mới — chưa có code
 
-> Đọc hướng dẫn **For AI** tại https://github.com/thebimhouseinfo-sudo/bootstrap/blob/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án của tôi: `<ý tưởng, mục đích, thư mục dự án>` (chưa có code). Hãy setup Bootstrap theo quy trình staged: khảo sát và cài sơ bộ an toàn, rồi gọi Planner cùng tôi brainstorm và chốt CRITERIA trước khi đề xuất ngôn ngữ/framework/kiến trúc. Sau khi tôi duyệt phương hướng kỹ thuật, cấu hình skill/knowledge chuyên ngành cho Coder và Tester; kiểm tra hết placeholder cần thiết; tự tạo smoke test hai chiều và nhờ tôi xác minh host thực tế nếu cần. Chỉ khóa hook sau khi test PASS, rồi bàn giao. Đề xuất và xin duyệt các thao tác ghi file trước khi thực hiện. Không tự viết sản phẩm trong lúc setup.
+> Đọc hướng dẫn **For AI** tại https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án của tôi: `<ý tưởng, mục đích, thư mục dự án>` (chưa có code). Hãy setup Bootstrap theo quy trình staged: khảo sát và cài sơ bộ an toàn, rồi gọi Planner cùng tôi brainstorm và chốt CRITERIA trước khi đề xuất ngôn ngữ/framework/kiến trúc. Sau khi tôi duyệt phương hướng kỹ thuật, cấu hình skill/knowledge chuyên ngành cho Coder và Tester; kiểm tra hết placeholder cần thiết; tự tạo smoke test hai chiều và nhờ tôi xác minh host thực tế nếu cần. Chỉ khóa hook sau khi test PASS, rồi bàn giao. Đề xuất và xin duyệt các thao tác ghi file trước khi thực hiện. Không tự viết sản phẩm trong lúc setup.
 
 ### B. Dự án đã có code — tích hợp vào codebase
 
-> Đọc hướng dẫn **For AI** tại https://github.com/thebimhouseinfo-sudo/bootstrap/blob/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án hiện có: `<thư mục/link repo và mô tả>`. Hãy khảo sát source, tài liệu, cấu hình build/test, Git và các chức năng đang hoạt động; tuyệt đối không ghi đè hoặc refactor code sản phẩm trong bước setup. Cài harness sơ bộ an toàn, kiểm tra trạng thái CRITERIA; nếu chưa được duyệt, Planner tái dựng hiện trạng từ code, hỏi mong muốn của tôi, soạn CRITERIA và xin duyệt. Sau đó đề xuất hướng phát triển/refactor; chỉ khi tôi duyệt mới cấu hình skill/knowledge Coder/Tester, hoàn thiện audit, test hook/script hai chiều trên runtime thực, khóa hook và bàn giao. Hỏi gộp thông tin còn thiếu, trình preview trước khi ghi file.
+> Đọc hướng dẫn **For AI** tại https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md và nguồn `project-template/`. Dự án hiện có: `<thư mục/link repo và mô tả>`. Hãy khảo sát source, tài liệu, cấu hình build/test, Git và các chức năng đang hoạt động; tuyệt đối không ghi đè hoặc refactor code sản phẩm trong bước setup. Cài harness sơ bộ an toàn, kiểm tra trạng thái CRITERIA; nếu chưa được duyệt, Planner tái dựng hiện trạng từ code, hỏi mong muốn của tôi, soạn CRITERIA và xin duyệt. Sau đó đề xuất hướng phát triển/refactor; chỉ khi tôi duyệt mới cấu hình skill/knowledge Coder/Tester, hoàn thiện audit, test hook/script hai chiều trên runtime thực, khóa hook và bàn giao. Hỏi gộp thông tin còn thiếu, trình preview trước khi ghi file.
+
+**Để AI thực sự chạy installer**, phải có bản clone Bootstrap trên máy, trong thư mục tạm riêng **ngoài dự án đích**: `git clone --depth 1 https://github.com/thebimhouseinfo-sudo/bootstrap.git <thu-muc-tam>`. Nếu agent có quyền shell, sau khi được duyệt nó tự clone và thực hiện; nếu chỉ đọc web, nó phải cung cấp lệnh chính xác cho Human. Link `raw` chỉ giúp đọc tài liệu, không thay thế bản clone.
 
 **Trong cả hai trường hợp:** AI phải dùng lệnh cài có `--staged` cho lần setup đầu, sau khi bạn duyệt preview. Mặc định installer chỉ preview; `--apply` mới ghi file. Runtime/tier và các giới hạn thực tế phải được khai báo rõ; không coi script test là bằng chứng host hook đã hoạt động.
 
@@ -52,7 +54,11 @@ python PATH/harness/common/setup_lifecycle.py smoke
 python PATH/harness/common/setup_lifecycle.py host-test
 ```
 
-Các lệnh `audit` và `smoke` nêu vấn đề còn thiếu; `host-test` in hướng dẫn mở phiên mới. AI quản lý bước `activate` và `finalize` sau khi có bằng chứng và Human cho phép; không tự tạo ra APPROVED CRITERIA hay bằng chứng test trên host. Tham khảo [English](docs/user-guide.en.md) và [For AI](docs/FOR_AI.md).
+Các lệnh `audit` và `smoke` nêu vấn đề còn thiếu; `host-test` in hướng dẫn mở phiên mới. AI chuẩn bị bằng chứng; **Human tự chạy** `activate` và `finalize` trong terminal tương tác độc lập sau khi đọc xác nhận. Không dùng lệnh do agent tự gọi để giả duyệt; không tự tạo ra APPROVED CRITERIA hay bằng chứng test trên host. Tham khảo [English](docs/user-guide.en.md) và [For AI](docs/FOR_AI.md).
+
+## Phiên bản và nâng cấp
+
+Installer ghi `harness/.bootstrap-manifest.json` để xác định nguồn và hash các file đã cài. Khi Bootstrap có phiên bản mới, AI có thể preview `--upgrade`, chỉ thay file chưa bị chỉnh sửa kể từ lần cài trước; các file khác phải được duyệt và hợp nhất thủ công. Nếu setup lỗi, đọc kết quả rollback và dùng `harness/common/recover.py` trong terminal độc lập cho sự cố hook. **Không tự tắt guard để thoát BLOCK**.
 
 ## License
 
