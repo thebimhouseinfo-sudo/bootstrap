@@ -75,6 +75,8 @@ def eligible(rel, tier, runtime, roles):
         return False
     if name.startswith("harness/codex/") and runtime != "codex":
         return False
+    if name.startswith("harness/claude/") and runtime != "claude":
+        return False
     if name.startswith("harness/specs/") or name == "harness/HARNESS_SPEC.md":
         leaf = rel.name
         if tier == "Lite" and leaf in {"GATES.md", "TRACE.md", "REVIEW_LOOP.md", "GIT_ADMIN.md",

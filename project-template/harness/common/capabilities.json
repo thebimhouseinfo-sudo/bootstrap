@@ -2,7 +2,7 @@
   "schema_version": 1,
   "release_kind": "BASELINE_AGENT_TEMPLATE_AND_SCRIPTS",
   "release_claim": "INSTALLABLE_BASELINE_NOT_AUTOMATED_HARNESS",
-  "description": "Codex-first Python scripts and project-local hook definitions; runtime trust, signed gates and agent orchestration remain separately unverified/unimplemented.",
+  "description": "Codex-first Python scripts and project-local hook definitions; Claude Code native adapter added (harness/claude/hook.py). Runtime trust, signed gates and agent orchestration remain separately unverified/unimplemented.",
   "capabilities": {
     "installer": "SCRIPT_TESTED",
     "role_configs": "READY_CONTENT",
@@ -25,6 +25,7 @@
     "orchestration": "NOT_CONFIGURED",
     "trace_links": "SCRIPT_TESTED",
     "codex_hook_bridge": "SCRIPT_TESTED",
+    "claude_hook_bridge": "SCRIPT_TESTED",
     "stop_hook": "SCRIPT_TESTED",
     "branch_authority": "SCRIPT_TESTED",
     "git_remote_protection": "NOT_CONFIGURED"
@@ -34,5 +35,6 @@
     "claude": "UNVERIFIED",
     "continue": "UNVERIFIED"
   },
+  "claude_adapter_note": "harness/claude/hook.py installed; real Claude Code host dispatch and exit-code semantics must be smoke-tested before marking RUNTIME_VERIFIED.",
   "note": "Tested Python helper scripts and syntax do not establish actual Codex/Claude/Continue agent discovery, gate enforcement or human-only authorization."
 }
