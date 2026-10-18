@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Safe installer/manifest regression, no modification of real project."""
-import importlib.util
+"""Cross-platform, non-destructive bootstrap installer and native adapter regressions."""
 import json
 import pathlib
 import subprocess
@@ -8,87 +7,140 @@ import sys
 import tempfile
 import unittest
 
-ROOT=pathlib.Path(__file__).resolve().parents[1]
-def module(filename):
-    spec=importlib.util.spec_from_file_location("installed",ROOT/filename)
-    mod=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-installer=module("install.py")
-class InstallationTests(unittest.TestCase):
-    def test_dry_run_and_repeat(self):
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "project-template"
+INSTALLER = ROOT / "install.py"
+INVENTORY = SOURCE / "harness/common/inventory.py"
+TIERS = ("Lite", "Standard", "Full")
+RUNTIMES = ("codex", "claude", "continue")
+EXPECTED = {
+    "Lite": {"coder", "reviewer"},
+    "Standard": {"coder", "reviewer", "planner", "tester", "critic", "explorer"},
+    "Full": {"coder", "reviewer", "planner", "tester", "critic", "explorer", "harness-fixer"},
+}
+
+def run(script, *args):
+    return subprocess.run([sys.executable, str(script), *map(str, args)],
+                          capture_output=True, text=True, timeout=40)
+
+class InstallTests(unittest.TestCase):
+    def test_all_nine_tier_runtime_installations(self):
+        for tier in TIERS:
+            for runtime in RUNTIMES:
+                with self.subTest(tier=tier, runtime=runtime), tempfile.TemporaryDirectory() as d:
+                    root = pathlib.Path(d)
+                    flags = ("--target", root, "--tier", tier, "--runtime", runtime)
+                    preview = run(INSTALLER, *flags)
+                    self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
+                    self.assertFalse((root / "AGENTS.md").exists())
+                    applied = run(INSTALLER, *flags, "--apply")
+                    self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
+                    again = run(INSTALLER, *flags, "--apply")
+                    self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+                    self.assertIn("SAME", again.stdout)
+                    self.assertFalse((root / "README.md").exists())
+                    self.assertTrue((root / "harness/common/verify.py").is_file())
+                    self.assertTrue((root / "harness/common/checks.json").is_file())
+                    installed = {x.stem for x in (root / ".agents/roles").glob("*.md")}
+                    self.assertEqual(installed, EXPECTED[tier])
+                    for other in RUNTIMES:
+                        path = {"codex": ".codex/agents", "claude": ".claude/agents",
+                                "continue": ".continue/agents"}[other]
+                        self.assertEqual((root / path).exists(), other == runtime)
+                    native = {
+                        "codex": {x.stem for x in (root / ".codex/agents").glob("*.toml")},
+                        "claude": {x.stem for x in (root / ".claude/agents").glob("*.md")},
+                        "continue": {x.name for x in (root / ".continue/agents").iterdir()},
+                    }[runtime]
+                    self.assertEqual(native, EXPECTED[tier])
+                    if runtime == "claude":
+                        generic = {x.parent.name for x in (root / ".agents/skills").glob("*/SKILL.md")}
+                        native_skills = {x.parent.name for x in (root / ".claude/skills").glob("*/SKILL.md")}
+                        self.assertEqual(native_skills, generic)
+                    doctor = run(root / "harness/common/inventory.py", "--tier", tier, "--runtime", runtime)
+                    self.assertEqual(doctor.returncode, 0, doctor.stdout + doctor.stderr)
+                    verifier = run(root / "harness/common/verify.py")
+                    self.assertEqual(verifier.returncode, 2, verifier.stdout + verifier.stderr)
+
+    def test_dirty_project_merge(self):
         with tempfile.TemporaryDirectory() as d:
-            target=pathlib.Path(d)
-            preview=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target)],capture_output=True,text=True)
-            self.assertEqual(preview.returncode,0,preview.stdout+preview.stderr)
-            self.assertFalse((target/"AGENTS.md").exists())
-            applied=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target),"--apply"],capture_output=True,text=True)
-            self.assertEqual(applied.returncode,0,applied.stdout+applied.stderr)
-            again=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target),"--apply"],capture_output=True,text=True)
-            self.assertEqual(again.returncode,0,again.stdout+again.stderr)
-            self.assertIn("SAME",again.stdout)
-    def test_conflict_preserved(self):
+            root = pathlib.Path(d)
+            (root / "AGENTS.md").write_text("HUMAN", encoding="utf-8")
+            (root / "README.md").write_text("PRODUCT README", encoding="utf-8")
+            flags = ("--target", root, "--tier", "Standard", "--runtime", "codex")
+            preview = run(INSTALLER, *flags)
+            self.assertEqual(preview.returncode, 2)
+            self.assertFalse((root / "AGENTS.bootstrap.md").exists())
+            applied = run(INSTALLER, *flags, "--apply")
+            self.assertEqual(applied.returncode, 2, applied.stdout + applied.stderr)
+            self.assertEqual((root / "AGENTS.md").read_text(), "HUMAN")
+            self.assertEqual((root / "README.md").read_text(), "PRODUCT README")
+            self.assertTrue((root / "AGENTS.bootstrap.md").is_file())
+            self.assertEqual(run(INSTALLER, *flags, "--apply").returncode, 2)
+
+    def test_reject_source_repo_and_nested_target(self):
+        for target in (ROOT, SOURCE, ROOT / "tests"):
+            with self.subTest(target=str(target)):
+                result = run(INSTALLER, "--target", target, "--apply")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("outside the bootstrap checkout", result.stderr)
+
+    def test_parent_symlink_preflight_does_not_create_external_directory(self):
         with tempfile.TemporaryDirectory() as d:
-            target=pathlib.Path(d)
-            (target/"AGENTS.md").write_text("HUMAN CONTENT",encoding="utf-8")
-            applied=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target),"--apply"],capture_output=True,text=True)
-            self.assertEqual(applied.returncode,2,applied.stdout+applied.stderr)
-            self.assertEqual((target/"AGENTS.md").read_text(encoding="utf-8"),"HUMAN CONTENT")
-            self.assertTrue((target/"AGENTS.bootstrap.md").is_file())
-            self.assertFalse((target/"README.md").exists())
-    def test_manifest_tiers_and_document_paths(self):
-        project=ROOT/"project-template"
-        manifest=json.loads((project/"harness/specs/TIER_MANIFEST.json").read_text())
-        self.assertEqual(manifest["tiers"]["Lite"]["gates"],[])
-        self.assertIn("G13",manifest["tiers"]["Standard"]["gates"])
-        self.assertIn("G14",manifest["tiers"]["Full"]["gates"])
-        for p in ("harness/HARNESS_SPEC.md","harness/specs/HARNESS_SPEC_TEMPLATE.md",
-                  "harness/specs/READINESS.md","harness/codex/preflight.py"):
-            self.assertTrue((project/p).is_file(),p)
-    def test_tier_runtime_filtering(self):
-        with tempfile.TemporaryDirectory() as d:
-            dest=pathlib.Path(d)
-            for tier,runtime in (("Lite","codex"),("Standard","claude"),("Full","continue")):
-                result=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(dest),"--tier",tier,"--runtime",runtime],capture_output=True,text=True)
-                self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-                included=[p.relative_to(installer.SOURCE).as_posix() for p in installer.entries(tier,runtime)]
-                self.assertNotIn("README.md",included)
-                if runtime!="codex": self.assertFalse(any(p.startswith(".codex/") for p in included))
-                if runtime!="claude": self.assertFalse(any(p.startswith(".claude/") for p in included))
-                if runtime!="continue": self.assertFalse(any(p.startswith(".continue/") for p in included))
-                if tier=="Lite":
-                    self.assertFalse(any("harness-fixer" in p for p in included))
-                    self.assertNotIn("harness/specs/GATES.md",included)
-    def test_agent_model_presets_and_read_only(self):
-        project=ROOT/"project-template"
+            base = pathlib.Path(d)
+            root, outside = base / "project", base / "outside"
+            root.mkdir()
+            outside.mkdir()
+            try:
+                (root / "docs").symlink_to(outside, target_is_directory=True)
+            except (NotImplementedError, OSError):
+                self.skipTest("Symlink privilege unavailable")
+            applied = run(INSTALLER, "--target", root, "--apply")
+            self.assertEqual(applied.returncode, 2, applied.stdout + applied.stderr)
+            self.assertEqual(list(outside.iterdir()), [])
+            self.assertFalse((root / "AGENTS.md").exists())
+
+    def test_manifest_and_native_configs(self):
+        manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text())
+        for tier in TIERS:
+            names = set()
+            current = tier
+            while current:
+                entry = manifest["tiers"][current]
+                names.update(entry["agents"])
+                current = entry.get("inherits")
+            self.assertEqual(names, EXPECTED[tier])
         try:
             import tomllib
         except ImportError:
-            try:
-                import tomli as tomllib
-            except ImportError:
-                self.skipTest("TOML parser unavailable on this Python")
-        with (project/".codex/config.toml").open("rb") as f: cfg=tomllib.load(f)
-        self.assertNotIn("model",cfg)
-        self.assertNotIn("approval_policy",cfg)
-        for file in (project/".codex/agents").glob("*.toml"):
-            with file.open("rb") as f: data=tomllib.load(f)
-            self.assertTrue(data.get("model"), file.name)
-            self.assertIn(data.get("model_reasoning_effort"), ("medium", "high"))
-            if file.stem in ("critic","explorer"):
-                self.assertEqual(data.get("sandbox_mode"),"read-only")
-    def test_native_agent_toml(self):
-        project=ROOT/"project-template"
+            import tomli as tomllib
+        with (SOURCE / ".codex/config.toml").open("rb") as f:
+            cfg = tomllib.load(f)
+        self.assertNotIn("model", cfg)
+        for p in (SOURCE / ".codex/agents").glob("*.toml"):
+            with p.open("rb") as f:
+                cfg = tomllib.load(f)
+            self.assertTrue(cfg.get("model"))
+            self.assertIn(cfg.get("model_reasoning_effort"), ("medium", "high"))
+            if p.stem in ("critic", "explorer"):
+                self.assertEqual(cfg.get("sandbox_mode"), "read-only")
+        for p in (SOURCE / ".claude/agents").glob("*.md"):
+            front = p.read_text().split("---", 2)[1]
+            self.assertIn("effort:", front)
+            self.assertIn("model:", front)
         try:
-            import tomllib
+            import yaml
         except ImportError:
-            try:
-                import tomli as tomllib
-            except ImportError:
-                self.skipTest("tomllib/tomli unavailable")
-        for file in (project/".codex/agents").glob("*.toml"):
-            with file.open("rb") as f: doc=tomllib.load(f)
-            for key in ("name","description","developer_instructions"):
-                self.assertTrue(doc.get(key),str(file)+": "+key)
-if __name__=="__main__":
+            self.skipTest("PyYAML not available outside CI")
+        configs = [SOURCE / ".continue/config.yaml"] + list(
+            (SOURCE / ".continue/agents").glob("*/config.yaml"))
+        for p in configs:
+            parsed = yaml.safe_load(p.read_text(encoding="utf-8"))
+            self.assertEqual(parsed["schema"], "v1", p)
+            self.assertIsInstance(parsed["models"], list, p)
+            if "/agents/" in p.as_posix():
+                self.assertTrue(parsed["rules"], p)
+                self.assertNotIn("\\n", parsed["rules"][0], p)
+
+if __name__ == "__main__":
     unittest.main(verbosity=2)
