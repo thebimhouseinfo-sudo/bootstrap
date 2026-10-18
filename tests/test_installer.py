@@ -14,9 +14,9 @@ INVENTORY = SOURCE / "harness/common/inventory.py"
 TIERS = ("Lite", "Standard", "Full")
 RUNTIMES = ("codex", "claude", "continue")
 EXPECTED = {
-    "Lite": {"coder", "reviewer"},
-    "Standard": {"coder", "reviewer", "planner", "tester", "critic", "explorer"},
-    "Full": {"coder", "reviewer", "planner", "tester", "critic", "explorer", "harness-fixer"},
+    "Lite": {"coder", "reviewer", "advisor"},
+    "Standard": {"coder", "reviewer", "advisor", "planner", "tester", "critic", "explorer"},
+    "Full": {"coder", "reviewer", "advisor", "planner", "tester", "critic", "explorer", "harness-fixer"},
 }
 
 def run(script, *args):
@@ -100,6 +100,17 @@ class InstallTests(unittest.TestCase):
             self.assertEqual(applied.returncode, 2, applied.stdout + applied.stderr)
             self.assertEqual(list(outside.iterdir()), [])
             self.assertFalse((root / "AGENTS.md").exists())
+
+    def test_advisor_is_a_decision_stage_role_not_global_agent(self):
+        source = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8")
+        self.assertIn("before the first approval", source)
+        self.assertIn("human", source.lower())
+        self.assertIn("NEVER veto", source)
+        for rel in (".codex/agents/advisor.toml", ".claude/agents/advisor.md",
+                    ".continue/agents/advisor/config.yaml"):
+            self.assertTrue((SOURCE / rel).is_file(), rel)
+        instructions = (SOURCE / "AGENTS.md").read_text()
+        self.assertIn("No standing Advisor loop", instructions)
 
     def test_manifest_and_native_configs(self):
         manifest = json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text())
