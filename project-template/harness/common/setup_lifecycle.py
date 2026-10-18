@@ -106,6 +106,7 @@ def smoke():
         for relative in ("docs/ARCHITECTURE.md", "docs/CRITERIA.md",
                          "harness/hook-policy.json", "harness/active-task.json",
                          "harness/common/branch_authority.py", "harness/common/snapshot.py",
+                         "harness/common/setup_lifecycle.py",
                          "harness/common/task.py", "harness/common/verify.py",
                          "harness/common/checks.json", hook_rel):
             src = ROOT / relative
