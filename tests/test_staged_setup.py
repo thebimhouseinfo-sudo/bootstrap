@@ -194,6 +194,34 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("DO NOT CLOSE", result.stdout)
         self.assertIn("DISPOSABLE", result.stdout)
 
+
+    def test_packaged_gitkeep_and_versioned_install_manifest(self):
+        self.install()
+        self.assertTrue((self.root / "docs/reports/.gitkeep").is_file())
+        path = self.root / "harness/.bootstrap-manifest.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(data["schema_version"], 1)
+        self.assertIn("docs/reports/.gitkeep", data["files"])
+        self.assertEqual(len(data["files"]["AGENTS.md"]["installed_sha256"]), 64)
+        again = call(sys.executable, self.installer, "--target", self.root, "--runtime",
+                     "codex", "--config-git", "tracked", "--staged", "--apply")
+        self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+        self.assertEqual(json.loads(path.read_text()), data)
+
+    def test_recovery_requires_interactive_terminal_and_does_not_change_hooks(self):
+        self.install()
+        hook = self.root / ".codex/hooks.json"
+        before = hook.read_bytes()
+        recovery = self.root / "harness/common/recover.py"
+        info = call(sys.executable, recovery, "--runtime", "codex", "inspect", cwd=self.root)
+        self.assertEqual(info.returncode, 0, info.stdout + info.stderr)
+        denied = call(sys.executable, recovery, "--runtime", "codex", "disable", cwd=self.root)
+        self.assertEqual(denied.returncode, 2)
+        self.assertIn("interactive", denied.stdout)
+        self.assertEqual(hook.read_bytes(), before)
+        backups = self.root / "harness/recovery-backups"
+        self.assertFalse(backups.exists())
+
     def test_one_root_readme_and_plan_ownership(self):
         self.assertFalse((REPO / "README.en.md").exists())
         self.assertTrue((REPO / "docs/user-guide.en.md").is_file())
