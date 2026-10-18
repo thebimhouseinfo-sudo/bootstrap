@@ -1,10 +1,10 @@
-> **Release status:** Current product is an **agent template + installer + baseline scripts**, not a complete automated Codex harness. Snapshot/hook/gate/authenticated approval/trace/orchestration engines remain NOT_CONFIGURED. Run `python harness/common/status.py --tier Standard --runtime codex` after install. Codex subagent sandbox/approval inherit the parent; read-only prompt instructions are not enforcement. See `project-template/harness/specs/READINESS.md`.
-
-# Bootstrap: Codex-ready harness templates for coding agents
+# Bootstrap: coding-agent harness templates (baseline release)
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-This repository is a **ready-made harness template library**, optimized for **Codex**. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
+> **Release status:** Current product is an **agent template + installer + baseline scripts**, not a complete automated Codex harness. Snapshot/hook/gate/authenticated approval/trace/orchestration engines remain NOT_CONFIGURED. Run `python harness/common/status.py --tier Standard --runtime codex` after install. Codex subagent sandbox/approval inherit the parent; read-only prompt instructions are not enforcement. See `project-template/harness/specs/READINESS.md`.
+
+This repository is a **ready-made harness template library**, designed for **Codex**, currently shipped as a tested baseline rather than a complete enforced harness. Users only provide the repository URL and a brief project description. The AI must inspect the target project, propose adaptations for approval, then copy and configure the selected templates itself. If the AI cannot access the project's files or terminal, it must provide precise commands for the user's OS, shell and project path, then verify the resulting output.
 
 Do not redesign the harness from scratch or rewrite generic agents and skills. All claims of working functionality must be backed by actual tests. Protected decisions require a human-only **Approval Request with three choices: Agree / Disagree / Other**. The initial setup exception, when that channel has not yet been installed, must be explicitly disclosed.
 

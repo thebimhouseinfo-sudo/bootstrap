@@ -18,7 +18,7 @@ SKIP = {"README.md", "SETUP.md"}
 # of whether tests ran in this checkout.
 RELEASE_ROOTS = {".agents", ".claude", ".codex", ".continue", "docs", "harness", "lessons"}
 RELEASE_FILES = {"AGENTS.md", "CLAUDE.md", "README.md", "SETUP.md", "TASKS.md", ".gitignore"}
-RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py"}
+RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".gitkeep"}
 CACHE_DIRS = {
     "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
     ".tox", ".nox", ".venv", "venv", "node_modules", "dist", "build",
@@ -98,7 +98,7 @@ def entries(tier, runtime):
     roles = role_names(tier)
     files = []
     for src in SOURCE.rglob("*"):
-        if not src.is_file():
+        if src.is_symlink() or not src.is_file() or any(parent.is_symlink() for parent in src.parents if parent != SOURCE.parent):
             continue
         rel = src.relative_to(SOURCE)
         if is_release_source(rel) and eligible(rel, tier, runtime, roles):
