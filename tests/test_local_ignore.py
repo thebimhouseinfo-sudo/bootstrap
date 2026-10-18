@@ -134,5 +134,120 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertEqual(child_ignore.read_text(encoding='utf-8'), '!TRACE.md\n!PROJECT_PROFILE.md\n')
 
 
+    def test_local_mode_is_default_and_never_stages_agent_configuration(self):
+        installed = self.install('--apply')
+        self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+        self.assertIn('# mode: local', (self.root / '.gitignore').read_text(encoding='utf-8'))
+        self.git('add', '-A')
+        staged = set(self.git('ls-files').splitlines())
+        self.assertNotIn('AGENTS.md', staged)
+        self.assertNotIn('.codex/config.toml', staged)
+        self.assertNotIn('harness/common/verify.py', staged)
+
+    def test_tracked_mode_stages_config_but_never_local_state(self):
+        installed = self.install('--config-git', 'tracked', '--apply')
+        self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+        self.assertIn('Config in Git    : tracked', installed.stdout)
+        self.assertIn('ALWAYS_LOCAL', installed.stdout)
+        self.assertIn('# mode: tracked', (self.root / '.gitignore').read_text(encoding='utf-8'))
+        (self.root / 'harness/approvals.jsonl').write_text('private approval', encoding='utf-8')
+        (self.root / 'harness/chat-journal.jsonl').write_text('private journal', encoding='utf-8')
+        (self.root / '.claude').mkdir(exist_ok=True)
+        (self.root / '.claude/settings.local.json').write_text('{}', encoding='utf-8')
+        self.git('add', '-A')
+        staged = set(self.git('ls-files').splitlines())
+        self.assertIn('AGENTS.md', staged)
+        self.assertTrue(any(name.startswith('.agents/') for name in staged))
+        self.assertIn('harness/common/verify.py', staged)
+        for private in ('harness/approvals.jsonl', 'harness/chat-journal.jsonl',
+                        'docs/TRACE.md', '.claude/settings.local.json'):
+            self.assertNotIn(private, staged)
+        self.assertNotIn('/harness/', (self.root / '.gitignore').read_text(encoding='utf-8'))
+
+    def test_tracked_mode_nested_ignore_exception_blocks_before_copy(self):
+        harness = self.root / 'harness'
+        harness.mkdir()
+        (harness / '.gitignore').write_text('!*.jsonl\n', encoding='utf-8')
+        result = self.install('--config-git', 'tracked', '--apply')
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn('LOCAL_STATE_NOT_IGNORED: harness/approvals.jsonl', result.stdout)
+        self.assertIn('.gitignore was already updated', result.stdout)
+        self.assertFalse((self.root / 'AGENTS.md').exists())
+        self.assertFalse((self.root / '.agents').exists())
+        self.assertIn('# mode: tracked', (self.root / '.gitignore').read_text(encoding='utf-8'))
+
+    def test_tracked_mode_rejects_pretracked_local_state_without_index_changes(self):
+        state = self.root / 'harness/approvals.jsonl'
+        state.parent.mkdir()
+        state.write_text('private approval', encoding='utf-8')
+        self.git('add', 'harness/approvals.jsonl')
+        before = self.git('ls-files')
+        result = self.install('--config-git', 'tracked', '--apply')
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn('TRACKED_LOCAL_STATE: harness/approvals.jsonl', result.stdout)
+        self.assertEqual(self.git('ls-files'), before)
+        self.assertEqual(state.read_text(encoding='utf-8'), 'private approval')
+
+    def test_tracked_mode_second_apply_is_idempotent(self):
+        first = self.install('--config-git', 'tracked', '--apply')
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        path = self.root / '.gitignore'
+        snapshot = path.read_bytes()
+        again = self.install('--config-git', 'tracked', '--apply')
+        self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+        self.assertIn('SAME .gitignore', again.stdout)
+        self.assertEqual(path.read_bytes(), snapshot)
+
+    def test_mode_switch_requires_explicit_change_flag(self):
+        self.assertEqual(self.install('--apply').returncode, 0)
+        previous = (self.root / '.gitignore').read_bytes()
+        for args in (('--config-git', 'tracked'),
+                     ('--config-git', 'tracked', '--apply')):
+            result = self.install(*args)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn('MODE_CHANGE_REQUIRES_APPROVAL: local -> tracked', result.stdout)
+            self.assertEqual((self.root / '.gitignore').read_bytes(), previous)
+        preview = self.install('--config-git', 'tracked', '--change-config-git')
+        self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
+        self.assertIn('UPDATE .gitignore', preview.stdout)
+        self.assertEqual((self.root / '.gitignore').read_bytes(), previous)
+        apply = self.install('--config-git', 'tracked', '--change-config-git', '--apply')
+        self.assertEqual(apply.returncode, 0, apply.stdout + apply.stderr)
+        self.assertIn('# mode: tracked', (self.root / '.gitignore').read_text(encoding='utf-8'))
+        reverse = self.install('--apply')
+        self.assertEqual(reverse.returncode, 2, reverse.stdout + reverse.stderr)
+        self.assertIn('MODE_CHANGE_REQUIRES_APPROVAL: tracked -> local', reverse.stdout)
+
+    def test_tracked_to_local_reports_pretracked_configuration(self):
+        self.assertEqual(self.install('--config-git', 'tracked', '--apply').returncode, 0)
+        self.git('add', 'AGENTS.md', '.agents', 'harness/common')
+        staged_before = self.git('ls-files')
+        result = self.install('--config-git', 'local', '--change-config-git', '--apply')
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn('TRACKED_LOCAL_SETUP: AGENTS.md', result.stdout)
+        self.assertEqual(self.git('ls-files'), staged_before)
+
+    def test_legacy_block_without_mode_is_treated_as_local(self):
+        first = self.install('--apply')
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        ignore = self.root / '.gitignore'
+        legacy = ignore.read_bytes().replace(b'# mode: local\n', b'')
+        ignore.write_bytes(legacy)
+        preview = self.install()
+        self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
+        self.assertIn('UPDATE .gitignore', preview.stdout)
+        self.assertNotIn('MODE_CHANGE_REQUIRES_APPROVAL', preview.stdout)
+        applied = self.install('--apply')
+        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
+        self.assertIn('# mode: local', ignore.read_text(encoding='utf-8'))
+        self.assertIn('SAME .gitignore', self.install().stdout)
+
+    def test_yes_flag_is_ignored_and_does_not_apply(self):
+        result = self.install('--yes')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('IGNORED_FLAG', result.stdout)
+        self.assertFalse((self.root / '.gitignore').exists())
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
