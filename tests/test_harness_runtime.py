@@ -57,6 +57,20 @@ class HarnessRuntimeTests(unittest.TestCase):
         self.assertEqual(self.command("harness/common/snapshot.py", "capture", "../oops").returncode, 2)
         self.assertEqual(self.command("harness/common/snapshot.py", "capture", ".env").returncode, 2)
 
+    def test_snapshot_store_symlink_does_not_write_outside_project(self):
+        outside = self.root.parent / (self.root.name + "-external")
+        outside.mkdir()
+        self.addCleanup(lambda: outside.rmdir() if outside.exists() and not list(outside.iterdir()) else None)
+        storage = self.root / "harness/snapshots"
+        try:
+            storage.symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("symlink unavailable on this runner")
+        taken = self.command("harness/common/snapshot.py", "capture", "docs/ARCHITECTURE.md")
+        self.assertEqual(taken.returncode, 2, taken.stdout + taken.stderr)
+        self.assertEqual(list(outside.iterdir()), [])
+        storage.unlink()
+
     def test_trace_requires_real_goal_links_and_evidence(self):
         self.assertEqual(self.command("harness/common/task.py").returncode, 2)
         criteria = self.root / "docs/CRITERIA.md"
