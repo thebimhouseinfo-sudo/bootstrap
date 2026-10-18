@@ -364,6 +364,28 @@ def activate(evidence):
     return 0
 
 
+
+def manual_terminal_gate(action):
+    """Human-operated terminal friction only: a capable agent can still emulate a TTY."""
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        print("BLOCK: " + action + " requires Human to open a separate interactive terminal.")
+        print("Do not run this through an agent command tool, pipeline, CI or redirected input.")
+        return False
+    print("MANUAL CHECK: review evidence and observations before proceeding.")
+    print("This is NOT cryptographic identity verification. Do NOT ask an AI agent to type it.")
+    phrase = "CONFIRM " + action.upper()
+    print("Type", phrase, "to continue:")
+    try:
+        typed = input("> ")
+    except (EOFError, KeyboardInterrupt):
+        return False
+    if typed != phrase:
+        print("BLOCK: confirmation phrase did not match")
+        return False
+    return True
+
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     choices = p.add_subparsers(dest="action", required=True)
@@ -373,10 +395,10 @@ def main(argv=None):
     choices.add_parser("host-test")
     act = choices.add_parser("activate")
     act.add_argument("--evidence", required=True, help="Manual real-host observation JSON inside the project")
-    act.add_argument("--human-approved", action="store_true", help="Affirm an explicit user instruction, not an authenticated signature")
+    act.add_argument("--human-approved", action="store_true", help="Deprecated compatibility flag; never bypasses manual terminal gate")
     done = choices.add_parser("finalize")
     done.add_argument("--post-lock-evidence", required=True)
-    done.add_argument("--human-approved", action="store_true")
+    done.add_argument("--human-approved", action="store_true", help="Deprecated; interactive confirmation is still required")
     a = p.parse_args(argv)
     if a.action == "status":
         state = read_state()
@@ -390,8 +412,7 @@ def main(argv=None):
         return smoke()
     if a.action == "host-test":
         return host_test()
-    if not a.human_approved:
-        print("BLOCK: require explicit human-approved final lock instruction")
+    if not manual_terminal_gate(a.action):
         return 2
     if a.action == "activate":
         return activate(a.evidence)
