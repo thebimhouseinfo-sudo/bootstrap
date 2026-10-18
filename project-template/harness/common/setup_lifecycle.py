@@ -187,7 +187,10 @@ def smoke():
 
 def locked_files(runtime):
     """Local change detection, not OS-level immutability or authenticated locking."""
-    names = ["harness/hook-policy.json", "harness/common/setup_lifecycle.py"]
+    names = ["harness/hook-policy.json", "harness/common/setup_lifecycle.py",
+             "harness/common/branch_authority.py", "harness/common/snapshot.py",
+             "harness/common/task.py", "harness/common/verify.py",
+             "harness/common/checks.json"]
     names += {
         "codex": [".codex/hooks.json", "harness/codex/hook.py"],
         "claude": [".claude/settings.json", "harness/claude/hook.py"],
