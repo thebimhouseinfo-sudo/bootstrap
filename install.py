@@ -554,6 +554,11 @@ def main():
         print("Preview with --change-config-git to inspect changes; --apply also requires this flag")
         return 2
     staged_state = dest / "harness/setup-state.json"
+    try:
+        confine(dest, staged_state)
+    except ValueError as exc:
+        print("BLOCK: unsafe setup state path:", exc)
+        return 2
     if args.staged and not staged_state.exists() and any(
             (dest / p).exists() for p in ("harness/codex/hook.py",
                                          "harness/claude/hook.py", ".agents/hooks.json")):
@@ -562,7 +567,7 @@ def main():
     if args.staged and staged_state.exists():
         try:
             existing = json.loads(staged_state.read_text(encoding="utf-8"))
-            if existing.get("phase") == "READY" or existing.get("runtime") != runtime:
+            if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE") or existing.get("runtime") != runtime:
                 print("BLOCK: staged state is already READY or belongs to another runtime")
                 return 2
         except (OSError, ValueError, AttributeError):
