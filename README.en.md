@@ -127,7 +127,7 @@ Include the tier, a role → model/reasoning/permission matrix, the enforcement 
 
 #### Step 3. The AI installs and customizes
 
-**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME` (choose `antigravity`, `codex`, `claude`, `continue`, or `generic` explicitly; for `generic`, also pass `--target-app cline` or another actual client); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
+**The AI does the copying, not the user.** Preview with `python install.py --target PATH --tier Standard --runtime RUNTIME --config-git local` (or `--config-git tracked`) (choose `antigravity`, `codex`, `claude`, `continue`, or `generic` explicitly; for `generic`, also pass `--target-app cline` or another actual client); after approval add `--apply`. Valid runtimes: `antigravity`, `codex`, `claude`, `continue`; tiers: `Lite`, `Standard`, `Full`. With permitted filesystem/terminal access, install the approved template contents into the target project root, preserve existing data, fill verified facts and inspect the diff. Without that access, give exact commands appropriate for the confirmed OS/shell/repository/path; ask the user to run them and inspect their output. Do not guess locations or provide unsafe blanket overwrite commands.
 
 For Codex and Antigravity, **the GENERIC READY template can be copied and used for generic agent work without modifying shared roles/skills/scripts**. Then fill PROJECT_PROFILE with verified host/version/dialect/API/build/test commands for the **specific project**. Claude Code has its generic configuration prepared but needs host testing; Continue primarily needs provider/model mapping and host testing. Other platforms should adapt only necessary adapters following `project-template/SETUP.md` and `harness/specs/`, saving setup quota rather than rebuilding. Bootstrap prepares CRITERIA/planning placeholders; Planner creates project-specific content after the relevant approvals. Final AGENTS instructions should reference only installed and functional roles, commands, hooks and gates. Do not mark NOT_CONFIGURED as PASS.
 
@@ -173,27 +173,30 @@ Read the `BLOCK` code, rule, definition location, reason, evidence and authorize
 
 ---
 
-## Local agent setup and GitHub
+## Keeping harness configuration in Git
 
-The installer appends or updates one marked block at the end of the target project's
-`.gitignore`, preserving existing product rules. Agent directories (`.agents/`,
-`.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`), local instruction/task
-files and agent profile/trace/report templates stay local. Product source, README,
-CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG and other product docs remain trackable;
-the installer does not blanket-ignore `docs/`.
+The installer supports two modes through `--config-git`:
 
-Preview reports `UPDATE .gitignore`; only `--apply` writes it. Already tracked local
-setup is reported as `TRACKED_LOCAL_SETUP` with exit 2 for reconciliation before
-publication. No files, index entries or Git history are removed automatically.
-Ignore rules protect normal `git add`, not forced adds or existing tracked content.
-In this bootstrap repository, `project-template/` remains versioned distributable
-source: the local-only block is generated only in the installed target project.
+- **`local` (default):** keep agent configuration and runtime state on the local machine, as before.
+- **`tracked`:** allow harness configuration to be committed to Git and shared across machines, while **keeping private runtime and approval state out of Git**.
 
-For Git projects, the installer checks effective rules using `git check-ignore`
-after updating the block. Nested exceptions exposing local files produce
-`LOCAL_SETUP_NOT_IGNORED` and stop before setup files are copied. Git access/index/
-metadata errors are not treated as an absent repository. For projects without
-Git, rerun the installer after repository initialization to verify actual rules.
+**CONFIG (eligible for tracking in `tracked` mode):** `AGENTS.md`, `AGENTS.bootstrap.md`, `CLAUDE.md`, `TASKS.md`, the `.agents/`, `.antigravity/`, `.codex/`, `.claude/`, `.continue/`, `.generic/`, `harness/`, and `lessons/` directories, `docs/PROJECT_PROFILE.md`, and report templates under `docs/reports/`. Eligible for tracking does not mean every file must be committed.
+
+**STATE (always local, including in `tracked` mode):** `harness/chat-journal.jsonl`, `harness/decisions.jsonl`, `harness/approvals.jsonl`, `harness/state.json`, `harness/last-block.json`, `harness/inbox.html`, `harness/snapshots/`, `harness/requests/`, `docs/TRACE.md`, and `.claude/settings.local.json`.
+
+The approvals ledger remains specific to **one Human**. Multi-person approval authentication or synchronization through Git is not supported. Product documentation such as `docs/CRITERIA.md`, `ARCHITECTURE.md`, `MILESTONES.md`, and `BACKLOG.md` remains trackable in either mode.
+
+```bash
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked --apply
+# To switch modes, add --change-config-git to both preview and --apply
+```
+
+The managed `.gitignore` block keeps its existing `BEGIN/END` markers and adds `# mode: local|tracked` inside. Legacy blocks without a `# mode:` line are treated as `local`; running `--apply` updates the marker block without requiring a migration. Changing modes without `--change-config-git` is blocked as `MODE_CHANGE_REQUIRES_APPROVAL` (exit 2). Preview the change and get Human approval before applying.
+
+The installer checks the real Git index (`TRACKED_LOCAL_SETUP` in `local` mode or `TRACKED_LOCAL_STATE` in `tracked` mode) and effective ignore rules with `git check-ignore` (`LOCAL_SETUP_NOT_IGNORED` / `LOCAL_STATE_NOT_IGNORED`). These checks never automatically delete files or change the index. **Note:** `--apply` updates `.gitignore` before verifying nested ignore exceptions, so a BLOCK at that point leaves `.gitignore` updated but copies no template files. Because Git cannot re-include individual children of a fully ignored parent directory, `tracked` mode ignores specific STATE paths rather than using a blanket `/harness/` rule.
+
+The legacy `-y/--yes` flag is accepted but **ignored**; only `--apply` writes. Projects without Git should recheck effective ignore rules after `git init`. In the Bootstrap repository, `project-template/` remains versioned distributable source; the managed block is generated only in target projects.
 
 ## License
 
