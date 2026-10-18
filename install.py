@@ -8,7 +8,7 @@ import shutil
 import sys
 
 SOURCE = pathlib.Path(__file__).resolve().parent / "project-template"
-SKIP = {"README.md", "SETUP.md", "CODEX_READY.md"}
+SKIP = {"README.md", "SETUP.md"}
 TIERS = ("Lite", "Standard", "Full")
 RUNTIMES = ("codex", "claude", "continue")
 AGENT_BASE = {"coder", "reviewer"}

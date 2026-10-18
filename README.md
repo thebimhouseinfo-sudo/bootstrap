@@ -35,7 +35,6 @@ project-template/
   AGENTS.md
   README.md
   SETUP.md
-  CODEX_READY.md
   TASKS.md
   docs/
     CRITERIA.md
