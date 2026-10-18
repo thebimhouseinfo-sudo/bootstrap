@@ -36,7 +36,7 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 LOCAL_SETUP_PATHS = (
     ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/", "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
-    "docs/PROJECT_PROFILE.md", "docs/TRACE.md", "docs/IMPLEMENTATION_PLAN.md",
+    "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
 )
 STATE_PATHS = (
