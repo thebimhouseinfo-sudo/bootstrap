@@ -12,5 +12,7 @@ Copy these contracts as the project tree. After approval, Bootstrap implements t
 | approvals/journal | specs/APPROVAL.md | real human-only channels and append-only ledgers |
 | trace | specs/TRACE.md | generator/checker |
 | fix | specs/FIXER.md | Full only, real doctor and selftest |
+| acceptance/selftests | specs/TESTS.md | tier-scoped positive/negative simulated tests |
+| approved guard specification | specs/HARNESS_SPEC_TEMPLATE.md | approved rules copied and adapted into HARNESS_SPEC.md |
 
 A description is NOT an implementation. Bootstrap records ENFORCED/GUIDED_ONLY/NOT_CONFIGURED, actual tests and rollback. Do not fabricate empty executable files or claim tests pass. Install only mechanisms required by the approved tier.
