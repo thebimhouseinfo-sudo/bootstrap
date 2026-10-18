@@ -336,7 +336,7 @@ class StagedSetupTests(unittest.TestCase):
     def test_user_guides_have_two_compact_onboarding_prompts(self):
         vi = (REPO / "README.md").read_text(encoding="utf-8")
         en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
-        a, b = vi.split("### A. Dự án mới")[1].split("### B. Dự án đã có code")
+        a, b = vi.split("## 1. Dự án mới")[1].split("## 2. Dự án đã có code")
         prompt_a = a.splitlines()[2]
         prompt_b = b.splitlines()[2]
         self.assertLess(len(prompt_a), 450)
@@ -345,7 +345,7 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("<ĐƯỜNG_DẪN_DỰ_ÁN>", prompt_b)
         self.assertIn("raw.githubusercontent.com", prompt_a)
         self.assertIn("raw.githubusercontent.com", prompt_b)
-        english_a, english_b = en.split("### A. New project")[1].split("### B. Existing project")
+        english_a, english_b = en.split("## 1. New project")[1].split("## 2. Existing project")
         self.assertLess(len(english_a.splitlines()[2]), 380)
         self.assertLess(len(english_b.splitlines()[2]), 380)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_a)
