@@ -13,6 +13,14 @@ STORE = ROOT / "harness" / "snapshots"
 MAX_BYTES = 8 * 1024 * 1024
 FORBIDDEN = {".git", ".env", ".bootstrap-state", "snapshots", "__pycache__"}
 
+def safe_store():
+    # The generated snapshot directory must never redirect writes/reads outside
+    # the installed project. Check the complete path before creating it.
+    for loc in (ROOT / "harness", STORE):
+        if loc.is_symlink() or (loc.exists() and not loc.resolve().is_relative_to(ROOT)):
+            raise ValueError("unsafe snapshot store symlink or external path")
+    return STORE
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -43,7 +51,7 @@ def capture(names):
         data = path.read_bytes()
         values.append((relative, data))
     ident = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + secrets.token_hex(5)
-    target = STORE / ident
+    target = safe_store() / ident
     target.mkdir(parents=True, exist_ok=False)
     records = []
     for idx, (name, data) in enumerate(values):
@@ -56,10 +64,13 @@ def capture(names):
 def inspect(ident, expected=None):
     if not ident or not all(ch.isalnum() or ch == "-" for ch in ident):
         raise ValueError("invalid snapshot ID")
-    location = STORE / ident
+    location = safe_store() / ident
     if location.is_symlink():
         raise ValueError("snapshot symlink rejected")
-    manifest = json.loads((location / "manifest.json").read_text(encoding="utf-8"))
+    manifest_path = location / "manifest.json"
+    if manifest_path.is_symlink():
+        raise ValueError("snapshot manifest symlink rejected")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     files = manifest.get("files")
     if not isinstance(files, list) or not files:
         raise ValueError("invalid snapshot manifest")
