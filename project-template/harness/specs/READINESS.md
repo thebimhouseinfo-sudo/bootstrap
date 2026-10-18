@@ -1,20 +1,20 @@
-# Release capability and readiness (authoritative status)
+# Readiness — Codex reference implementation
 
-The current **release kind** is `BASELINE_AGENT_TEMPLATE_AND_SCRIPTS`. Its single machine-readable capability inventory is `harness/common/capabilities.json`; `harness/specs/TIER_MANIFEST.json` remains authoritative for which capabilities each tier *requires*, not which capabilities are implemented.
+The authoritative machine-readable inventory is `harness/common/capabilities.json`; tier requirements are in `harness/specs/TIER_MANIFEST.json`.
 
-The installer, portable verifier/inventory, Codex preflight and generic role/model configuration are packaged. They are **not** native hook installation, gate engine, journal, authenticated approval, snapshot, trace or orchestration. These advanced contracts are written in `harness/specs/` but **not installed as working mechanisms**. No tier is certified as an autonomous harness today because even Lite's snapshot requirement is not implemented.
+**Implemented and Python CI-tested**: safe installer, role files, `common/verify.py` and `inventory.py`, scoped hash-checked `common/snapshot.py`, scoped one-task `common/task.py`, and Codex `SessionStart` / `PreToolUse` / `Stop` hook handler (including bounded single continuation). The `.codex/hooks.json` file is ready to request native registration; **actual host loading, hook trust, event semantics and active model remain UNVERIFIED until a real Codex smoke test**.
 
-Run `python harness/common/status.py --tier Standard --runtime codex` (or choose Lite/Full and Claude/Continue). Exit **2** means mandatory tier capabilities or real-host smoke tests remain `NOT_CONFIGURED` / `UNVERIFIED`; do not report READY just because `install.py --apply` copied files successfully. Script testing is separate from actual tool availability, approval/trust mode and subagent discovery.
+**Not fully implemented**: authenticated human-only approvals, secure journal/ledger, signed gate engine, full trace and STALE propagation, milestone management, autonomous review orchestration, Full-tier Git admin / repair. Therefore no Standard/Full tier may claim a complete autonomous harness. Lite includes actual explicit snapshot support, but also requires real-host verification before READY.
 
-Definitions:
-- `READY_CONTENT`: copyable instruction/configuration files; no proof runtime loaded them.
-- `SCRIPT_TESTED`: supporting Python script behavior checked by regression on the named CI platforms.
-- `RUNTIME_VERIFIED`: recorded real target CLI/version/OS sandbox and effective permissions smoke test.
-- `ENFORCED`: negative tests prove required safeguards cannot be bypassed and real user-only authorizations work.
-- `GUIDED_ONLY`: model follows instructions without technical prevention.
-- `NOT_CONFIGURED`: feature missing or no valid runtime binding; no PASS allowed.
-- `UNVERIFIED`: actual host/scope not tested.
+Run `python harness/common/status.py --tier Standard --runtime codex`. Exit 2 means missing tier capability or host smoke. For Claude and other IDEs, Python can be reused, but native hook adapters are not implied by Codex hooks.
 
-All Codex subagents inherit the parent sandbox and approval settings. A role instruction "read-only" is **GUIDED_ONLY**, not a separate sandbox. Verify model availability and permissions in the signed-in session, and do not infer them from TOML syntax. See https://learn.chatgpt.com/docs/agent-configuration/subagents
+Labels:
+- READY_CONTENT = files/presets exist; no proof loaded.
+- SCRIPT_TESTED = Python logic exercised on named CI OS/Python versions.
+- RUNTIME_VERIFIED = host actually loaded/dispatched hooks and agents with observed trust and permissions.
+- ENFORCED = actual negative tests prove bypass impossible for that declared boundary.
+- GUIDED_ONLY = prompts/coordinated process with no technical guard.
+- NOT_CONFIGURED = engine, task or required capability absent.
+- UNVERIFIED = actual host behavior not tested.
 
-Explicit user scope can permit **manual coordination** under actual host controls, but that never creates a user-authenticated gate signature. See `APPROVAL.md` and `APPROVAL_MAINTENANCE.md`; the former defines ledger/gate requirements, the latter defines the authorization mode.
+Codex subagents inherit effective parent permission policy; a "read-only" instruction is not an isolated security boundary. A manual chat instruction authorizes bounded coordination through host controls only, not an authenticated gate signature. See `APPROVAL.md` and `APPROVAL_MAINTENANCE.md`.
