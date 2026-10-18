@@ -8,13 +8,33 @@ Template cung cấp sẵn **vai trò agent, skill, workflow, script và hook** �
 
 ---
 
-## Dành cho người dùng
+## Hướng dẫn sử dụng
 
-Gửi cho AI link repo này cùng yêu cầu:
+### 1. Lần đầu: copy prompt để AI thiết lập harness
 
-> Đọc README của `https://github.com/thebimhouseinfo-sudo/bootstrap`. Hãy dùng template có sẵn để thiết lập harness cho dự án này. Tự copy và cấu hình nếu có quyền, nếu không thì đưa lệnh terminal chính xác để tôi chạy. Dự án: `<mô tả hoặc đường dẫn>`.
+Mở coding agent bạn định dùng, rồi **copy prompt này vào chat**. Thay phần `<...>` bằng thông tin dự án; nếu chưa biết, để AI hỏi trong một lần. Không cần tự tìm hoặc copy file từ `project-template/`.
 
-AI sẽ khảo sát những thứ đã có, chỉ hỏi thông tin còn thiếu, trình **bảng chỉnh sửa và enforcement** để người dùng duyệt, rồi mới triển khai. Người dùng không phải copy file thủ công.
+> Đọc `https://github.com/thebimhouseinfo-sudo/bootstrap` và dùng `project-template/` để thiết lập harness cho dự án `<tên, đường dẫn hoặc link repo, mô tả ngắn>`. Khảo sát dự án, hỏi gộp những thông tin còn thiếu (runtime, tier, Git branch, cấu hình local/tracked, build/test), rồi trình các thay đổi dự kiến để tôi duyệt. Sau khi duyệt, tự cài và kiểm tra nếu có quyền; nếu không, đưa lệnh chính xác để tôi chạy. Không viết code sản phẩm trong bước bootstrap. Cuối cùng báo rõ những gì đã cài, đã kiểm thử và chưa xác minh.
+
+AI sẽ xem trước thay đổi trước khi chạy `--apply`, tránh ghi đè file hiện có và báo kết quả. **Cài harness xong mới chuyển sang công việc sản phẩm**; việc copy template không đồng nghĩa CRITERIA, task và môi trường test riêng của dự án đã hoàn chỉnh.
+
+### 2. Sau khi setup: làm rõ yêu cầu, lập kế hoạch, triển khai
+
+Tiếp tục ngay trong chat cũ hoặc mở chat mới tại thư mục dự án đã cài harness. Gửi:
+
+> Đọc `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md`, `TASKS.md` và cấu hình nhánh Git của dự án. Nếu chưa có CRITERIA được duyệt, dùng Planner Discovery để brainstorm, nghiên cứu và soạn yêu cầu cho tôi quyết định. Nếu đã có CRITERIA được duyệt, dùng Planner Delivery để lập GOALMAP, milestone và task. Chưa viết code sản phẩm khi chưa có phạm vi và task được duyệt.
+
+Sau khi duyệt yêu cầu và task, giao việc cụ thể:
+
+> Thực hiện task đã được duyệt trong `TASKS.md` theo harness. Dùng các vai Coder, Tester, Reviewer và các bước kiểm tra thực sự khả dụng; sửa lỗi, test lại, ghi bằng chứng và báo kết quả. Không tự nhận PASS hay ENFORCED nếu chưa kiểm tra thực tế.
+
+### 3. Những lần sau: tiếp tục dự án, không bootstrap lại
+
+Mở coding agent **tại thư mục dự án đã thiết lập**. Không cần dán lại prompt cài đặt cho mỗi phiên. Có thể bắt đầu bằng:
+
+> Đọc `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md`, `TASKS.md`; kiểm tra nhánh phát triển hiện hành và trạng thái công việc. Tóm tắt tiến độ, vướng mắc, bước tiếp theo rồi tiếp tục phần đã được duyệt theo harness.
+
+Nếu CRITERIA vẫn là bản nháp, tiếp tục Discovery, không tự chuyển sang coding. Role, hook và gate chỉ được coi là hoạt động đến mức đã xác minh trên runtime thực tế.
 
 ### Lưu cấu hình harness trong Git
 
@@ -100,7 +120,7 @@ project-template/
   lessons/
 ```
 
-- **Codex và Google Antigravity IDE — GENERIC READY:** Human đã kiểm thử copy/cài trên máy có ứng dụng tương ứng. Giữ nguyên các role/skill và adapter generic; không cần viết lại hoặc sửa template chỉ để khởi động workflow chung. Codex dùng `.codex/agents/*.toml`, `.codex/hooks.json`; Antigravity dùng `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Cần bổ sung thông số dự án cụ thể sau khi cài.
+- **Codex và Google Antigravity IDE — GENERIC READY:** Đã kiểm thử việc cài đặt và sử dụng template generic. Giữ nguyên các role/skill và adapter generic; không cần viết lại hoặc sửa template chỉ để khởi động workflow chung. Codex dùng `.codex/agents/*.toml`, `.codex/hooks.json`; Antigravity dùng `.agents/skills/`, `.agents/hooks.json`, `.antigravity/agents/*.md`. Cần bổ sung thông số dự án cụ thể sau khi cài.
 - **Claude Code — đã cấu hình, chưa thử trên Claude Code:** Có `.claude/agents/`, `.claude/settings.json`, `harness/claude/hook.py`, skill/rules đã chuẩn bị. Không yêu cầu agent viết lại adapter generic chỉ vì chưa có máy test; khi host có sẵn, chạy smoke-test để xác minh.
 - **Continue — gần READY:** Có `.continue/agents/`, role config/rules; **dùng chung `.agents/roles/`, `.agents/skills/` và Python helpers giống Antigravity**, khác phần cấu hình agent/model native. Cấu hình provider/model thực tế và chọn role config; xác minh các giới hạn hook/subagent của Continue trong VS Code. Không tự coi plugin Continue và Antigravity có cùng native APIs.
 - **Cline, Qwen Code, client dùng DeepSeek, Copilot, Cursor và app khác:** Cài `--runtime generic --target-app APP`; dùng `.generic/agents` cùng `.generic/PORTING.md` và `platforms/` để chuyển đổi native. DeepSeek có thể chỉ là provider/model, phải xác định app thực tế. Dựa trên file/contract có sẵn, đối chiếu tài liệu platform rồi chỉ chuyển đổi những adapter hoặc hook cần thiết. Báo rõ phần `UNVERIFIED` / `GUIDED_ONLY`; không biến thiếu smoke-test thành kết luận không hỗ trợ.
@@ -119,11 +139,11 @@ project-template/
 10. **Mâu thuẫn giữa template và dự án** phải đưa vào bảng chỉnh sửa, không tự đoán chọn.
 11. **Coder/Tester chạy được bằng generic skill** dù chưa có knowledge chuyên biệt; vẫn phải tuân thủ ràng buộc host/dialect bắt buộc.
 12. **Phân biệt trạng thái trung thực:** READY, CONFIGURE, IMPLEMENT, ENFORCED, GUIDED_ONLY, NOT_CONFIGURED, UNVERIFIED không thể thay thế nhau.
-13. **Tương thích theo bằng chứng:** Codex và Antigravity GENERIC READY (Human-tested); Claude Code đã cấu hình đầy đủ nhưng thiếu host test; Continue gần READY, cần model/provider mapping và host test; runtime khác chỉ sửa adapter cần thiết dựa trên hướng dẫn. Không gán `ENFORCED` hoặc `RUNTIME_VERIFIED` nếu chưa có bằng chứng tương ứng.
+13. **Tương thích theo bằng chứng:** Codex và Antigravity GENERIC READY (Tested); Claude Code đã cấu hình đầy đủ nhưng thiếu host test; Continue gần READY, cần model/provider mapping và host test; runtime khác chỉ sửa adapter cần thiết dựa trên hướng dẫn. Không gán `ENFORCED` hoặc `RUNTIME_VERIFIED` nếu chưa có bằng chứng tương ứng.
 
 ### Quy trình
 
-**Không có runtime primary hoặc mặc định.** AI xác định runtime thực tế trong bước Pre-Ask; khi gọi CLI phải truyền rõ `--runtime`. Kết quả Human test Codex/Antigravity không tự chứng minh gate, hook hay orchestration đã ENFORCED trong mọi phiên bản.
+**Không có runtime primary hoặc mặc định.** AI xác định runtime thực tế trong bước Pre-Ask; khi gọi CLI phải truyền rõ `--runtime`. Kết quả kiểm thử Codex/Antigravity không tự chứng minh gate, hook hay orchestration đã ENFORCED trong mọi phiên bản.
 
 #### Bước 0. Pre-Ask — gom tất cả câu hỏi cấu hình vào một lần duy nhất
 
@@ -223,8 +243,8 @@ MIT. Xem [LICENSE](LICENSE).
 
 | Coding agent | Mức sẵn sàng template generic | Sau khi copy vào dự án |
 | --- | --- | --- |
-| **Codex** | **GENERIC READY — đã test trên máy Human** | Dùng cấu hình chung ngay; điền dữ kiện và kiểm thử riêng của dự án |
-| **Google Antigravity IDE** | **GENERIC READY — đã test trên máy Human** | Tương tự Codex; không cần viết lại template generic |
+| **Codex** | **GENERIC READY — Tested** | Dùng cấu hình chung ngay; điền dữ kiện và kiểm thử riêng của dự án |
+| **Google Antigravity IDE** | **GENERIC READY — Tested** | Tương tự Codex; không cần viết lại template generic |
 | **Claude Code** | **Đã cấu hình đầy đủ; chưa có host test thực tế** | Test trên Claude Code khi có môi trường, bổ sung cấu hình dự án |
 | **Continue** | **Gần GENERIC READY; chưa có host test thực tế** | Chọn provider/model và role config, xác minh giới hạn native |
 | **Cline / Qwen Code / client dùng DeepSeek / Copilot / Cursor / khác** | **`.generic/` portable source, chưa được host-test** | Copy role theo tier, xem `PORTING.md`, chỉ modify adapter native, không viết lại toàn bộ |
