@@ -47,7 +47,11 @@ def main(args=None):
         "harness/common/verify.py", "harness/common/checks.json",
     ]
     needed += [".agents/roles/" + role + ".md" for role in sorted(roles)]
-    needed += [".codex/agents/" + role + ".toml" for role in sorted(roles)] if options.runtime == "codex" else []
+    if options.runtime == "codex":
+        needed.extend([".codex/hooks.json", "harness/codex/hook.py",
+                       "harness/common/snapshot.py", "harness/common/task.py",
+                       "harness/hook-policy.json", "harness/active-task.json"])
+        needed += [".codex/agents/" + role + ".toml" for role in sorted(roles)]
     needed += [".claude/agents/" + role + ".md" for role in sorted(roles)] if options.runtime == "claude" else []
     needed += [".continue/agents/" + role + "/config.yaml" for role in sorted(roles)] if options.runtime == "continue" else []
     if options.runtime == "claude":
