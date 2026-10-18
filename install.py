@@ -187,6 +187,138 @@ LITE_SKILL_EXCLUSIONS = {
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+
+BOOTSTRAP_MANIFEST = "harness/.bootstrap-manifest.json"
+
+
+def read_install_manifest(dest):
+    target = dest / BOOTSTRAP_MANIFEST
+    confine(dest, target)
+    if not target.exists():
+        return None
+    if not target.is_file():
+        raise ValueError("bootstrap manifest is not a regular file")
+    try:
+        manifest = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError("invalid bootstrap manifest: " + str(exc)) from exc
+    if (not isinstance(manifest, dict) or manifest.get("schema_version") != 1 or
+            not isinstance(manifest.get("files"), dict)):
+        raise ValueError("unsupported bootstrap manifest; review it before upgrading")
+    for name, record in manifest["files"].items():
+        if (not isinstance(name, str) or not name or name.startswith("/") or
+                any(x in (".", "..") for x in pathlib.PurePosixPath(name).parts) or
+                not isinstance(record, dict) or
+                not isinstance(record.get("installed_sha256"), str) or
+                not re.fullmatch(r"[a-f0-9]{64}", record["installed_sha256"])):
+            raise ValueError("invalid bootstrap manifest file record")
+    return manifest
+
+
+def write_install_manifest(dest, content, previous=None):
+    target = dest / BOOTSTRAP_MANIFEST
+    confine(dest, target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    new = (json.dumps(content, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    if previous == new:
+        return
+    if previous is None:
+        with target.open("xb") as output:
+            output.write(new)
+        return
+    if target.read_bytes() != previous:
+        raise ValueError("bootstrap manifest changed during install")
+    temp = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=str(target.parent), prefix=".manifest-", delete=False) as output:
+            temp = pathlib.Path(output.name)
+            output.write(new)
+        confine(dest, target)
+        if target.read_bytes() != previous:
+            raise ValueError("bootstrap manifest changed during install")
+        temp.replace(target)
+    finally:
+        if temp is not None and temp.exists():
+            temp.unlink()
+
+
+def replace_managed_file(dest, src, target, recorded_sha):
+    """Explicit upgrade only; preserve modified local copies as CONFLICT."""
+    confine(dest, target)
+    if not target.is_file() or digest(target) != recorded_sha:
+        raise ValueError("upgrade conflict: target differs from previous manifest")
+    temp = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=str(target.parent), prefix=".bootstrap-upgrade-", delete=False) as out:
+            temp = pathlib.Path(out.name)
+            with src.open("rb") as source:
+                shutil.copyfileobj(source, out)
+        os.chmod(temp, target.stat().st_mode & 0o777)
+        if digest(target) != recorded_sha:
+            raise ValueError("upgrade conflict: target changed during install")
+        temp.replace(target)
+    finally:
+        if temp is not None and temp.exists():
+            temp.unlink()
+
+
+def rollback_install(dest, added, replaced, ignore_before, ignore_after, state_created,
+                     manifest_before, manifest_written):
+    """Best effort, content-aware rollback; never overwrite concurrent modifications."""
+    print("ROLLBACK: attempting restore of this transaction only")
+    for target, previous, expected in reversed(replaced):
+        try:
+            confine(dest, target)
+            if target.is_file() and digest(target) == expected:
+                target.write_bytes(previous)
+                print("ROLLBACK_RESTORED:", target.relative_to(dest))
+            else:
+                print("ROLLBACK_MANUAL:", target.relative_to(dest), "changed concurrently")
+        except OSError as exc:
+            print("ROLLBACK_MANUAL:", target.relative_to(dest), exc)
+    for target, expected in reversed(added):
+        try:
+            confine(dest, target)
+            if target.is_file() and digest(target) == expected:
+                target.unlink()
+                print("ROLLBACK_REMOVED:", target.relative_to(dest))
+            else:
+                print("ROLLBACK_MANUAL:", target.relative_to(dest), "content differs")
+        except OSError as exc:
+            print("ROLLBACK_MANUAL:", target.relative_to(dest), exc)
+    state_path = dest / "harness/setup-state.json"
+    if state_created is not None and state_path.is_file():
+        try:
+            if state_path.read_bytes() == state_created:
+                state_path.unlink()
+                print("ROLLBACK_REMOVED: harness/setup-state.json")
+        except OSError as exc:
+            print("ROLLBACK_MANUAL: setup-state.json", exc)
+    if manifest_written:
+        path = dest / BOOTSTRAP_MANIFEST
+        try:
+            if path.is_file() and path.read_bytes() == manifest_written:
+                if manifest_before is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(manifest_before)
+                print("ROLLBACK_RESTORED:", BOOTSTRAP_MANIFEST)
+        except OSError as exc:
+            print("ROLLBACK_MANUAL: manifest", exc)
+    ignore = dest / ".gitignore"
+    try:
+        if ignore.is_file() and ignore.read_bytes() == ignore_after:
+            if ignore_before is None:
+                ignore.unlink()
+            else:
+                ignore.write_bytes(ignore_before)
+            print("ROLLBACK_RESTORED: .gitignore")
+        else:
+            print("ROLLBACK_MANUAL: .gitignore changed concurrently")
+    except OSError as exc:
+        print("ROLLBACK_MANUAL: .gitignore", exc)
+
+
 def role_names(tier):
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     current = tier
@@ -281,7 +413,7 @@ def classify(root, src, target):
         return "SAME" if digest(src) == digest(target) else "CONFLICT"
     return "ADD"
 
-def plan(dest, tier, runtime, mode):
+def plan(dest, tier, runtime, mode, upgrade=False, previous=None):
     ops = []
     for src, rel in entries(tier, runtime):
         target = dest / rel
@@ -291,6 +423,10 @@ def plan(dest, tier, runtime, mode):
             state = ("SAME" if target.read_bytes() == rendered else "UPDATE") if target.exists() else "ADD"
         else:
             state = classify(dest, src, target)
+            if state == "CONFLICT" and upgrade and previous:
+                recorded = previous["files"].get(rel.as_posix())
+                if recorded and target.is_file() and digest(target) == recorded["installed_sha256"]:
+                    state = "UPGRADE"
         ops.append((state, src, target))
     return ops
 
@@ -364,6 +500,7 @@ def main():
     ap.add_argument("--ask-first", action="store_true", help="Print ALL one-batch setup questions for the AI/chat; no prompts or install")
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
     ap.add_argument("--staged", action="store_true", help="First-time safe setup, defer blocking hooks until actual verification")
+    ap.add_argument("--upgrade", action="store_true", help="Explicitly update only previously manifest-owned, unmodified files")
     ap.add_argument("--config-git", choices=("local", "tracked"), default="local",
                     help="Keep agent setup local (default) or track configuration in Git")
     ap.add_argument("--change-config-git", action="store_true",
@@ -429,7 +566,11 @@ def main():
         print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
     try:
-        ops = plan(dest, tier, runtime, mode)
+        old_manifest = read_install_manifest(dest)
+        if args.upgrade and old_manifest is None:
+            print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
+            return 2
+        ops = plan(dest, tier, runtime, mode, upgrade=args.upgrade, previous=old_manifest)
         tracked = tracked_local_setup(dest, mode)
     except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
         print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
@@ -438,7 +579,7 @@ def main():
         print(state, target.relative_to(dest).as_posix())
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
     merge = (dest / "AGENTS.md") in conflicts and (dest / "AGENTS.md").is_file()
-    summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "CONFLICT")}
+    summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "UPGRADE", "CONFLICT")}
     print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, target_app=args.target_app,
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
@@ -450,6 +591,14 @@ def main():
 
     if not args.apply:
         return 2 if conflicts or tracked else 0
+    if args.upgrade and staged_state.is_file():
+        current_phase = json.loads(staged_state.read_text(encoding="utf-8")).get("phase")
+        if current_phase in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE") and any(
+                state == "UPGRADE" and ("hook" in target.name.lower() or
+                "harness/common/" in target.relative_to(dest).as_posix())
+                for state, _, target in ops):
+            print("BLOCK: protected active hooks/scripts require separately approved maintenance")
+            return 2
 
 
     # Preflight every destination before any write, including AGENTS merge candidate.
@@ -461,42 +610,70 @@ def main():
     except ValueError as exc:
         print("BLOCK: unsafe destination:", exc)
         return 2
+    ignore = dest / ".gitignore"
+    ignore_before = ignore.read_bytes() if ignore.exists() else None
+    ignore_after = ignore_before
+    manifest_path = dest / BOOTSTRAP_MANIFEST
+    manifest_before = manifest_path.read_bytes() if manifest_path.is_file() else None
+    added, replaced = [], []
+    state_created = None
+    manifest_written = None
     try:
         ignore_op = next((op for op in ops if op[2].name == ".gitignore"), None)
         if ignore_op is None:
             raise ValueError("template is missing required .gitignore source")
         if ignore_op[0] == "CONFLICT":
-            raise ValueError("cannot safely install local-only .gitignore policy")
+            raise ValueError("cannot safely install .gitignore policy")
+        ignore_after = ignore_contents(dest, ignore_op[1], mode)
         write_ignore(dest, ignore_op[1], mode)
         exposed = exposed_local_setup(dest, mode)
         if exposed:
             for name in exposed:
                 print("LOCAL_STATE_NOT_IGNORED:" if mode == "tracked" else "LOCAL_SETUP_NOT_IGNORED:", name)
-            print("BLOCK: reconcile nested Git ignore exceptions before installing local setup")
-            print("NOTE: .gitignore was already updated; no template files were copied")
-            return 2
+            raise ValueError("nested Git ignore exceptions must be reconciled before copying setup")
         if args.staged and not staged_state.exists():
             confine(dest, staged_state)
             staged_state.parent.mkdir(parents=True, exist_ok=True)
             confine(dest, staged_state)
-            with staged_state.open("x", encoding="utf-8") as state_out:
+            with staged_state.open("x", encoding="utf-8") as out:
                 json.dump({"schema_version": 1, "phase": "BOOTSTRAPPING",
-                           "runtime": runtime, "tier": tier}, state_out, indent=2)
-                state_out.write("\n")
-            print("STAGED_STATE: BOOTSTRAPPING (hooks do not block setup repairs)")
+                           "runtime": runtime, "tier": tier}, out, indent=2)
+                out.write("\n")
+            state_created = staged_state.read_bytes()
+            print("STAGED_STATE: BOOTSTRAPPING")
         if merge:
             candidate = dest / "AGENTS.bootstrap.md"
             if not candidate.exists():
                 safe_copy(dest, SOURCE / "AGENTS.md", candidate)
+                added.append((candidate, digest(SOURCE / "AGENTS.md")))
                 print("EXPORTED: AGENTS.bootstrap.md")
             elif digest(candidate) != digest(SOURCE / "AGENTS.md"):
                 print("CONFLICT: existing AGENTS.bootstrap.md retained")
         for state, source, target in ops:
             if state == "ADD" and target.name != ".gitignore":
                 safe_copy(dest, source, target)
-    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
-        print("ERROR: incomplete non-destructive install; inspect newly added files:", exc)
-        return 1
+                added.append((target, digest(source)))
+            elif state == "UPGRADE":
+                old_bytes = target.read_bytes()
+                replace_managed_file(dest, source, target,
+                                     old_manifest["files"][target.relative_to(dest).as_posix()]["installed_sha256"])
+                replaced.append((target, old_bytes, digest(source)))
+        records = dict(old_manifest["files"]) if old_manifest else {}
+        for state, source, target in ops:
+            if state in ("ADD", "SAME", "UPGRADE") and target.name != ".gitignore":
+                if target.is_file() and digest(target) == digest(source):
+                    records[target.relative_to(dest).as_posix()] = {
+                        "source_sha256": digest(source), "installed_sha256": digest(target)}
+        new_manifest = {"schema_version": 1, "tier": tier, "runtime": runtime,
+                        "config_git": mode, "files": records}
+        write_install_manifest(dest, new_manifest, manifest_before)
+        manifest_written = manifest_path.read_bytes()
+    except (OSError, ValueError, subprocess.TimeoutExpired, KeyError, StopIteration) as exc:
+        print("ERROR: install transaction failed:", exc)
+        rollback_install(dest, added, replaced, ignore_before, ignore_after,
+                         state_created, manifest_before, manifest_written)
+        return 2
+
     print("APPLIED: new files and managed Git ignore policy" if not conflicts else "APPLIED_WITH_CONFLICTS: merge/reconcile required")
     return 2 if conflicts or tracked else 0
 
