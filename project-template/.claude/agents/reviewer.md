@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Reusable reviewer agent for project-scoped work.
-model: opus
+model: fable
 ---
 
 # reviewer — reusable role instructions

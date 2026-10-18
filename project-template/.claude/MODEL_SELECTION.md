@@ -1,5 +1,5 @@
-# Claude Code — change subagent model only when necessary
+# Claude Code: optional model adjustment
 
-**Defaults already configured in `.claude/agents/*.md`:** Planner/Reviewer/Critic/Harness Fixer: `opus`; Coder/Tester: `sonnet`; Explorer: `haiku`. **Chat model/effort stays user-selected**; `.claude/settings.json` does not override it.
+Presets already set in native `.claude/agents/*.md`: **Opus** for Planner, Critic and Harness Fixer; **Fable** for Reviewer; **Sonnet** for Coder and Tester; **Haiku** for Explorer. These four aliases are supported by Claude Code, though access depends on account/plan. The main conversation model and effort remain user-selected.
 
-If user plan lacks a model or user asks to optimize quota/quality: verify available provider aliases and agent-specific effort fields for their Claude Code version, ask the user, then edit only `model:` frontmatter in affected `.claude/agents/<role>.md`. Set effort only if supported and explicitly needed. Never silently fallback or rewrite generic instructions. Confirm actual native agent discovery and safe invocation. Runtime approvals/hooks remain separately unverified.
+Only if a preset is unavailable or the user requests a different quality/quota tradeoff: verify available models; ask the user; edit `model:` on the affected role only; verify actual subagent invocation. Do not silently substitute or rewrite generic role instructions. Per-agent effort is optional and should only be set if supported by the installed runtime.
