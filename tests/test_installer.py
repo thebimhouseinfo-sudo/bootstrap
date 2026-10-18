@@ -151,7 +151,7 @@ class InstallTests(unittest.TestCase):
 
         for rel in ("AGENTS.md", "docs/CRITERIA.md", "harness/specs/APPROVAL.md", "SETUP.md"):
             value = (SOURCE / rel).read_text(encoding="utf-8")
-            self.assertNotIn("\\\\n", value, rel)
+            self.assertNotIn("\\n", value, rel)
             for label in ("Tạm dùng", "Ổn", "Nâng cao"):
                 self.assertIn(label, value, rel)
         for rel in ("README.md", "README.en.md"):
