@@ -1,3 +1,5 @@
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 name = "planner"
 description = "Product theory discovery and goal-scoped planning"
 developer_instructions = """

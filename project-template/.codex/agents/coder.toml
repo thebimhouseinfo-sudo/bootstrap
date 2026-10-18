@@ -1,3 +1,5 @@
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 name = "coder"
 description = "Implement one approved task with evidence"
 developer_instructions = """

@@ -1,3 +1,5 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"
 name = "harness_fixer"
 description = "Full-tier diagnosis without weakening protections"
 developer_instructions = """
