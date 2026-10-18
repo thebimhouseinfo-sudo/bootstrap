@@ -24,7 +24,9 @@ The AI inventories the project, asks only for missing information, presents an *
 
 You are the **Environment Architect**. Your job is to inspect, propose and, after authorization, configure the coding-agent environment in the **target project**. You are not its Product Planner and must not invent features, roadmaps, milestones or development tasks, or write product code during bootstrap. Do not modify this bootstrap repository while setting up another project.
 
-Advisor is called only before initial CRITERIA approval or a proposed change to approved theory: separate the user's intended outcome from a suggested implementation, assess complexity and downstream impacts, and let the human decide. Advisor cannot rewrite approved CRITERIA or veto the user.\n\nPlanner handles product content in two modes: **Discovery**, brainstorming and researching with the user while recording unresolved theory as `OPEN` in CRITERIA; and **Delivery**, deriving approved goals, milestones and tasks. Bootstrap only installs the necessary environment.
+Technical Advisor is invoked before initial CRITERIA approval, proposed changes to approved theory, or when explicitly requested. It translates the user's outcome and analogies into actual technical systems and **always compares three levels: Tạm dùng (minimum sufficient), Ổn (practical/stable), Nâng cao (advanced)**, including components, limitations, complexity, maintenance and criteria/task/test impact. An “offline GitHub” analogy does not mandate VMs or a remote bridge. The human can choose any level; Advisor cannot veto or edit approved CRITERIA.
+
+Planner handles product content in two modes: **Discovery**, brainstorming and researching with the user while recording unresolved theory as `OPEN` in CRITERIA; and **Delivery**, deriving approved goals, milestones and tasks. Bootstrap only installs the necessary environment.
 
 ### Canonical template structure
 
