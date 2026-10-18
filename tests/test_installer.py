@@ -12,7 +12,7 @@ SOURCE = ROOT / "project-template"
 INSTALLER = ROOT / "install.py"
 INVENTORY = SOURCE / "harness/common/inventory.py"
 TIERS = ("Lite", "Standard", "Full")
-RUNTIMES = ("codex", "antigravity", "claude", "continue")
+RUNTIMES = ("codex", "antigravity", "claude", "continue", "generic")
 EXPECTED = {
     "Lite": {"coder", "reviewer", "advisor"},
     "Standard": {"coder", "reviewer", "advisor", "planner", "tester", "critic", "explorer"},
@@ -24,12 +24,14 @@ def run(script, *args):
                           capture_output=True, text=True, timeout=40)
 
 class InstallTests(unittest.TestCase):
-    def test_all_twelve_tier_runtime_installations(self):
+    def test_all_fifteen_tier_runtime_installations(self):
         for tier in TIERS:
             for runtime in RUNTIMES:
                 with self.subTest(tier=tier, runtime=runtime), tempfile.TemporaryDirectory() as d:
                     root = pathlib.Path(d)
                     flags = ("--target", root, "--tier", tier, "--runtime", runtime)
+                    if runtime == "generic":
+                        flags += ("--target-app", "cline")
                     preview = run(INSTALLER, *flags)
                     self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
                     self.assertFalse((root / "AGENTS.md").exists())
@@ -50,7 +52,7 @@ class InstallTests(unittest.TestCase):
                     self.assertEqual(installed, EXPECTED[tier])
                     for other in RUNTIMES:
                         path = {"codex": ".codex/agents", "antigravity": ".antigravity/agents", "claude": ".claude/agents",
-                                "continue": ".continue/agents"}[other]
+                                "continue": ".continue/agents", "generic": ".generic/agents"}[other]
                         self.assertEqual((root / path).exists(), other == runtime)
                     if runtime == "antigravity":
                         native = {x.stem for x in (root / ".antigravity/agents").glob("*.md")}
@@ -58,9 +60,14 @@ class InstallTests(unittest.TestCase):
                         native = {x.stem for x in (root / ".codex/agents").glob("*.toml")}
                     elif runtime == "claude":
                         native = {x.stem for x in (root / ".claude/agents").glob("*.md")}
-                    else:
+                    elif runtime == "continue":
                         native = {x.name for x in (root / ".continue/agents").iterdir()}
+                    else:
+                        native = {x.stem for x in (root / ".generic/agents").glob("*.md")}
+                        self.assertIn("PORT_REQUIRED", preview.stdout)
+                        self.assertTrue((root / ".generic/PORTING.md").is_file())
                     self.assertEqual(native, EXPECTED[tier])
+                    self.assertEqual((root / ".generic/agents").exists(), runtime == "generic")
                     self.assertEqual((root / ".agents/hooks.json").exists(), runtime == "antigravity")
                     self.assertEqual((root / ".agents/MODEL_SELECTION.md").exists(), runtime == "antigravity")
                     if runtime == "claude":
@@ -75,15 +82,55 @@ class InstallTests(unittest.TestCase):
     def test_explicit_runtime_required_without_interactive_terminal(self):
         with tempfile.TemporaryDirectory() as d:
             root = pathlib.Path(d)
-            for flags in ((), ("--apply",), ("--ask-first",), ("--ask-first", "--apply")):
+            for flags in ((), ("--apply",), ("--ask-first", "--apply")):
                 with self.subTest(flags=flags):
                     p = run(INSTALLER, "--target", root, *flags)
                     self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
                     self.assertFalse((root / "AGENTS.md").exists())
                     self.assertFalse((root / ".antigravity").exists())
+            questions = run(INSTALLER, "--ask-first")
+            self.assertEqual(questions.returncode, 0, questions.stdout + questions.stderr)
+            self.assertIn("ONE-BATCH SETUP QUESTIONS", questions.stdout)
+            self.assertIn("Cline, Qwen Code, DeepSeek-based client", questions.stdout)
+            self.assertIn("Continue: provider/model selection", questions.stdout)
+            self.assertFalse((root / "AGENTS.md").exists())
+            for flags in (("--runtime", "generic"), ("--runtime", "generic", "--apply"),
+                          ("--runtime", "codex", "--target-app", "cline"),
+                          ("--runtime", "generic", "--target-app", "../traversal")):
+                with self.subTest(generic_flags=flags):
+                    p = run(INSTALLER, "--target", root, *flags)
+                    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertFalse((root / ".generic").exists())
             for rel in ("harness/common/inventory.py", "harness/common/status.py"):
                 result = run(SOURCE / rel)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_portable_agent_contracts_remain_identical_to_canonical(self):
+        for role in EXPECTED["Full"]:
+            self.assertEqual(
+                (SOURCE / ".generic/agents" / (role + ".md")).read_bytes(),
+                (SOURCE / ".agents/roles" / (role + ".md")).read_bytes(), role)
+
+    def test_continue_reuses_antigravity_shared_core_without_native_leak(self):
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as c:
+            ant = pathlib.Path(a)
+            cont = pathlib.Path(c)
+            for root, runtime in ((ant, "antigravity"), (cont, "continue")):
+                result = run(INSTALLER, "--target", root, "--tier", "Standard",
+                             "--runtime", runtime, "--apply")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for folder in (".agents/roles", ".agents/skills", ".agents/config", "harness/common"):
+                left = sorted((p.relative_to(ant / folder).as_posix(), p.read_bytes())
+                              for p in (ant / folder).rglob("*") if p.is_file())
+                right = sorted((p.relative_to(cont / folder).as_posix(), p.read_bytes())
+                               for p in (cont / folder).rglob("*") if p.is_file())
+                self.assertEqual(left, right, folder)
+            self.assertFalse((cont / ".agents/hooks.json").exists())
+            self.assertFalse((cont / ".agents/MODEL_SELECTION.md").exists())
+            self.assertFalse((cont / ".antigravity").exists())
+            self.assertTrue((cont / ".continue/config.yaml").is_file())
+            self.assertTrue((cont / ".continue/agents/coder/config.yaml").is_file())
+            self.assertTrue((ant / ".agents/hooks.json").is_file())
 
     def test_dirty_project_merge(self):
         with tempfile.TemporaryDirectory() as d:

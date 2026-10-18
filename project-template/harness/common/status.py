@@ -26,7 +26,7 @@ def inherited_requirements(manifest, tier):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue"], required=True)
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "generic"], required=True)
     options = parser.parse_args(args)
     try:
         caps = json.loads(CAPABILITY_FILE.read_text(encoding="utf-8"))

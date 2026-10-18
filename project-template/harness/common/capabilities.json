@@ -34,8 +34,9 @@
     "antigravity": "UNVERIFIED",
     "codex": "UNVERIFIED",
     "claude": "UNVERIFIED",
-    "continue": "UNVERIFIED"
+    "continue": "UNVERIFIED",
+    "generic": "UNVERIFIED"
   },
   "claude_adapter_note": "harness/claude/hook.py installed; real Claude Code host dispatch and exit-code semantics must be smoke-tested before marking RUNTIME_VERIFIED.",
-  "note": "Tested Python helper scripts and syntax do not establish actual Codex/Claude/Continue agent discovery, gate enforcement or human-only authorization."
+  "note": "Generic adapter files are portable guidance, not a host-native registration. Copy-ready Codex/Antigravity templates still require project-specific settings; host enforcement and signed gates are separately unverified."
 }
