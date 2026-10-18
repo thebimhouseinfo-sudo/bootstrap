@@ -30,6 +30,10 @@ Preliminary setup → CRITERIA discovery and approval → technical direction an
 
 Open future sessions in the installed project folder and follow `AGENTS.md`. You do not need to run the Bootstrap installer again.
 
+## Lightweight Lite mode
+
+For very small projects choose `--tier Lite --staged`; Lite lacks the full Planner and Tester roles, so it cannot promise the guided CRITERIA → Plan → Milestone sequence. Standard is recommended for the complete setup flow.
+
 ## Technical details and status
 
 Bootstrap supports `local` (default) and `tracked` Git config. Switching modes requires `--change-config-git`; ignore rules cannot untrack previously committed files. Script tests are not native-host proof: distinguish SCRIPT_TESTED, RUNTIME_VERIFIED and ENFORCED. For setup scripts, actual hooks, adapter constraints and safe recovery see [For AI](FOR_AI.md).

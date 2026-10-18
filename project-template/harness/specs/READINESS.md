@@ -28,3 +28,6 @@ Codex subagents inherit effective parent permission policy; a "read-only" instru
 
 ## Staged setup and handoff (new)
 `harness/common/setup_lifecycle.py` provides an optional `--staged` setup coordinator (installer flag), config audit, disposable positive/negative Python smoke, a host-test checklist, hash-based operational lock and separate post-lock handoff. It is NOT an authenticated gate/immutable policy; user approval is manual coordination. Native hook enforcement must be verified separately on the actual client. Continue/generic may finish as READY_WITH_LIMITATIONS only when role and check evidence exists, never claim a native blocking hook was installed.
+
+### Evidence scope of Tested labels
+Generic template CLI/adapter regression: Linux, macOS, Windows × Python 3.9/3.12 (GitHub Actions `bootstrap-scripts.yml`; dated CI logs under the linked GitHub Actions workflow). Repository test code: `tests/test_installer.py`, `tests/test_setup_smoke.py`, `tests/test_staged_setup.py`. This supports packaged-file/script compatibility, **not** authenticated native hook dispatch. For the original historical installed-app usability claims, see `docs/reports/2026-10-18-setup-smoke.md`; do not fabricate client versions or dates not recorded there. Each new target project still needs fresh host tests before RUNTIME_VERIFIED.

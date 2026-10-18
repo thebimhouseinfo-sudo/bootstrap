@@ -56,6 +56,10 @@ python PATH/harness/common/setup_lifecycle.py host-test
 
 Các lệnh `audit` và `smoke` nêu vấn đề còn thiếu; `host-test` in hướng dẫn mở phiên mới. AI chuẩn bị bằng chứng; **Human tự chạy** `activate` và `finalize` trong terminal tương tác độc lập sau khi đọc xác nhận. Không dùng lệnh do agent tự gọi để giả duyệt; không tự tạo ra APPROVED CRITERIA hay bằng chứng test trên host. Tham khảo [English](docs/user-guide.en.md) và [For AI](docs/FOR_AI.md).
 
+## Sử dụng bản Lite gọn nhẹ
+
+Với dự án nhỏ không cần luồng đầy đủ, có thể chọn `--tier Lite --staged`. Lite chỉ mang các role/skill của tier Lite, **không có Planner và Tester đầy đủ**; các bước Discovery/Plan/Milestone vẫn phải được Human hoặc agent chính điều phối thủ công. Muốn quy trình setup hoàn chỉnh như phía trên nên dùng Standard.
+
 ## Phiên bản và nâng cấp
 
 Installer ghi `harness/.bootstrap-manifest.json` để xác định nguồn và hash các file đã cài. Khi Bootstrap có phiên bản mới, AI có thể preview `--upgrade`, chỉ thay file chưa bị chỉnh sửa kể từ lần cài trước; các file khác phải được duyệt và hợp nhất thủ công. Nếu setup lỗi, đọc kết quả rollback và dùng `harness/common/recover.py` trong terminal độc lập cho sự cố hook. **Không tự tắt guard để thoát BLOCK**.

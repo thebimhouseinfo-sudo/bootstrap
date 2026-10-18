@@ -157,7 +157,7 @@ The installer supports two modes through `--config-git`:
 
 **CONFIG (eligible for tracking in `tracked` mode):** `AGENTS.md`, `AGENTS.bootstrap.md`, `CLAUDE.md`, `TASKS.md`, the `.agents/`, `.antigravity/`, `.codex/`, `.claude/`, `.continue/`, `.generic/`, `harness/`, and `lessons/` directories, `docs/PROJECT_PROFILE.md`, and report templates under `docs/reports/`. Eligible for tracking does not mean every file must be committed.
 
-**STATE (always local, including in `tracked` mode):** `harness/chat-journal.jsonl`, `harness/decisions.jsonl`, `harness/approvals.jsonl`, `harness/state.json`, `harness/last-block.json`, `harness/inbox.html`, `harness/snapshots/`, `harness/requests/`, `docs/TRACE.md`, and `.claude/settings.local.json`.
+**STATE (always local, including in `tracked` mode):** `harness/chat-journal.jsonl`, `harness/decisions.jsonl`, `harness/approvals.jsonl`, `harness/state.json`, `harness/last-block.json`, `harness/inbox.html`, `harness/snapshots/`, `harness/requests/`, `harness/recovery-backups/`, `harness/setup-state.json`, `harness/setup-live-evidence.json`, `harness/setup-postlock-evidence.json`, `docs/TRACE.md`, and `.claude/settings.local.json`.
 
 The approvals ledger remains specific to **one Human**. Multi-person approval authentication or synchronization through Git is not supported. Product documentation such as `docs/CRITERIA.md`, `ARCHITECTURE.md`, `MILESTONES.md`, and `BACKLOG.md` remains trackable in either mode.
 
@@ -171,7 +171,11 @@ The managed `.gitignore` block keeps its existing `BEGIN/END` markers and adds `
 
 The installer checks the real Git index (`TRACKED_LOCAL_SETUP` in `local` mode or `TRACKED_LOCAL_STATE` in `tracked` mode) and effective ignore rules with `git check-ignore` (`LOCAL_SETUP_NOT_IGNORED` / `LOCAL_STATE_NOT_IGNORED`). These checks never automatically delete files or change the index. **Note:** `--apply` updates `.gitignore` before verifying nested ignore exceptions, so a BLOCK at that point leaves `.gitignore` updated but copies no template files. Because Git cannot re-include individual children of a fully ignored parent directory, `tracked` mode ignores specific STATE paths rather than using a blanket `/harness/` rule.
 
-The legacy `-y/--yes` flag is accepted but **ignored**; only `--apply` writes. Projects without Git should recheck effective ignore rules after `git init`. In the Bootstrap repository, `project-template/` remains versioned distributable source; the managed block is generated only in target projects.
+The legacy `-y/--yes` flag is accepted but **ignored**; only `--apply` writes. New installs must use `--staged`; an unstaged legacy invocation emits `WARNING_UNSTAGED_INSTALL`, but stays available for compatibility. Projects without Git should recheck effective ignore rules after `git init`. In the Bootstrap repository, `project-template/` remains versioned distributable source; the managed block is generated only in target projects.
+
+### Installer upgrades and recovery
+
+A successful install saves `harness/.bootstrap-manifest.json` with the installed file hashes (schema version 1). Preview `--upgrade` only after inspecting this file: unchanged tracked-by-manifest files can be replaced, edited target files stay `CONFLICT`; this is not an automatic project migration. Unexpected copy/apply failures attempt a hash-aware rollback of added files, staged state, and managed `.gitignore`, reporting any concurrent-change cases requiring manual intervention. A legacy install with no manifest must be reconciled manually. Hook recovery for Codex, Claude and Antigravity is available as `python harness/common/recover.py --runtime RUNTIME inspect|disable|restore`; `disable` and `restore` need a separate interactive OS terminal and keep a backup under `harness/recovery-backups/`. This is manual coordination, not an OS permission boundary.
 
 ## License
 
