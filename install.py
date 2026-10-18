@@ -675,8 +675,11 @@ def main():
                 if target.is_file() and digest(target) == digest(source):
                     records[target.relative_to(dest).as_posix()] = {
                         "source_sha256": digest(source), "installed_sha256": digest(target)}
-        new_manifest = {"schema_version": 1, "tier": tier, "runtime": runtime,
-                        "config_git": mode, "files": records}
+        template_fingerprint = hashlib.sha256("\\n".join(
+            rel.as_posix() + ":" + digest(src) for src, rel in entries(tier, runtime)
+        ).encode("utf-8")).hexdigest()
+        new_manifest = {"schema_version": 1, "template_fingerprint_sha256": template_fingerprint,
+                        "tier": tier, "runtime": runtime, "config_git": mode, "files": records}
         write_install_manifest(dest, new_manifest, manifest_before)
         manifest_written = manifest_path.read_bytes()
     except (OSError, ValueError, subprocess.TimeoutExpired, KeyError, StopIteration) as exc:
