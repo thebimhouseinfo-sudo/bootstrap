@@ -1,42 +1,25 @@
-# Bootstrap — harness templates for coding agents
+# Bootstrap — instructions for AI setup agents
 
-[**English**](README.en.md) | [Tiếng Việt](README.md)
+[Tiếng Việt](../README.md) | [English](user-guide.en.md) | [**For AI**](FOR_AI.md)
 
-**Bootstrap** is a set of **harness templates** for setting up consistent, well-structured projects for AI coding agents such as **Codex, Google Antigravity, Claude Code, Continue, Cline, Qwen Code, Cursor, and Copilot**.
+**Source of truth:** `../project-template/` is the distributable canonical template. This guide instructs the **Environment Architect** during bootstrap; the installed `AGENTS.md` controls normal product work. Follow the staged workflow below. The installer does not automatically research product requirements, approve theory, or guarantee native hook activation.
 
-It provides reusable **agent roles, skills, workflows, scripts, and hooks**, so each agent only needs to adapt the setup to the project instead of building it from scratch.
+## First-install staged contract
 
----
+1. Identify **new** (no code) vs **existing** (working code) project. Inventory its host, stack, Git and existing files. Batch only missing questions. Avoid touching existing product code.
+2. **Preliminary install:** preview `python install.py --target PATH --tier Standard --runtime RUNTIME --staged`, obtain approval, then append `--apply`. Staged installs leave blocking hooks in BOOTSTRAPPING mode. Old installs without staged state retain legacy behavior; do not silently override them.
+3. **Planner Discovery:** immediately check status of `docs/CRITERIA.md`. If new, brainstorm with human. If existing code, reconstruct verified observed behavior, distinguish CURRENT/REQUESTED/GAP, and ask what human wants. Never equate code to approved requirements; never overwrite an already approved CRITERIA without the settled-delta/Advisor/human process.
+4. **Technical direction:** after CRITERIA approval, propose evidence-based stack/architecture for new projects or continuation/refactor options with compatibility/regression risks for existing ones. Discuss feasibility and costs with the human; obtain explicit technical direction approval. Record HOW in ARCHITECTURE and PROJECT_PROFILE, not product GOALMAP.
+5. **Project specialization:** configure optional focused knowledge/skills for Coder (host SDK, dialect, API, build) and Tester (unit, integration, live-host, regression). Load relevant context per task; lack of optional packs does not disable normal generic agents. Configure `harness/common/checks.json` from real commands only.
+6. **Configuration audit:** inspect every required installed artifact, unresolved placeholders, selected roles, interpreter paths, Git branch authority and recovery. Mark genuinely optional capabilities NOT_APPLICABLE/UNVERIFIED rather than claiming PASS.
+7. **Self-generated smoke:** derive positive and negative test cases from installed hooks/scripts. Use safe disposable artifacts/worktrees and subprocess fixtures. Test legitimate operations are not incorrectly blocked and forbidden actions are blocked at the declared interception boundary. Fix approved configuration errors and rerun relevant regressions. Do not weaken an enforced rule to pass tests.
+8. **Fresh real-host session:** provide an exact host-specific prompt/commands when the setup session cannot prove native event dispatch. **Warn loudly: NEVER CLOSE THE ORIGINAL SETUP TAB.** Save checkpoint/recovery guidance first; human opens a second tab in the same project, runs positive/negative live tests, and reports observations back. If the second tab BLOCKS, use the original setup tab/independent recovery, not a self-bypass.
+9. **Final lock:** after real-host evidence and required config audit PASS, explicitly activate the staged hook state using `harness/common/setup_lifecycle.py` with a reviewed evidence file and real host verification; retest after lock. Policy-changing operations require specific human authorization and cannot produce authenticated approval signatures.
+10. **Handoff:** report actual PASS/FAIL/UNVERIFIED and remaining limitations. Provide one **Planner** kickoff prompt to read approved CRITERIA and build **Implementation Plan + GOALMAP**, then Milestones for human approval; only then Tasks and development. This is the main workflow, not a second setup.
 
-**No runtime is primary or selected by default.** The AI must identify the actual host in one pre-install configuration step and pass an explicit `--runtime` to the installer. Testing on Codex and Antigravity does not automatically certify host hooks, signed gates or orchestration on every version.
+**GOALMAP lives in `docs/IMPLEMENTATION_PLAN.md`, never in CRITERIA.** Each Plan section begins with the **GOAL** (observable product outcome and why code exists), then CRITERIA IDs, implementation strategy, dependencies, acceptance and test evidence. No milestone or task is approved simply by existing in the template.
 
-## How to use Bootstrap
-
-### 1. First time: copy the setup prompt into your coding agent
-
-Open the coding agent you want to use and **paste the following prompt into its chat**. Replace `<...>` with your project details, or let the AI ask about anything you do not know yet. You don't have to find or copy the individual files in `project-template/`.
-
-> Read `https://github.com/thebimhouseinfo-sudo/bootstrap` and use `project-template/` to set up a harness for `<project name, folder or repository link, and short description>`. Inspect the project, ask for missing choices together (runtime, tier, Git branch, local/tracked config, build/test environment), and show me the proposed changes for approval. Once approved, install and verify them yourself if you have access; otherwise give me exact commands to run. Do not write product code during bootstrap. Finish by reporting what was installed, what was tested, and what remains unverified.
-
-The AI previews changes before `--apply`, preserves existing files and reports the results. **Harness installation comes before product development**; copying the template does not mean that the project's CRITERIA, tasks or testing environment are already configured.
-
-### 2. After setup: clarify requirements, plan, then build
-
-Continue in the same chat or open a new one in the configured project directory:
-
-> Read `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md`, `TASKS.md` and the Git branch configuration. If CRITERIA is not yet approved, use Planner Discovery to brainstorm, research options and draft requirements for my decision. If CRITERIA is approved, use Planner Delivery to prepare GOALMAP, milestones and tasks. Do not write product code before the scope and task are approved.
-
-After you approve the requirements and a task, assign the work:
-
-> Implement the approved task in `TASKS.md` using the harness. Use the available Coder, Tester and Reviewer workflow; fix and retest problems, record evidence and report results. Do not claim PASS or ENFORCED without real verification.
-
-### 3. Later sessions: resume without bootstrapping again
-
-Open your coding agent **in the project directory where Bootstrap was installed**. You do not need to paste the installation prompt every time. Start with:
-
-> Read `AGENTS.md`, `docs/CRITERIA.md`, `docs/PROJECT_PROFILE.md` and `TASKS.md`; check the declared active development branch and task status. Briefly summarize progress, blockers and the next step, then continue the approved work using the harness.
-
-If CRITERIA is still a draft, continue Discovery rather than assuming implementation is authorized. Roles, hooks and gates are only as operational as their runtime verification demonstrates.
+**Recovery:** do not treat text instructions as a trusted host bypass. Before activating blocking hooks, back up policies/configuration and confirm a separate human-authorized maintenance procedure; if hooks are broken, use host controls or offline repair. Automatic authenticated gates, user-only ledger signatures and universal shell interception are NOT_CONFIGURED.
 
 ---
 
@@ -46,13 +29,13 @@ If CRITERIA is still a draft, continue Discovery rather than assuming implementa
 
 You are the **Environment Architect**. Your job is to inspect, propose and, after authorization, configure the coding-agent environment in the **target project**. You are not its Product Planner and must not invent features, roadmaps, milestones or development tasks, or write product code during bootstrap. Do not modify this bootstrap repository while setting up another project.
 
-Planner owns product discovery and CRITERIA. **Technical Advisor** independently advises the human: CRITERIA determines what is wanted; relevant existing architecture, environment and limited source can be read when needed to assess feasibility, prerequisites, complexity/cost and ripple effects. Advisor never reviews Plan/Code quality, issues PASS/FAIL or vetoes. It advises on the whole draft before initial approval, or the settled delta just before any approved CRITERIA edit. **Tạm dùng / Ổn / Nâng cao comparisons are optional**, used only where real choices exist. Human decides; Planner writes the authorized theory.
+Planner owns product discovery and CRITERIA. **Technical Advisor** independently advises the human: CRITERIA determines what is wanted; relevant existing architecture, environment and limited source can be read when needed to assess feasibility, prerequisites, complexity/cost and ripple effects. Advisor never reviews Plan/Code quality, issues PASS/FAIL or vetoes. It advises on the whole draft before initial approval, or the settled delta just before any approved CRITERIA edit. **Optional tier comparisons are allowed**, used only where real choices exist. Human decides; Planner writes the authorized theory.
 
 Planner handles product content in two modes: **Discovery**, brainstorming and researching with the user while recording unresolved theory as `OPEN` in CRITERIA; and **Delivery**, deriving approved goals, milestones and tasks. Bootstrap only installs the necessary environment.
 
 ### Canonical template structure
 
-Only [`project-template/`](project-template/) is the installation source. Copy its **contents** into the target project's root, not into an extra nested directory, and only after inspecting existing files and obtaining the required authorization.
+Only [`project-template/`](../project-template/) is the installation source. Copy its **contents** into the target project's root, not into an extra nested directory, and only after inspecting existing files and obtaining the required authorization.
 
 ```text
 project-template/
@@ -153,7 +136,7 @@ For Codex and Antigravity, **the GENERIC READY template can be copied and used f
 
 #### Step 4. Validate
 
-Test using a disposable copy and fake data, following [`harness/specs/TESTS.md`](project-template/harness/specs/TESTS.md). Each enforced boundary must demonstrate a prohibited operation that is blocked and a legitimate operation that passes. Check actual role/skill activation, verification, approvals, hooks and gates for the selected tier. Missing execution or host access means `UNVERIFIED`, never PASS.
+Test using a disposable copy and fake data, following [`harness/specs/TESTS.md`](../project-template/harness/specs/TESTS.md). Each enforced boundary must demonstrate a prohibited operation that is blocked and a legitimate operation that passes. Check actual role/skill activation, verification, approvals, hooks and gates for the selected tier. Missing execution or host access means `UNVERIFIED`, never PASS.
 
 #### Step 5. Report concisely
 
@@ -238,7 +221,7 @@ Adapter files: Codex `.codex/` and `harness/codex/`; Antigravity `.agents/` and 
 
 ### Active development branch and frozen main
 
-Bootstrap includes `harness/common/branch_authority.py` in every Git-enabled tier. Human chooses the active development branch (e.g. `v5`), frozen branches (`main`) and registered work branches. Canonical policy is stored in the Git common directory, independent of checkout. Planner/Coder check it before coding, creating branches, merging and pushing; Git default `main` must never be assumed. Codex PreToolUse can deny observed direct apply_patch on wrong branches, but is not universal shell/MCP/API or server protection. See [BRANCH_AUTHORITY.md](project-template/harness/specs/BRANCH_AUTHORITY.md).
+Bootstrap includes `harness/common/branch_authority.py` in every Git-enabled tier. Human chooses the active development branch (e.g. `v5`), frozen branches (`main`) and registered work branches. Canonical policy is stored in the Git common directory, independent of checkout. Planner/Coder check it before coding, creating branches, merging and pushing; Git default `main` must never be assumed. Codex PreToolUse can deny observed direct apply_patch on wrong branches, but is not universal shell/MCP/API or server protection. See [BRANCH_AUTHORITY.md](../project-template/harness/specs/BRANCH_AUTHORITY.md).
 
 ### Generic adapter setup flow
 

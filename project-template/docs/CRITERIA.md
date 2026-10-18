@@ -26,5 +26,5 @@ Status: DISCOVERY / NOT_CONFIGURED
 ## Human approvals and versions
 <!-- Link actual authorization evidence; Advisor cannot approve for human; no fake signature. Changes touch only chosen IDs and mark dependent material STALE as appropriate. -->
 
-## GOALMAP
-<!-- Derive only from sufficiently approved theory; do not invent a default milestone or advanced upgrade. -->
+## Delivery boundary
+<!-- CRITERIA defines WHAT humans approve. GOALMAP belongs to docs/IMPLEMENTATION_PLAN.md, is prepared by Planner only after theory approval and never silently adds product requirements. -->

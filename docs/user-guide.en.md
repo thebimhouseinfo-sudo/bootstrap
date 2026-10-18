@@ -1,0 +1,35 @@
+# Bootstrap — Coding agent harness template
+
+[Tiếng Việt](../README.md) | [**English**](user-guide.en.md) | [For AI](FOR_AI.md)
+
+Bootstrap is a reusable harness of agent roles, skills, workflows, scripts and hooks for Codex, Google Antigravity, Claude Code, Continue and other coding agents. Give your agent **one of the setup prompts below**.
+
+## Choose a first-time setup
+
+### A. New project (no code yet)
+
+> Read [Bootstrap's For AI guide](https://github.com/thebimhouseinfo-sudo/bootstrap/blob/main/docs/FOR_AI.md) and use `project-template/`. My new project is `<idea, goal, target folder>`. Perform a safe staged setup, then use Planner Discovery to brainstorm and settle CRITERIA with me. Only after approval propose language/framework/architecture, ask for my technical decision, configure project-specific Coder and Tester skills/knowledge, audit remaining placeholders and run positive/negative smoke tests. Request a real fresh-session host test when needed. Lock verified hooks only at the end and hand off. Preview changes before writing; do not implement product features during bootstrap.
+
+### B. Existing project (has code)
+
+> Read [Bootstrap's For AI guide](https://github.com/thebimhouseinfo-sudo/bootstrap/blob/main/docs/FOR_AI.md) and use `project-template/`. Project: `<folder/repository and purpose>`. Inspect existing code, tests, Git and verified behavior without rewriting product code. Safely install the preliminary harness, check whether CRITERIA is approved; if not, have Planner reconstruct current behavior from code, discuss my actual desired changes and request approval. Propose a grounded continuation/refactor direction for my decision. After approval customize Coder/Tester skills, complete configuration audit, run safe positive/negative and real-host smoke tests, then lock hooks and hand off. Batch missing questions and preview all writes.
+
+Use `python install.py --target PATH --runtime codex --tier Standard --staged` to preview, then append `--apply` **only after approval**. Choose your actual runtime. `--config-git local|tracked` selects whether non-private harness configuration can be committed; private approvals/state are never included in tracked mode.
+
+## First-use sequence
+
+Preliminary setup → CRITERIA discovery and approval → technical direction and approval → Coder/Tester specialization → complete configuration audit → simulated smoke tests → fresh host session test → final hook lock → handoff.
+
+**WARNING: DO NOT CLOSE THE SETUP TAB.** When asked to open a new coding-agent tab to validate native hooks, keep the original setup tab open. Return to it with any BLOCK/error for repair. Close it only after successful handoff. A saved checkpoint and independent recovery instructions must be available.
+
+## Prompt after successful handoff
+
+> Invoke **Planner** according to the installed harness. Read approved CRITERIA, ARCHITECTURE, PROJECT_PROFILE and the codebase. Draft or revise the **Implementation Plan with GOALMAP inside it**. Begin **each Plan section with its GOAL**, stating what user-observable result the code will deliver, which CRITERIA requirement it serves, and how acceptance will be tested. Derive milestones with dependencies and acceptance criteria. Run the applicable plan reviews and ask for my approval before creating Tasks or writing product code. Never silently change approved CRITERIA.
+
+Open future sessions in the installed project folder and follow `AGENTS.md`. You do not need to run the Bootstrap installer again.
+
+## Technical details and status
+
+Bootstrap supports `local` (default) and `tracked` Git config. Switching modes requires `--change-config-git`; ignore rules cannot untrack previously committed files. Script tests are not native-host proof: distinguish SCRIPT_TESTED, RUNTIME_VERIFIED and ENFORCED. For setup scripts, actual hooks, adapter constraints and safe recovery see [For AI](FOR_AI.md).
+
+[License](../LICENSE).

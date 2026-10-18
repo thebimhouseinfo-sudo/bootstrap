@@ -1,12 +1,12 @@
 # Milestone and gate contract (Standard+)
 
-A specification, not a gate engine. PLAN, CODE and TEST are evaluated against explicit intended-use class, real/committed scale, proportionate security/reliability and non-goals in approved CRITERIA. Unrequested enterprise-grade features or protection are nonblocking ideas, not requirements. Conversely do not certify a personal-only implementation against genuinely approved commercial needs. Critic sees public artifact only; Reviewer checks private goal/scope compliance. Milestones, triggers and gate selection are written by the Planner and approved by the user; bootstrap only builds the engine. No approved GOALMAP or milestone means `NOT_CONFIGURED`, never an invented M1. A gate is never PASS because this file exists.
+A specification, not a gate engine. PLAN, CODE and TEST are evaluated against explicit intended-use class, real/committed scale, proportionate security/reliability and non-goals in approved CRITERIA. Unrequested enterprise-grade features or protection are nonblocking ideas, not requirements. Conversely do not certify a personal-only implementation against genuinely approved commercial needs. Critic sees public artifact only; Reviewer checks private goal/scope compliance. Milestones, triggers and gate selection are written by the Planner and approved by the user; bootstrap only builds the engine. No approved Implementation Plan/GOALMAP or milestone means `NOT_CONFIGURED`, never an invented M1. A gate is never PASS because this file exists.
 
 ## Gate catalog
 
 | Gate | Who | Target | Meaning |
 |---|---|---|---|
-| G0 | user (request) | GOALMAP + milestones | approved goal-to-ID table and milestones (COVERAGE_MAP / MILESTONE_SET) |
+| G0 | user (request) | Implementation Plan/GOALMAP + milestones | approved goal-to-ID table and milestones (COVERAGE_MAP / MILESTONE_SET) |
 | G1 | reviewer | plan | goal is faithful to IDs, use class, scale, trust boundary, explicit non-goals and proportional safeguards (nothing missing, added or reworded); tasks point to the right goal |
 | G2 | critic | plan | plan is clear and consistent to an outsider |
 | G3 | coder | code | self-review done |

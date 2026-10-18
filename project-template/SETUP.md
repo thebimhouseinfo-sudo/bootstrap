@@ -1,13 +1,21 @@
 # Bootstrap project setup — runtime-neutral
 
+**Recommended first-time setup:** `install.py --staged` (preview first, then `--apply` after human approval). This installs a BOOTSTRAPPING lifecycle marker before hooks can enforce write blocking. Legacy installations without staged marker retain their existing behavior. Follow `harness/common/setup_lifecycle.py audit`, `smoke`, fresh real-host verification, and explicit `activate` after a human-approved lock decision. Never close the setup tab until post-lock tests and handoff complete. Hooks can still be subject to host-level controls regardless of this script marker.
+
+**Two starting points:** new project begins Planner brainstorming and CRITERIA draft; existing project begins verified codebase inspection, matching against existing CRITERIA, then human discussion of desired behavior. Source code is evidence of CURRENT behavior, not human-approved DESIRED requirements. CRITERIA approval precedes stack/architecture/refactor proposal; technical approval precedes coder/tester skills, audit and smoke. The environment architect is not the Product Planner.
+
+**After handoff:** invoke Planner to read approved CRITERIA, ARCHITECTURE, PROJECT_PROFILE and source; create/revise `docs/IMPLEMENTATION_PLAN.md` with GOALMAP (every Plan item starts with observable GOAL and CRITERIA references), then propose `docs/MILESTONES.md`. Human approves the Plan/milestones before task assignment. GOALMAP does not live in CRITERIA.
+
+
+
 AI installs from repo root using `python install.py --target PATH --tier Standard --runtime RUNTIME --apply` **after explicitly choosing one of antigravity/codex/claude/continue/generic (generic additionally requires --target-app), preview and user approval**. This copies only missing files; it does not overwrite existing work. A conflicting `AGENTS.md` produces `AGENTS.bootstrap.md` for manual reconciliation, and exit 2 means unresolved conflict.
 
 **Local-only setup:** the installer also manages a marked block at the end of the target `.gitignore`, preserving existing rules. Agent directories, harness/runtime state, local AGENTS/CLAUDE/TASKS, project environment profile, generated trace and report templates stay local. Product source and actual product docs remain trackable. Preview lists `UPDATE .gitignore`; apply atomically updates that managed content. Already tracked setup is reported as `TRACKED_LOCAL_SETUP` with exit 2; ignore rules cannot untrack it. Do not automatically delete files, rewrite history or remove index entries. The canonical `project-template/` in bootstrap remains versioned source.
 
 In Git projects, apply verifies effective ignore behavior before copying setup: nested ignore exceptions produce `LOCAL_SETUP_NOT_IGNORED` and exit 2. Fix those rules before retrying. Git access/index errors block rather than pretending the repository is absent. If Git is unavailable or the project has not been initialized, rerun after `git init` to validate real ignore behavior.
 
-- **GENERIC READY / copy as-is:** Codex and Google Antigravity IDE have been installed and tested by the Human as ready-to-use generic coding-agent setups. Choose the runtime/tier and copy the template without rewriting generic role/skill/script files.
-- **CONFIGURED, HOST-UNTESTED:** Claude Code has prepared native role/skill files, settings and Python hook adapter; the Human has not been able to test on Claude Code. Continue has role configs/rules nearly ready; select actual provider/models and verify Continue's VS Code integration before making host-specific claims.
+- **GENERIC READY / copy as-is:** Codex and Google Antigravity IDE have been installed and tested as ready-to-use generic coding-agent setups. Choose the runtime/tier and copy the template without rewriting generic role/skill/script files.
+- **CONFIGURED, HOST-UNTESTED:** Claude Code has prepared native role/skill files, settings and Python hook adapter; the host tests are not yet recorded on Claude Code. Continue has role configs/rules nearly ready; select actual provider/models and verify Continue's VS Code integration before making host-specific claims.
 - **OTHER coding-agent platforms:** `python install.py --target PATH --tier Standard --runtime generic --target-app cline` previews portable `.generic/agents/` roles and `.generic/platforms/` porting guides; use `qwen-code`, `deepseek` or another actual client name as appropriate. `deepseek` can be a model/provider rather than the client; identify the host before porting. This generic mode does NOT silently install native roles. Reuse shared template and port only native adapters/registration details per platform documentation. The purpose is to save setup tokens/quota and avoid re-creating the entire harness.
 - **PROJECT-SPECIFIC CONFIGURATION IS STILL REQUIRED EVEN WHEN GENERIC READY:** CRITERIA, verified host/stack/API, working paths, actual build/test commands in `harness/common/checks.json`, Git active/frozen branch choice and optional domain knowledge. Keep approved plans/tasks project-specific. Do not confuse generic agent usability with a product-specific setup being complete.
 - **If user plan/model access differs:** Codex `.codex/MODEL_SELECTION.md`; Claude `.claude/MODEL_SELECTION.md`; Continue `.continue/README.md` (provider-dependent setup). **Main chat model is always user-selected**. Do not rewrite generic roles or consult these model guides when presets work.
@@ -41,8 +49,8 @@ Install with `--runtime claude`. The installer copies `.claude/settings.json` (w
 
 **Purpose:** minimize setup quota and time. Copy reusable agent contracts and native files first, configure only the specific project and any genuinely missing host adaptation.
 
-- **Codex and Google Antigravity IDE: GENERIC READY**, installed and tested by the Human; no generic template rewrite needed merely to use them. These applications are equally supported; neither is the primary runtime.
-- **Claude Code: CONFIGURED, HOST-UNTESTED**; prepared files can be installed without regenerating them, but the Human has not installed Claude Code for an observed host test.
+- **Codex and Google Antigravity IDE: GENERIC READY**, installed and tested; no generic template rewrite needed merely to use them. These applications are equally supported; neither is the primary runtime.
+- **Claude Code: CONFIGURED, HOST-UNTESTED**; prepared files can be installed without regenerating them, but Claude Code has not been verified for an observed host test.
 - **Continue: NEAR GENERIC READY, HOST-UNTESTED**; role definitions/configs exist, but selecting actual provider/model mappings and verifying Continue-specific runtime behavior is necessary. VS Code similarity with Antigravity is not proof of API equivalence.
 - **Other coding agents:** modify/carry over the template's native adapters and paths according to the agent's platform. Reuse common role/skill procedures, not a newly generated harness.
 

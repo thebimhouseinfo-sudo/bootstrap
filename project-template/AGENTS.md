@@ -1,6 +1,6 @@
 # Project agent instructions
 
-This is a reusable workflow. `docs/CRITERIA.md` is the **only approved product-theory source**, including GOALMAP and use/scope/security exclusions; `docs/PROJECT_PROFILE.md` records verified host/stack/API; `TASKS.md` records approved task scope. Use matching generic role and skills under `.agents/`.
+This is a reusable workflow. `docs/CRITERIA.md` is the **only approved product-theory source**, including use/scope/security exclusions; `docs/PROJECT_PROFILE.md` records verified host/stack/API; `docs/IMPLEMENTATION_PLAN.md` owns GOALMAP and implementation goals; `docs/MILESTONES.md` organizes approved plan deliverables; `TASKS.md` records approved task scope. Use matching generic role and skills under `.agents/`.
 
 **Planner owns discovery.** Ask whether this is personal-only, team/internal or commercial/market use, real and approved future scale, required behavior, trusted environment, data risks, proportionate security/reliability and explicit non-goals. A user analogy (e.g. "offline GitHub") is not architecture approval. Initial CRITERIA is a draft until authorized. For a human-requested change to approved theory, Planner **discusses and settles the delta with human first, without modifying CRITERIA**.
 
@@ -14,3 +14,5 @@ Give a vibe-coder outcome-focused summary: **what works, what is intentionally n
 
 Shared verification: `harness/common/checks.json` and `harness/common/verify.py` only run configured commands. **Google Antigravity IDE** natively executes workflows via `.agents/skills/*` and `.agents/roles/*`, using portable Python primitives under `harness/common/`; lifecycle hooks are in `.agents/hooks.json`. Codex hooks (`harness/codex/hook.py`) and the Claude Code adapter (`harness/claude/hook.py`) reuse the same Python primitives; both require live native host trust/event verification before claiming ENFORCED. Full signed gates, authenticated approvals, full TRACE and automatic orchestration remain NOT_CONFIGURED. An ACTIVE approved task and verified checks are required for Stop verification; never invent goal IDs or claim ENFORCED without actual host tests.
 
+
+**Bootstrap handoff:** after staged setup, Planner reads approved CRITERIA, ARCHITECTURE, PROJECT_PROFILE and verified source, writes the Implementation Plan (GOALMAP inside; each section starts with an observable GOAL tied to CRITERIA), then drafts milestones. Seek human approval before tasks/coding. Do not retroactively move implementation goals into approved product theory. The setup tab stays open until live tests and post-lock verification complete.
