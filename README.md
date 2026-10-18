@@ -16,13 +16,30 @@ Gửi cho AI link repo này cùng yêu cầu:
 
 AI sẽ khảo sát những thứ đã có, chỉ hỏi thông tin còn thiếu, trình **bảng chỉnh sửa và enforcement** để người dùng duyệt, rồi mới triển khai. Người dùng không phải copy file thủ công.
 
-### File local của agent và GitHub
+### Lưu cấu hình harness trong Git
 
-Khi cài vào dự án đích, installer tự thêm/cập nhật một block có đánh dấu ở cuối `.gitignore`, giữ nguyên rule sẵn có. Các thư mục `.agents/`, `.antigravity/`, `.codex/`, `.claude/`, `.continue/`, `harness/`, `lessons/`, file hướng dẫn/task local và profile/trace/template báo cáo của agent được giữ local. Source, README và tài liệu sản phẩm như CRITERIA, ARCHITECTURE, MILESTONES, BACKLOG vẫn được theo dõi; không ignore toàn bộ `docs/`.
+Installer có hai chế độ thông qua `--config-git`:
 
-Dry-run hiện `UPDATE .gitignore` nếu cần; chỉ `--apply` mới ghi. File local đã tracked được báo `TRACKED_LOCAL_SETUP`, exit 2 để xử lý trước khi publish; installer không tự xóa file, sửa index hoặc lịch sử Git. Ignore bảo vệ các lần `git add` thông thường, không thay thế kiểm tra diff trước push. Riêng trong repo bootstrap, `project-template/` là source phân phối nên vẫn được version đầy đủ; block local-only chỉ được sinh ở dự án đích.
+- **`local` (mặc định):** giữ toàn bộ cấu hình agent và trạng thái chạy ở máy local, như hành vi cũ.
+- **`tracked`:** đưa cấu hình harness vào Git để tái sử dụng giữa các máy, nhưng **không đưa dữ liệu trạng thái/duyệt riêng tư vào Git**.
 
-Trong dự án Git, sau khi cập nhật rule, installer dùng `git check-ignore` kiểm tra hiệu lực thật. Nếu `.gitignore` ở thư mục con mở lại file local, installer báo `LOCAL_SETUP_NOT_IGNORED` và dừng trước khi copy setup. Lỗi quyền/index/metadata Git không bị coi là “chưa có Git”. Với dự án chưa `git init` hoặc chưa có Git, cần chạy lại kiểm tra sau khi tạo repository.
+**CONFIG (được Git theo dõi khi chọn `tracked`):** `AGENTS.md`, `AGENTS.bootstrap.md`, `CLAUDE.md`, `TASKS.md`, các thư mục `.agents/`, `.antigravity/`, `.codex/`, `.claude/`, `.continue/`, `.generic/`, `harness/`, `lessons/`, `docs/PROJECT_PROFILE.md`, cùng các template báo cáo trong `docs/reports/`. Đây là danh sách thành phần cấu hình *được phép* track, không có nghĩa mọi file bên trong đều bắt buộc phải commit.
+
+**STATE (luôn giữ local, ngay cả ở chế độ `tracked`):** `harness/chat-journal.jsonl`, `harness/decisions.jsonl`, `harness/approvals.jsonl`, `harness/state.json`, `harness/last-block.json`, `harness/inbox.html`, `harness/snapshots/`, `harness/requests/`, `docs/TRACE.md`, `.claude/settings.local.json`.
+
+Sổ duyệt `approvals` vẫn thuộc **một Human duy nhất**; chưa hỗ trợ đồng bộ/xác thực phê duyệt nhiều người qua Git. Những tài liệu sản phẩm như `docs/CRITERIA.md`, `ARCHITECTURE.md`, `MILESTONES.md` và `BACKLOG.md` tiếp tục được theo dõi trong Git ở cả hai chế độ.
+
+```bash
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked
+python install.py --target PATH --tier Standard --runtime codex --config-git tracked --apply
+# Đổi chế độ đã cài: phải thêm --change-config-git cho cả preview và --apply
+```
+
+Installer giữ nguyên marker `BEGIN/END` trong `.gitignore`, thêm `# mode: local|tracked` bên trong block. Bản cài cũ không có dòng `# mode:` được coi là `local`; chạy lại `--apply` sẽ bổ sung dòng này. Thay đổi chế độ mà thiếu `--change-config-git` bị chặn bằng `MODE_CHANGE_REQUIRES_APPROVAL` (exit 2); cần xem preview và được Human duyệt trước khi apply.
+
+Installer kiểm tra file đã nằm trong Git index (`TRACKED_LOCAL_SETUP` ở `local`, `TRACKED_LOCAL_STATE` ở `tracked`) và hiệu lực thực tế của ignore bằng `git check-ignore` (`LOCAL_SETUP_NOT_IGNORED` / `LOCAL_STATE_NOT_IGNORED`). Các lỗi này dừng quá trình và không tự xóa file hay chỉnh Git index. **Lưu ý:** `--apply` ghi `.gitignore` trước bước kiểm tra ignore; nếu bị BLOCK vì exception ở thư mục con thì `.gitignore` đã được cập nhật nhưng chưa copy file template. Git không thể bỏ ignore một file con nếu đã ignore cả thư mục cha, vì vậy ở `tracked` chỉ ignore từng STATE path, không có quy tắc `/harness/` chung.
+
+Cờ cũ `-y/--yes` chỉ để tương thích và **không có tác dụng**; muốn ghi file bắt buộc dùng `--apply`. Với dự án chưa có Git, cần kiểm tra lại quy tắc ignore sau khi `git init`. Trong repo Bootstrap, `project-template/` vẫn là mã nguồn phân phối được version đầy đủ; block quản lý ignore chỉ được sinh ở dự án đích.
 
 ---
 
@@ -152,7 +169,7 @@ Gửi **Approval Request loại `HARNESS_PATCH`**, rồi dừng trước thay đ
 
 #### Bước 3. AI tự copy, tùy chỉnh và triển khai
 
-**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime RUNTIME` (chọn rõ `antigravity`, `codex`, `claude`, `continue` hoặc `generic`). Với `generic`, **bắt buộc thêm `--target-app cline`** (hoặc `qwen-code`, `deepseek`, tên client khác) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
+**AI chịu trách nhiệm copy, không giao user tự tìm file.** Dùng `python install.py --target PATH --tier Standard --runtime RUNTIME --config-git local` (hoặc `--config-git tracked`) (chọn rõ `antigravity`, `codex`, `claude`, `continue` hoặc `generic`). Với `generic`, **bắt buộc thêm `--target-app cline`** (hoặc `qwen-code`, `deepseek`, tên client khác) để xem trước, và thêm `--apply` sau khi được duyệt. Các lựa chọn runtime là `antigravity`, `codex`, `claude`, `continue`; tier là `Lite`, `Standard`, `Full`. Nếu có quyền filesystem/terminal, AI copy nội dung template đã duyệt vào root dự án, bảo toàn file hiện hữu, điền dữ kiện có chứng cứ và soát diff. Nếu không có quyền ghi, AI đưa lệnh **chính xác theo OS/shell/repo/đường dẫn đã xác nhận** để người dùng chạy rồi kiểm tra output. Không đoán đường dẫn hoặc đưa lệnh ghi đè hàng loạt nguy hiểm.
 
 Với Codex và Antigravity, **copy template generic đã READY là dùng được ngay ở mức generic, không cần chỉnh sửa role/skill/script chung**. Sau đó điền PROJECT_PROFILE bằng host/version/dialect/API và build/test command đã xác minh để chạy đúng **dự án cụ thể**. Claude Code đã có cấu hình đầy đủ, cần kiểm tra trên host khi có điều kiện; Continue cần model/provider mapping rồi host smoke. App khác chỉ điều chỉnh phần adapter theo `project-template/SETUP.md` và `harness/specs/`, tránh tái tạo từ đầu để tiết kiệm quota. Bootstrap chỉ dựng khuôn CRITERIA, MILESTONES, TASKS, BACKLOG; Planner hoàn thiện lý thuyết và kế hoạch sau duyệt. AGENTS.md cuối cùng chỉ nhắc các vai, gate, hook và lệnh thực sự được cấu hình. Không biến NOT_CONFIGURED thành PASS.
 
