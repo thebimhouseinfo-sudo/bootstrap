@@ -443,8 +443,18 @@ def safe_copy(root, source, target):
         if not parent.is_dir():
             raise ValueError("destination parent is not a directory")
     confine(root, target)
-    with target.open("xb") as output, source.open("rb") as input_file:
-        shutil.copyfileobj(input_file, output)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=str(target.parent), prefix=".bootstrap-copy-",
+                                         delete=False) as output, source.open("rb") as input_file:
+            temporary = pathlib.Path(output.name)
+            shutil.copyfileobj(input_file, output)
+        confine(root, target)
+        # Link creation fails if a concurrent writer created the destination; never truncate it.
+        os.link(temporary, target)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 def print_setup_questions():
     """A single batch of questions for the AI to present in chat, NEVER install."""
