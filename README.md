@@ -1,18 +1,11 @@
-# Bootstrap — bộ khung dùng chung cho coding agent
+# Bootstrap — harness template cho coding agents
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-Bắt đầu một dự án với coding agent thường có một việc phải làm lại từ đầu: giải thích AI nên đọc yêu cầu ở đâu, ai lập kế hoạch, ai viết code, khi nào cần review, test và lúc nào phải hỏi ý kiến người dùng. Làm đi làm lại những việc này vừa tốn thời gian, token, vừa dễ khiến mỗi dự án có một quy trình khác nhau.
+**Bootstrap** là bộ **harness template** giúp thiết lập môi trường dự án chuẩn mực, nhất quán cho các AI coding agent như **Codex, Google Antigravity, Claude Code, Continue, Cline, Qwen Code, Cursor và Copilot**.
 
-**Bootstrap** ra đời để bớt đi phần việc lặp lại đó. Đây là bộ template chuẩn bị sẵn các vai trò agent, skill, hướng dẫn làm việc, script và hook hỗ trợ kiểm tra. Thay vì thiết kế một bộ harness mới cho mỗi dự án, coding agent có thể dùng lại phần chung và chỉ bổ sung những gì thực sự riêng của dự án đó.
+Template cung cấp sẵn **vai trò agent, skill, workflow, script và hook** để AI tái sử dụng, chỉ tùy chỉnh theo từng dự án thay vì xây dựng lại từ đầu. Mức độ hỗ trợ và kiểm thử của từng nền tảng được nêu ở phần dưới.
 
-Cách bắt đầu khá đơn giản: đưa cho AI link repo này và cho biết bạn đang làm dự án nào, bằng công cụ gì. AI sẽ xem những gì dự án đã có, đề xuất những file cần thêm hoặc chỉnh sửa để bạn duyệt, rồi tự thực hiện nếu có quyền truy cập. Nếu không thể thao tác trên máy, AI sẽ hướng dẫn bằng lệnh cụ thể; bạn không cần tự tìm và chép từng file trong template.
-
-Bootstrap không chỉ dành cho dự án đã có code. Nếu bạn mới có ý tưởng, Planner có thể cùng bạn brainstorm, tìm hiểu các phương án và từng bước làm rõ yêu cầu trước khi bắt đầu triển khai. Nếu dự án đang phát triển, bộ khung giúp agent tiếp tục công việc theo các quy tắc và quyết định đã được thống nhất.
-
-**Mức hỗ trợ hiện tại:** Codex và Google Antigravity IDE đã được kiểm thử thực tế với template dùng chung. Claude Code đã có cấu hình nhưng chưa được thử trực tiếp trên host. Continue đã có phần lớn cấu hình, còn cần chọn model/provider và xác minh trên host. Với Cline, Qwen Code, Cursor, Copilot hoặc các client sử dụng DeepSeek, repo cung cấp nguồn cấu hình và hướng dẫn chuyển đổi; chưa có nghĩa là mọi adapter đều chạy ngay mà không cần kiểm tra.
-
-Một điều cần phân biệt: **template dùng được không có nghĩa dự án đã được cấu hình xong**. Những thông tin như nhánh Git đang phát triển, môi trường chạy, API, lệnh build/test và yêu cầu sản phẩm vẫn phải được xác định riêng. Tương tự, có sẵn quy tắc hay hook không có nghĩa tất cả đã được cưỡng chế kỹ thuật; phần nào chưa kiểm thử phải được báo đúng là chưa kiểm thử.
 ---
 
 ## Dành cho người dùng
