@@ -2,7 +2,6 @@ name = "advisor"
 description = "Technical architecture advisor: three scope levels and criteria-change impacts before human decision"
 model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
-sandbox_mode = "read-only"
 developer_instructions = """
 # advisor — Technical Advisor at CRITERIA decision gates
 
