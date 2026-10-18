@@ -97,6 +97,9 @@ def extract_file_paths(tool_name, tool_input):
 
 def pretool(payload):
     """Handle PreToolUse: branch check, protected-path warning, optional snapshot."""
+    if load_module("setup_lifecycle").stage_active():
+        print("BOOTSTRAPPING: PreToolUse guard deferred; not ENFORCED", file=sys.stderr)
+        return 0
     tool_name = payload.get("tool_name", "")
     tool_input = payload.get("tool_input", {})
 
@@ -170,6 +173,8 @@ def pretool(payload):
 
 def stop_hook(payload):
     """Handle Stop: validate active task trace/evidence and run configured checks."""
+    if load_module("setup_lifecycle").stage_active():
+        return 0
     config = policy()
     if not config.get("stop_verify", False):
         return 0

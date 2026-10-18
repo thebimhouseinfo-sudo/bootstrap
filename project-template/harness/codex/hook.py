@@ -53,6 +53,10 @@ def patch_paths(payload):
     return list(dict.fromkeys(paths))
 
 def pretool(payload):
+    # Explicit staged first-install only; legacy installs preserve hook semantics.
+    setup = load_module("setup_lifecycle")
+    if setup.stage_active():
+        return context("BOOTSTRAPPING: normal setup/repair permitted by host; native hook enforcement deferred, not PASS.", "PreToolUse")
     if payload.get("tool_name") != "apply_patch":
         return {}
     # Git branch authority is intentionally local to the Git common directory.
@@ -109,6 +113,8 @@ def pretool(payload):
     return {}
 
 def stop(payload):
+    if load_module("setup_lifecycle").stage_active():
+        return {"systemMessage": "BOOTSTRAPPING: Stop checks deferred until final lock; not a test PASS."}
     config = policy()
     if not config.get("stop_verify", False):
         return {}

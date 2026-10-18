@@ -3,7 +3,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "python harness/common/verify.py",
+        "command": "python harness/common/setup_hook.py",
         "timeout": 180
       }
     ]

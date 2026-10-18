@@ -36,7 +36,7 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 LOCAL_SETUP_PATHS = (
     ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/", "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
-    "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
+    "docs/PROJECT_PROFILE.md", "docs/TRACE.md", "docs/IMPLEMENTATION_PLAN.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
 )
 STATE_PATHS = (
@@ -45,6 +45,7 @@ STATE_PATHS = (
     "harness/last-block.json", "harness/inbox.html",
     "harness/snapshots/", "harness/requests/",
     "docs/TRACE.md", ".claude/settings.local.json",
+    "harness/setup-state.json", "harness/setup-live-evidence.json",
 )
 
 IGNORE_START = b"# BEGIN bootstrap local agent setup"
@@ -361,6 +362,7 @@ def main():
     ap.add_argument("--target-app", help="With --runtime generic: actual target host name, e.g. cline/qwen-code/deepseek/other")
     ap.add_argument("--ask-first", action="store_true", help="Print ALL one-batch setup questions for the AI/chat; no prompts or install")
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
+    ap.add_argument("--staged", action="store_true", help="First-time safe setup, defer blocking hooks until actual verification")
     ap.add_argument("--config-git", choices=("local", "tracked"), default="local",
                     help="Keep agent setup local (default) or track configuration in Git")
     ap.add_argument("--change-config-git", action="store_true",
@@ -402,7 +404,24 @@ def main():
         print(f"MODE_CHANGE_REQUIRES_APPROVAL: {prev} -> {mode}")
         print("Preview with --change-config-git to inspect changes; --apply also requires this flag")
         return 2
+    staged_state = dest / "harness/setup-state.json"
+    if args.staged and not staged_state.exists() and any(
+            (dest / p).exists() for p in ("harness/codex/hook.py",
+                                         "harness/claude/hook.py", ".agents/hooks.json")):
+        print("BLOCK: --staged may not silently unlock an existing legacy harness")
+        return 2
+    if args.staged and staged_state.exists():
+        try:
+            existing = json.loads(staged_state.read_text(encoding="utf-8"))
+            if existing.get("phase") == "READY" or existing.get("runtime") != runtime:
+                print("BLOCK: staged state is already READY or belongs to another runtime")
+                return 2
+        except (OSError, ValueError, AttributeError):
+            print("BLOCK: staged state malformed; repair using independent maintenance")
+            return 2
     print_pre_ask_block(dest, tier, runtime, args.target_app, mode)
+    if args.staged:
+        print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
     try:
         ops = plan(dest, tier, runtime, mode)
@@ -449,6 +468,15 @@ def main():
             print("BLOCK: reconcile nested Git ignore exceptions before installing local setup")
             print("NOTE: .gitignore was already updated; no template files were copied")
             return 2
+        if args.staged and not staged_state.exists():
+            confine(dest, staged_state)
+            staged_state.parent.mkdir(parents=True, exist_ok=True)
+            confine(dest, staged_state)
+            with staged_state.open("x", encoding="utf-8") as state_out:
+                json.dump({"schema_version": 1, "phase": "BOOTSTRAPPING",
+                           "runtime": runtime, "tier": tier}, state_out, indent=2)
+                state_out.write("\n")
+            print("STAGED_STATE: BOOTSTRAPPING (hooks do not block setup repairs)")
         if merge:
             candidate = dest / "AGENTS.bootstrap.md"
             if not candidate.exists():
