@@ -449,6 +449,7 @@ def safe_copy(root, source, target):
                                          delete=False) as output, source.open("rb") as input_file:
             temporary = pathlib.Path(output.name)
             shutil.copyfileobj(input_file, output)
+        os.chmod(temporary, source.stat().st_mode & 0o777)
         confine(root, target)
         # Link creation fails if a concurrent writer created the destination; never truncate it.
         os.link(temporary, target)
