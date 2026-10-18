@@ -1,20 +1,18 @@
-# Bootstrap: coding-agent harness templates (baseline release)
+# Bootstrap — a reusable foundation for coding agents
 
 [**English**](README.en.md) | [Tiếng Việt](README.md)
 
-> **Goal:** Bootstrap is a **reusable project-setup template for popular coding agents**, designed to **reduce setup token/quota consumption and time**. Reuse prepared roles, skills, scripts, hooks and instructions instead of rediscovering or rebuilding an agent harness for every project or IDE.
->
-> **Generic template readiness (distinct from project-specific setup):**
-> - **Codex and Google Antigravity IDE — GENERIC READY:** The Human has installed and tested both on real machines. Choose the correct runtime and tier, **copy the template and start the generic coding-agent workflow without modifying the generic package**.
-> - **Claude Code — CONFIGURED, NOT HOST-TESTED:** Role/skill configuration, native settings and hook adapter are prepared. The Human has not installed Claude Code for a real-host smoke test; **this does not mean its generic configuration is missing**.
-> - **Continue — NEAR GENERIC READY, NOT HOST-TESTED:** Role configurations and rules are prepared. Its provider/**model mapping** must be set for the user's VS Code environment. Similarity to Antigravity does not prove identical native hook or subagent behavior; verify on the actual host.
-> - **Other coding agents:** Use prepared **`.generic/` roles and porting guides** for Cline, Qwen Code, DeepSeek-based clients and other platforms; adapt only native registration/config formats, not the whole harness.
->
-> **Two separate notions of ready:** GENERIC READY means the reusable coding-agent template is usable without rewriting its generic files. **The target project still needs its own configuration** (CRITERIA, stack/host/API, paths, verified build/tests, Git branch and any required model choices). This does **not** certify all gates, hooks or isolation as `ENFORCED`. `harness/common/status.py` reports technical capability states; it is not the standalone measure of *generic template usability*.
->
-This repo is **runtime-neutral**, with no primary app. Users supply a repo link and brief project context. The AI chooses the matching package, gathers only missing information, obtains approval, then copies and **configures project-specific facts or the adapter gaps of an as-yet unsupported host**. When it lacks filesystem/terminal access, it provides exact OS/shell/path-specific commands rather than making the human locate files.
+Starting a project with a coding agent often means setting up the same things all over again: where the AI should look for requirements, who makes the plan, who writes the code, when to review and test, and when to ask for your approval. Repeating that work takes time and tokens, and it's easy to end up with a different workflow for every project.
 
-Do not redesign the harness from scratch or rewrite generic agents and skills. All claims of working functionality must be backed by actual tests. Protected decisions require a human-only **Approval Request with three choices: Agree / Disagree / Other**. The initial setup exception, when that channel has not yet been installed, must be explicitly disclosed.
+**Bootstrap** is meant to save you from doing that setup over and over. It comes with reusable agent roles, skills, working guidelines, scripts, and hooks for supporting checks. Rather than building a new agent harness for every project, you start with the shared pieces and customize only what that project actually needs.
+
+Getting started is straightforward: give your AI assistant a link to this repository and tell it what you're working on and which tool you're using. The AI checks what's already in your project, proposes any files it needs to add or change, and asks for your approval before proceeding. If it has access, it can do the setup itself. If not, it gives you the exact commands to run, so you don't have to hunt down and copy template files by hand.
+
+Bootstrap works for more than projects that already have code. If you're starting with an idea, the Planner can help you brainstorm, research options, and work out the requirements before development begins. If you're working on an existing project, the setup helps the agents continue within the rules and decisions you've already agreed on.
+
+**Current support:** Codex and Google Antigravity IDE have been tested with the reusable template on real machines. Claude Code has a prepared configuration but hasn't been tested on its host yet. Continue has most of its configuration in place, but still needs provider/model selection and host verification. For Cline, Qwen Code, Cursor, Copilot, and DeepSeek-based clients, the repository provides reusable configuration sources and porting guidance; that doesn't mean every adapter is ready to run without further checks.
+
+One important distinction: **a usable template is not the same as a fully configured project**. You still need to establish project-specific details such as the active Git branch, runtime environment, APIs, build and test commands, and product requirements. Likewise, having a rule or hook in the template doesn't mean it's technically enforced. Anything that hasn't been tested should be reported as unverified.
 
 ---
 
