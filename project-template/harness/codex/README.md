@@ -12,3 +12,5 @@ These Python 3.9+ scripts have no third-party dependencies and work on Windows/m
 
 ## Regression and limitations
 Run `python harness/codex/test_baseline.py` for schema, pass/fail, stop-on-first-failure and timeout tests. verify.py kills its owned POSIX process group on timeout; on Windows attempts `taskkill /T /F`. This is best-effort process-tree cleanup, not a guarantee against detached grandchildren or escaped external daemons. Template scripts do not implement native Codex hooks/approvals. Follow `../specs/APPROVAL_MAINTENANCE.md` and `../specs/READINESS.md` before claiming functionality.
+
+Installer supports `--tier Lite|Standard|Full` and `--runtime codex|claude|continue`. `README.md` is intentionally never copied into an existing product project; AGENTS conflicts produce an additive merge candidate, with exit 2 until reconciled. `doctor.py` checks template inventory only; `test_baseline.py` tests the verifier only.

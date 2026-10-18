@@ -19,7 +19,6 @@ class InstallationTests(unittest.TestCase):
     def test_dry_run_and_repeat(self):
         with tempfile.TemporaryDirectory() as d:
             target=pathlib.Path(d)
-            self.assertEqual(installer.main if False else 0,0)
             preview=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target)],capture_output=True,text=True)
             self.assertEqual(preview.returncode,0,preview.stdout+preview.stderr)
             self.assertFalse((target/"AGENTS.md").exists())
@@ -35,6 +34,8 @@ class InstallationTests(unittest.TestCase):
             applied=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(target),"--apply"],capture_output=True,text=True)
             self.assertEqual(applied.returncode,2,applied.stdout+applied.stderr)
             self.assertEqual((target/"AGENTS.md").read_text(encoding="utf-8"),"HUMAN CONTENT")
+            self.assertTrue((target/"AGENTS.bootstrap.md").is_file())
+            self.assertFalse((target/"README.md").exists())
     def test_manifest_tiers_and_document_paths(self):
         project=ROOT/"project-template"
         manifest=json.loads((project/"harness/specs/TIER_MANIFEST.json").read_text())
@@ -44,12 +45,46 @@ class InstallationTests(unittest.TestCase):
         for p in ("harness/HARNESS_SPEC.md","harness/specs/HARNESS_SPEC_TEMPLATE.md",
                   "harness/specs/READINESS.md","harness/codex/preflight.py"):
             self.assertTrue((project/p).is_file(),p)
+    def test_tier_runtime_filtering(self):
+        with tempfile.TemporaryDirectory() as d:
+            dest=pathlib.Path(d)
+            for tier,runtime in (("Lite","codex"),("Standard","claude"),("Full","continue")):
+                result=subprocess.run([sys.executable,str(ROOT/"install.py"),"--target",str(dest),"--tier",tier,"--runtime",runtime],capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+                included=[p.relative_to(installer.SOURCE).as_posix() for p in installer.entries(tier,runtime)]
+                self.assertNotIn("README.md",included)
+                if runtime!="codex": self.assertFalse(any(p.startswith(".codex/") for p in included))
+                if runtime!="claude": self.assertFalse(any(p.startswith(".claude/") for p in included))
+                if runtime!="continue": self.assertFalse(any(p.startswith(".continue/") for p in included))
+                if tier=="Lite":
+                    self.assertFalse(any("harness-fixer" in p for p in included))
+                    self.assertNotIn("harness/specs/GATES.md",included)
+    def test_agent_model_inheritance_and_read_only(self):
+        project=ROOT/"project-template"
+        try:
+            import tomllib
+        except ImportError:
+            try:
+                import tomli as tomllib
+            except ImportError:
+                self.skipTest("TOML parser unavailable on this Python")
+        with (project/".codex/config.toml").open("rb") as f: cfg=tomllib.load(f)
+        self.assertNotIn("model",cfg)
+        self.assertNotIn("approval_policy",cfg)
+        for file in (project/".codex/agents").glob("*.toml"):
+            with file.open("rb") as f: data=tomllib.load(f)
+            self.assertNotIn("model",data)
+            if file.stem in ("critic","explorer"):
+                self.assertEqual(data.get("sandbox_mode"),"read-only")
     def test_native_agent_toml(self):
         project=ROOT/"project-template"
         try:
             import tomllib
         except ImportError:
-            self.skipTest("tomllib requires Python 3.11+")
+            try:
+                import tomli as tomllib
+            except ImportError:
+                self.skipTest("tomllib/tomli unavailable")
         for file in (project/".codex/agents").glob("*.toml"):
             with file.open("rb") as f: doc=tomllib.load(f)
             for key in ("name","description","developer_instructions"):
