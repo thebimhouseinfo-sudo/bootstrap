@@ -166,10 +166,10 @@ class InstallTests(unittest.TestCase):
         critic = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
         for phrase in ("Planner (not Advisor)", "personal-only", "commercial", "actual",
                        "draft", "do not edit the approved CRITERIA",
-                       "once before the first CRITERIA approval", "after the human",
+                       "before requesting **initial approval**", "human says the proposed changes are settled",
                        "read-only proposed delta", "before application"):
             self.assertIn(phrase.lower(), planner.lower(), phrase)
-        for phrase in ("full initial", "entire proposed CRITERIA",
+        for phrase in ("full draft", "entire proposed CRITERIA",
                        "existing approved CRITERIA plus the proposed read-only delta",
                        "before editing or merging", "already discussed",
                        "only the required decision stage", "Tạm dùng", "Ổn", "Nâng cao"):
