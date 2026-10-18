@@ -59,7 +59,7 @@ class InstallationTests(unittest.TestCase):
                 if tier=="Lite":
                     self.assertFalse(any("harness-fixer" in p for p in included))
                     self.assertNotIn("harness/specs/GATES.md",included)
-    def test_agent_model_inheritance_and_read_only(self):
+    def test_agent_model_presets_and_read_only(self):
         project=ROOT/"project-template"
         try:
             import tomllib
@@ -73,7 +73,8 @@ class InstallationTests(unittest.TestCase):
         self.assertNotIn("approval_policy",cfg)
         for file in (project/".codex/agents").glob("*.toml"):
             with file.open("rb") as f: data=tomllib.load(f)
-            self.assertNotIn("model",data)
+            self.assertTrue(data.get("model"), file.name)
+            self.assertIn(data.get("model_reasoning_effort"), ("medium", "high"))
             if file.stem in ("critic","explorer"):
                 self.assertEqual(data.get("sandbox_mode"),"read-only")
     def test_native_agent_toml(self):
