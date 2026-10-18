@@ -90,6 +90,59 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("existing legacy harness", result.stdout)
         self.assertFalse((self.root / "harness/setup-state.json").exists())
 
+
+    def test_activation_postlock_handoff_and_hash_drift_fixture(self):
+        """Mechanical fixture only: do not mislabel these JSON files as actual host testimony."""
+        self.install()
+        (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
+        (self.root / "docs/ARCHITECTURE.md").write_text("# Accepted architecture\nUses Python.\n", encoding="utf-8")
+        (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified host profile\nPython SDK identified.\n", encoding="utf-8")
+        (self.root / "harness/common/checks.json").write_text(json.dumps(
+            {"checks": [{"name": "fixture", "argv": [sys.executable, "-c", "print('fixture')"]}]}),
+            encoding="utf-8")
+        evidence = self.root / "harness/setup-live-evidence.json"
+        evidence.write_text(json.dumps({
+            "runtime": "codex", "host_version": "fixture-only",
+            "fresh_session": True, "hook_dispatched": True,
+            "allow_observed": True, "deny_observed": True,
+            "notes": "CI synthetic data, NOT real host verification"}), encoding="utf-8")
+        command = self.root / "harness/common/setup_lifecycle.py"
+        blocked = call(sys.executable, command, "activate", "--evidence", evidence, cwd=self.root)
+        self.assertEqual(blocked.returncode, 2)
+        locked = call(sys.executable, command, "activate", "--evidence", evidence,
+                      "--human-approved", cwd=self.root)
+        self.assertEqual(locked.returncode, 0, locked.stdout + locked.stderr)
+        self.assertIn("POST-LOCK", locked.stdout)
+        self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"], "READY")
+        self.assertEqual(call(sys.executable, command, "status", cwd=self.root).returncode, 0)
+        self.assertEqual(call(sys.executable, command, "finalize", "--post-lock-evidence",
+                              evidence, "--human-approved", cwd=self.root).returncode, 2)
+        post = self.root / "harness/setup-postlock-evidence.json"
+        post.write_text(json.dumps({
+            "runtime": "codex", "host_version": "fixture-only",
+            "fresh_session": True, "hook_dispatched": True,
+            "post_lock_allow": True, "post_lock_deny": True,
+            "notes": "Synthetic CI fixture, not attested host"}), encoding="utf-8")
+        handoff = call(sys.executable, command, "finalize", "--post-lock-evidence",
+                       post, "--human-approved", cwd=self.root)
+        self.assertEqual(handoff.returncode, 0, handoff.stdout + handoff.stderr)
+        self.assertIn("GOALMAP", handoff.stdout)
+        self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"],
+                         "HANDOFF_COMPLETE")
+        hook = self.root / "harness/hook-policy.json"
+        hook.write_text(hook.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        status = call(sys.executable, command, "status", cwd=self.root)
+        self.assertEqual(status.returncode, 2)
+        self.assertIn("DRIFT", status.stdout)
+
+    def test_host_test_prints_keep_setup_tab_open(self):
+        self.install()
+        result = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
+                      "host-test", cwd=self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("DO NOT CLOSE", result.stdout)
+        self.assertIn("DISPOSABLE", result.stdout)
+
     def test_one_root_readme_and_plan_ownership(self):
         self.assertFalse((REPO / "README.en.md").exists())
         self.assertTrue((REPO / "docs/user-guide.en.md").is_file())
