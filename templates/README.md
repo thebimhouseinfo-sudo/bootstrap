@@ -1,5 +1,5 @@
-# Bootstrap project template
+# Legacy templates redirect
 
-The canonical copy-ready directory tree is **[project-template/](../project-template/)**, whose root matches the target repository root. The previous categorized templates have been retired to avoid competing copies. Copy contents, not the enclosing folder, and follow `project-template/SETUP.md`.
+The categorized `templates/` layout is retired. The only canonical copy-ready structure is [`project-template/`](../project-template/), with complete entrypoint instructions in [root README](../README.md) and [project SETUP](../project-template/SETUP.md).
 
-Portable subagent prompts and generic SKILL.md files are supplied; root AGENTS.md and project planning documents are placeholders that Planner must rewrite. Hooks, gates, approval machinery, review loops and verification scripts are implementation guides to adapt to verified runtime and host—not fictional working scripts.
+Do not recreate `core/`, `contracts/` and `planning/` inside a target project. Copy the selected contents of `project-template/` into the target root, then configure runtime-specific harness from its contract guides.
