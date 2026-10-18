@@ -1,6 +1,6 @@
 # Bootstrap — instructions for AI setup agents
 
-[Tiếng Việt](../README.md) | [English](user-guide.en.md) | [**For AI**](FOR_AI.md)
+[Vietnamese](../README.md) | [English](user-guide.en.md) | [**For AI**](FOR_AI.md)
 
 **Source of truth:** `../project-template/` is the distributable canonical template. This guide instructs the **Environment Architect** during bootstrap; the installed `AGENTS.md` controls normal product work. Follow the staged workflow below. The installer does not automatically research product requirements, approve theory, or guarantee native hook activation.
 
@@ -88,7 +88,7 @@ project-template/
 
 1. **Maximize reuse to save quota.** Copy the Codex/Antigravity generic package as-is and configure project-specific facts. For Claude/Continue and other apps, change only genuine adapter or model-mapping gaps, not shared roles/skills/scripts; add files only when the template is missing a necessary component.
 2. **Do not modify this source repository** when working on another project.
-3. **Single source of product theory:** `docs/CRITERIA.md`; GOALMAP is inside it. Do not create competing specifications.
+3. **Single source of product theory:** `docs/CRITERIA.md`; it defines approved product requirements only. GOALMAP belongs in `docs/IMPLEMENTATION_PLAN.md` and traces back to approved requirements. Do not create competing specifications.
 4. **Human-only approvals:** agents cannot answer their own requests or write protected journals, decisions and approval ledgers. Chat “OK” is not formal authorization.
 5. **Enforceable safeguards require actual mechanisms.** Use scripts/hooks for mechanical rules and Reviewer/Critic for judgment. Instruction-only protection is `GUIDED_ONLY`, never `ENFORCED`.
 6. **Minimalism:** every retained component must prevent a specific failure.
