@@ -107,6 +107,21 @@ class HarnessRuntimeTests(unittest.TestCase):
         self.assertEqual(actual.returncode, 0, actual.stdout + actual.stderr)
         self.assertIn("hookSpecificOutput", json.loads(actual.stdout))
 
+    def test_codex_preflight_detects_invalid_native_hook_schema(self):
+        good = self.command("harness/codex/preflight.py")
+        self.assertEqual(good.returncode, 0, good.stdout + good.stderr)
+        self.assertIn("PROJECT_HOOKS: PARSED", good.stdout)
+        self.assertIn("HOOK_TRUST: UNVERIFIED", good.stdout)
+        path = self.root / ".codex/hooks.json"
+        original = path.read_text(encoding="utf-8")
+        try:
+            path.write_text(json.dumps({"hooks": {"Stop": []}}), encoding="utf-8")
+            bad = self.command("harness/codex/preflight.py")
+            self.assertEqual(bad.returncode, 2)
+            self.assertIn("PROJECT_HOOKS: INVALID", bad.stdout)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
     def test_pretool_snapshots_known_apply_patch_only(self):
         response = self.hook_call("PreToolUse", tool_name="apply_patch",
             tool_input={"command":"*** Begin Patch\n*** Update File: docs/ARCHITECTURE.md\n@@\n*** End Patch"})
