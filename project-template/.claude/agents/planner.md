@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Reusable planner agent for project-scoped work.
-model: inherit
+model: opus
 ---
 
 # planner — reusable Codex role instructions

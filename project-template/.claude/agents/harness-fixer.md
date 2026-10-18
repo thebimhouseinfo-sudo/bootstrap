@@ -1,7 +1,7 @@
 ---
 name: harness-fixer
 description: Reusable harness-fixer agent for project-scoped work.
-model: inherit
+model: opus
 ---
 
 # harness-fixer — portable role contract

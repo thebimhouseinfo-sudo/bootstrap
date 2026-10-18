@@ -1,7 +1,7 @@
 ---
 name: tester
 description: Reusable tester agent for project-scoped work.
-model: inherit
+model: sonnet
 ---
 
 # tester — reusable Codex role instructions

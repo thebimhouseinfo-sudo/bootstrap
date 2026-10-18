@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Reusable reviewer agent for project-scoped work.
-model: inherit
+model: opus
 ---
 
 # reviewer — reusable Codex role instructions

@@ -1,7 +1,7 @@
 ---
 name: critic
 description: Reusable critic agent for project-scoped work.
-model: inherit
+model: opus
 ---
 
 # critic — reusable Codex role instructions

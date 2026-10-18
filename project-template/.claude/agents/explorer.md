@@ -1,7 +1,7 @@
 ---
 name: explorer
 description: Reusable explorer agent for project-scoped work.
-model: inherit
+model: haiku
 ---
 
 # explorer — portable role contract

@@ -1,7 +1,7 @@
 ---
 name: coder
 description: Reusable coder agent for project-scoped work.
-model: inherit
+model: sonnet
 ---
 
 # coder — reusable Codex role instructions
