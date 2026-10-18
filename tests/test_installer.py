@@ -227,9 +227,14 @@ class InstallTests(unittest.TestCase):
             created_dirs = []
             try:
                 for probe in probes:
-                    if not probe.parent.exists():
+                    ancestor = probe.parent
+                    missing_parents = []
+                    while ancestor != SOURCE and not ancestor.exists():
+                        missing_parents.append(ancestor)
+                        ancestor = ancestor.parent
+                    if missing_parents:
                         probe.parent.mkdir(parents=True)
-                        created_dirs.append(probe.parent)
+                        created_dirs.extend(missing_parents)
                     self.assertFalse(probe.exists(), str(probe))
                     probe.write_bytes(b"not a release file")
                 dirty_preview = run(INSTALLER, "--target", preview, *flags)
@@ -246,7 +251,7 @@ class InstallTests(unittest.TestCase):
                 for probe in probes:
                     if probe.exists():
                         probe.unlink()
-                for parent in reversed(created_dirs):
+                for parent in sorted(set(created_dirs), key=lambda x: len(x.parts), reverse=True):
                     try:
                         parent.rmdir()
                     except OSError:
@@ -273,7 +278,7 @@ class InstallTests(unittest.TestCase):
             self.assertIn(label, approval)
             self.assertIn(label, maintenance)
         self.assertIn("specific, direct instruction", approval)
-        self.assertIn("not independent identity authentication", approval)
+        self.assertIn("*not* independent identity authentication", approval)
         self.assertIn("not an authenticated gate answer", maintenance)
         self.assertIn("Precedence:", maintenance)
 
