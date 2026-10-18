@@ -48,8 +48,10 @@ def setup_intake_recorded():
     try:
         obj = json.loads(path.read_text(encoding="utf-8"))
         state = read_state()
-        if (not isinstance(obj, dict) or obj.get("schema_version") != 1
-                or obj.get("channel") != "native_dialog"
+        if not isinstance(obj, dict) or obj.get("schema_version") != 1:
+            return False
+        channel = obj.get("channel")
+        if (channel not in ("native_dialog", "cli_menu")
                 or not isinstance(obj.get("runtime"), str)
                 or (state and obj.get("runtime") != state.get("runtime"))
                 or not isinstance(obj.get("responses"), list) or not obj["responses"]):
@@ -60,7 +62,7 @@ def setup_intake_recorded():
                     or not isinstance(entry.get("id"), str) or not entry["id"].strip()
                     or entry["id"] in ids
                     or not isinstance(entry.get("value"), str) or not entry["value"].strip()
-                    or entry.get("source") != "native_dialog"):
+                    or entry.get("source") != channel):
                 return False
             ids.add(entry["id"])
         return True
@@ -87,10 +89,10 @@ def audit():
     problems = list(missing)
     if read_state() is not None:
         if not setup_intake_recorded():
-            print("BLOCK: native-dialog setup-intake trace missing/invalid; permission is not an answer")
-            problems.append("native dialog trace")
+            print("BLOCK: IDE-dialog/CLI-menu setup-intake trace missing/invalid; permission is not an answer")
+            problems.append("interactive setup intake trace")
         else:
-            print("DIALOG_INTAKE: RECORDED (local trace; not authenticated host proof)")
+            print("SETUP_INTAKE: RECORDED (IDE dialog or CLI menu; local trace only, no host authentication)")
     if "docs/CRITERIA.md" not in missing:
         criteria = (ROOT / "docs/CRITERIA.md").read_text(encoding="utf-8")
         if not any(x.strip().upper() == "STATUS: APPROVED" for x in criteria.splitlines()):
