@@ -85,12 +85,11 @@ class HarnessRuntimeTests(unittest.TestCase):
                     self.assertIn("harness/codex/hook.py", entry["command"])
                     self.assertEqual(entry["command"], entry["commandWindows"])
         nested = self.root / "docs/reports"
-        actual = process(hook_config["hooks"]["SessionStart"][0]["hooks"][0]["command"],
-                         nested, json.dumps({"hook_event_name":"SessionStart"}),
-                         timeout=30) if False else process(
-                             [sys.executable, "-c",
-                              "import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')"],
-                             nested, json.dumps({"hook_event_name":"SessionStart"}))
+        actual = subprocess.run(
+            hook_config["hooks"]["SessionStart"][0]["hooks"][0]["command"],
+            shell=True, cwd=str(nested),
+            input=json.dumps({"hook_event_name":"SessionStart"}),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
         self.assertEqual(actual.returncode, 0, actual.stdout + actual.stderr)
         self.assertIn("hookSpecificOutput", json.loads(actual.stdout))
 
@@ -105,6 +104,22 @@ class HarnessRuntimeTests(unittest.TestCase):
             tool_input={"command":"echo no edit"})
         self.assertEqual(others, {})
         self.assertEqual(len(list((self.root / "harness/snapshots").glob("*/manifest.json"))), 1)
+
+    def test_pretool_snapshot_failure_denies_supported_apply_patch(self):
+        denied = self.hook_call("PreToolUse", tool_name="apply_patch",
+            tool_input={"command":"*** Begin Patch\\n*** Update File: ../escape.md\\n*** End Patch"})
+        self.assertEqual(denied["hookSpecificOutput"]["permissionDecision"], "deny")
+
+    def test_runtime_files_and_status_match_installer(self):
+        for name in ("harness/common/task.py", "harness/common/snapshot.py",
+                     "harness/codex/hook.py", ".codex/hooks.json",
+                     "harness/hook-policy.json", "harness/active-task.json"):
+            self.assertTrue((self.root / name).is_file(), name)
+        inv = self.command("harness/common/inventory.py","--tier","Standard","--runtime","codex")
+        self.assertEqual(inv.returncode, 0, inv.stdout + inv.stderr)
+        status = self.command("harness/common/status.py","--tier","Standard","--runtime","codex")
+        self.assertEqual(status.returncode, 2)
+        self.assertIn("REMAINING_CAPABILITIES:", status.stdout)
 
     def test_stop_bounded_when_checks_fail(self):
         self.assertEqual(self.hook_call("Stop"), {})
