@@ -1,21 +1,18 @@
-# bootstrap: bộ template harness cho coding agent
+# Bootstrap — bộ khung dùng chung cho coding agent
 
 [**Tiếng Việt**](README.md) | [English](README.en.md)
 
-> **Mục tiêu:** Bootstrap là **template cấu hình dự án dùng chung cho các coding agent phổ biến**, giúp **giảm quota/token và thời gian setup**. AI tái sử dụng bộ role, skill, script, hook và hướng dẫn đã viết sẵn thay vì phải nghiên cứu, thiết kế và sinh lại harness cho từng dự án hoặc từng app.
->
-> **Trạng thái template generic (khác trạng thái cấu hình dự án cụ thể):**
-> - **Codex và Google Antigravity IDE — GENERIC READY:** Human đã cài và kiểm thử thực tế. Chọn đúng runtime/tier, **copy bộ template là có thể bắt đầu sử dụng workflow coding agent generic, không phải sửa lại code/cấu hình generic của package để chạy**.
-> - **Claude Code — CONFIGURED, CHƯA HOST-TEST:** Package đã có cấu hình role/skill, native settings/hook adapter; chưa kiểm thử trực tiếp vì Human không cài Claude Code. Đây là thiếu bằng chứng chạy trên host, **không phải thiếu phần cấu hình đã chuẩn bị**.
-> - **Continue — GẦN GENERIC READY, CHƯA HOST-TEST:** Đã có role configs/rules; chủ yếu cần chọn và cấu hình **model/provider** khả dụng của người dùng. Dù môi trường VS Code gần Antigravity, vẫn phải kiểm tra cách nạp role/hook thực tế trên Continue; không tự coi hai host có cơ chế native giống nhau.
-> - **Các coding agent khác:** Dùng **`.generic/` chứa sẵn role và hướng dẫn chuyển đổi** (Cline, Qwen Code, client dùng DeepSeek...) để modify adapter/định dạng đúng nền tảng, không viết lại toàn bộ harness.
->
-> **Phân biệt:** GENERIC READY = template hoạt động ở mức workflow coding agent chung. **Sau khi copy vẫn phải cấu hình dữ kiện của dự án đích** (CRITERIA, stack/host/API, đường dẫn, build/test thực tế, Git branch, model nếu cần). GENERIC READY **không** đồng nghĩa dự án đã cấu hình xong, hay mọi gate/hook/isolation đều `ENFORCED`. `harness/common/status.py` báo trạng thái năng lực kỹ thuật chi tiết, không phải phép đo riêng của *generic template usability*.
->
-Repo này phục vụ nhiều coding agent, **không có app primary**. Người dùng đưa link repo và mô tả/ngữ cảnh dự án; AI chọn package theo runtime, khảo sát điều còn thiếu, xin duyệt một lần rồi tự copy và **chỉ cấu hình phần riêng cho dự án hoặc phần host chưa có adapter hoàn chỉnh**. Nếu không được quyền filesystem/terminal, AI cung cấp lệnh chính xác theo OS/shell/đường dẫn. Người dùng không phải tìm hay copy file thủ công.
+Bắt đầu một dự án với coding agent thường có một việc phải làm lại từ đầu: giải thích AI nên đọc yêu cầu ở đâu, ai lập kế hoạch, ai viết code, khi nào cần review, test và lúc nào phải hỏi ý kiến người dùng. Làm đi làm lại những việc này vừa tốn thời gian, token, vừa dễ khiến mỗi dự án có một quy trình khác nhau.
 
-**Không thiết kế lại harness từ đầu, không viết lại agent/skill generic.** Mọi kết quả phải có bằng chứng kiểm thử thực tế. Những quyết định được bảo vệ cần **Approval Request ba lựa chọn: Đồng ý / Không đồng ý / Khác**. Ngoại lệ khi kênh duyệt chưa được cài trong lần bootstrap đầu tiên phải được công bố rõ.
+**Bootstrap** ra đời để bớt đi phần việc lặp lại đó. Đây là bộ template chuẩn bị sẵn các vai trò agent, skill, hướng dẫn làm việc, script và hook hỗ trợ kiểm tra. Thay vì thiết kế một bộ harness mới cho mỗi dự án, coding agent có thể dùng lại phần chung và chỉ bổ sung những gì thực sự riêng của dự án đó.
 
+Cách bắt đầu khá đơn giản: đưa cho AI link repo này và cho biết bạn đang làm dự án nào, bằng công cụ gì. AI sẽ xem những gì dự án đã có, đề xuất những file cần thêm hoặc chỉnh sửa để bạn duyệt, rồi tự thực hiện nếu có quyền truy cập. Nếu không thể thao tác trên máy, AI sẽ hướng dẫn bằng lệnh cụ thể; bạn không cần tự tìm và chép từng file trong template.
+
+Bootstrap không chỉ dành cho dự án đã có code. Nếu bạn mới có ý tưởng, Planner có thể cùng bạn brainstorm, tìm hiểu các phương án và từng bước làm rõ yêu cầu trước khi bắt đầu triển khai. Nếu dự án đang phát triển, bộ khung giúp agent tiếp tục công việc theo các quy tắc và quyết định đã được thống nhất.
+
+**Mức hỗ trợ hiện tại:** Codex và Google Antigravity IDE đã được kiểm thử thực tế với template dùng chung. Claude Code đã có cấu hình nhưng chưa được thử trực tiếp trên host. Continue đã có phần lớn cấu hình, còn cần chọn model/provider và xác minh trên host. Với Cline, Qwen Code, Cursor, Copilot hoặc các client sử dụng DeepSeek, repo cung cấp nguồn cấu hình và hướng dẫn chuyển đổi; chưa có nghĩa là mọi adapter đều chạy ngay mà không cần kiểm tra.
+
+Một điều cần phân biệt: **template dùng được không có nghĩa dự án đã được cấu hình xong**. Những thông tin như nhánh Git đang phát triển, môi trường chạy, API, lệnh build/test và yêu cầu sản phẩm vẫn phải được xác định riêng. Tương tự, có sẵn quy tắc hay hook không có nghĩa tất cả đã được cưỡng chế kỹ thuật; phần nào chưa kiểm thử phải được báo đúng là chưa kiểm thử.
 ---
 
 ## Dành cho người dùng
