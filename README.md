@@ -8,11 +8,11 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 ## 1. Dự án mới — chưa có code
 
-> Thiết lập Bootstrap cho **dự án mới** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Tự điều phối toàn bộ setup và Discovery; chỉ hỏi tôi về quyết định cần duyệt hoặc thông tin còn thiếu.
+> Thiết lập Bootstrap cho **dự án mới** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Tự setup và chỉ hỏi khi cần duyệt.
 
 ## 2. Dự án đã có code
 
-> Thiết lập Bootstrap cho **dự án đã có code** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Khảo sát, bảo toàn code hiện tại và tự điều phối toàn bộ setup; chỉ hỏi khi cần tôi quyết định hoặc phê duyệt.
+> Thiết lập Bootstrap cho **dự án đã có code** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Bảo toàn code và tự setup; chỉ hỏi khi cần duyệt.
 
 **Phân biệt cấp quyền và câu hỏi setup:** Trước khi chạy installer, AI sẽ gửi một tin nhắn báo trước. Sau khi bạn cho phép lệnh cần thiết, **IDE hiển thị dialog lựa chọn**, còn **CLI hiển thị các dòng câu hỏi và lựa chọn đánh số ngay trong terminal**. Hãy đọc kỹ trước khi chọn 1/2: đây là lựa chọn cấu hình, **không phải một yêu cầu cấp quyền mới**. Câu trả lời được lưu để truy vết; không chuyển bảng câu hỏi sang chat.
 
