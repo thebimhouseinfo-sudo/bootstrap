@@ -45,29 +45,42 @@ class LocalIgnoreTests(unittest.TestCase):
         self.assertIn('SAME .gitignore', again.stdout)
 
     def test_git_add_keeps_only_source_and_product_docs_for_all_runtimes(self):
+        # A runtime change is a migration, not a second native adapter in one target.
         for runtime in ('codex', 'antigravity', 'claude', 'continue', 'generic'):
-            with self.subTest(runtime=runtime):
-                installed = self.install('--runtime', runtime, *(['--target-app', 'cline'] if runtime == 'generic' else []), '--apply')
-                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
-        (self.root / 'src').mkdir()
-        (self.root / 'src/app.py').write_text('print(1)', encoding='utf-8')
-        (self.root / 'docs/product.md').write_text('product documentation', encoding='utf-8')
-        (self.root / 'README.md').write_text('product readme', encoding='utf-8')
-        (self.root / 'harness/runtime.log').write_text('local log', encoding='utf-8')
-        self.git('add', '.')
-        tracked = set(self.git('ls-files').splitlines())
-        self.assertTrue({'src/app.py', 'docs/product.md', 'README.md', '.gitignore'} <= tracked)
-        self.assertTrue({'docs/CRITERIA.md', 'docs/ARCHITECTURE.md'} <= tracked)
-        for path in tracked:
-            self.assertFalse(path.startswith(('.codex/', '.antigravity/', '.claude/', '.agents/', '.continue/', '.generic/',
-                                              'harness/', 'lessons/')), path)
-        for path in ('AGENTS.md', 'CLAUDE.md', 'TASKS.md', 'docs/PROJECT_PROFILE.md',
-                     'docs/TRACE.md', 'docs/reports/_TEMPLATE.md', 'docs/reports/_REVIEW_TEMPLATE.md'):
-            self.assertNotIn(path, tracked)
-        # Only installed target setup is ignored; bootstrap's distributable source stays versioned.
+            with self.subTest(runtime=runtime), tempfile.TemporaryDirectory() as other:
+                original_root = self.root
+                self.root = pathlib.Path(other)
+                try:
+                    self.git('init', '-q')
+                    flags = ['--runtime', runtime]
+                    if runtime == 'generic':
+                        flags += ['--target-app', 'cline']
+                    installed = self.install(*flags, '--apply')
+                    self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+                    (self.root / 'src').mkdir()
+                    (self.root / 'src/app.py').write_text('print(1)', encoding='utf-8')
+                    (self.root / 'docs/product.md').write_text('product documentation', encoding='utf-8')
+                    (self.root / 'README.md').write_text('product readme', encoding='utf-8')
+                    (self.root / 'harness/runtime.log').write_text('local log', encoding='utf-8')
+                    self.git('add', '.')
+                    tracked = set(self.git('ls-files').splitlines())
+                    self.assertTrue({'src/app.py', 'docs/product.md', 'README.md',
+                                     '.gitignore'} <= tracked)
+                    self.assertTrue({'docs/CRITERIA.md', 'docs/ARCHITECTURE.md'} <= tracked)
+                    for file in tracked:
+                        self.assertFalse(file.startswith(('.codex/', '.antigravity/',
+                            '.claude/', '.agents/', '.continue/', '.generic/',
+                            'harness/', 'lessons/')), file)
+                    for file in ('AGENTS.md', 'CLAUDE.md', 'TASKS.md',
+                                 'docs/PROJECT_PROFILE.md', 'docs/TRACE.md',
+                                 'docs/reports/_TEMPLATE.md', 'docs/reports/_REVIEW_TEMPLATE.md'):
+                        self.assertNotIn(file, tracked)
+                finally:
+                    self.root = original_root
+        # Distributable template remains versioned in the Bootstrap repository.
         result = subprocess.run(['git', '-C', str(REPO), 'ls-files',
-                                 'project-template/harness/codex/hook.py'], capture_output=True,
-                                text=True, timeout=10)
+                                 'project-template/harness/codex/hook.py'],
+                                capture_output=True, text=True, timeout=10)
         self.assertIn('project-template/harness/codex/hook.py', result.stdout)
         future = subprocess.run(['git', '-C', str(REPO), 'check-ignore', '--no-index',
                                  'project-template/harness/codex/future_module.py'],
