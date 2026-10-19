@@ -319,6 +319,38 @@ def rollback_install(dest, added, replaced, ignore_before, ignore_after, state_c
         print("ROLLBACK_MANUAL: .gitignore", exc)
 
 
+def checked_intake_source(path, runtime, tier, mode):
+    """Inspect a pre-install IDE/CLI selection record without modifying any target."""
+    if not path:
+        return None
+    source = pathlib.Path(path).expanduser().absolute()
+    if source.is_symlink() or not source.is_file() or source.stat().st_size > 32768:
+        raise ValueError("intake record must be a regular non-symlink JSON file (max 32 KiB)")
+    try:
+        value = json.loads(source.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError("invalid pre-install intake JSON") from exc
+    if not isinstance(value, dict) or value.get("schema_version") != 1:
+        raise ValueError("invalid pre-install intake version")
+    channel = value.get("channel")
+    if channel not in ("cli_menu", "native_dialog") or value.get("runtime") != runtime:
+        raise ValueError("intake channel/runtime does not match target coding host")
+    responses = value.get("responses")
+    if not isinstance(responses, list) or not responses:
+        raise ValueError("intake answers missing")
+    selected = {}
+    for row in responses:
+        if (not isinstance(row, dict)
+                or not isinstance(row.get("id"), str) or not row["id"].strip()
+                or row["id"] in selected or row.get("source") != channel
+                or not isinstance(row.get("value"), str) or not row["value"].strip()):
+            raise ValueError("invalid or duplicated intake answer")
+        selected[row["id"]] = row["value"]
+    if selected.get("tier") != tier or selected.get("git_mode") != mode:
+        raise ValueError("installer --tier / --config-git disagree with selected questionnaire answers")
+    return source
+
+
 def role_names(tier):
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     current = tier
@@ -513,6 +545,7 @@ def main():
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
     ap.add_argument("--staged", action="store_true", help="First-time safe setup, defer blocking hooks until actual verification")
     ap.add_argument("--upgrade", action="store_true", help="Explicitly update only previously manifest-owned, unmodified files")
+    ap.add_argument("--intake-file", help="Pre-install IDE/CLI questionnaire JSON; choices must match --tier and --config-git")
     ap.add_argument("--config-git", choices=("local", "tracked"), default="local",
                     help="Keep agent setup local (default) or track configuration in Git")
     ap.add_argument("--change-config-git", action="store_true",
@@ -583,6 +616,11 @@ def main():
         print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
     try:
+        intake_source = checked_intake_source(args.intake_file, runtime, tier, mode)
+        intake_target = dest / "harness/setup-intake.json"
+        confine(dest, intake_target)
+        if intake_source is not None and intake_target.exists() and digest(intake_target) != digest(intake_source):
+            raise ValueError("different saved intake trace already exists; review it before applying")
         old_manifest = read_install_manifest(dest)
         if args.upgrade and old_manifest is None:
             print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
@@ -592,6 +630,8 @@ def main():
     except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
         print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
         return 2
+    if intake_source is not None:
+        print("PREINSTALL_INTAKE: VALIDATED (IDE/CLI answer selection, not human authentication)")
     for state, source, target in ops:
         print(state, target.relative_to(dest).as_posix())
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
@@ -658,6 +698,10 @@ def main():
                 out.write("\n")
             state_created = staged_state.read_bytes()
             print("STAGED_STATE: BOOTSTRAPPING")
+        if intake_source is not None and not intake_target.exists():
+            safe_copy(dest, intake_source, intake_target)
+            added.append((intake_target, digest(intake_source)))
+            print("SETUP_INTAKE: copied verified preinstall IDE/CLI choices to local trace")
         if merge:
             candidate = dest / "AGENTS.bootstrap.md"
             if not candidate.exists():
