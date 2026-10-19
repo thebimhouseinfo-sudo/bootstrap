@@ -69,7 +69,18 @@ def setup_intake_recorded():
                     or entry.get("source") != channel):
                 return False
             ids.add(entry["id"])
-        return True
+        recorded = {item["id"]: item["value"] for item in obj["responses"]}
+        manifest_path = ROOT / "harness/.bootstrap-manifest.json"
+        if not manifest_path.is_file() or manifest_path.is_symlink():
+            return False
+        installed = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not isinstance(installed, dict) or installed.get("schema_version") != 1:
+            return False
+        return (recorded.get("tier") in ("Lite", "Standard", "Full")
+                and recorded.get("tier") == installed.get("tier")
+                and recorded.get("git_mode") in ("local", "tracked")
+                and recorded.get("git_mode") == installed.get("config_git")
+                and (not state or recorded["tier"] == state.get("tier")))
     except (OSError, ValueError, AttributeError):
         return False
 
