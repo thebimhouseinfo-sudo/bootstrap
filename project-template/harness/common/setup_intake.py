@@ -136,6 +136,12 @@ def main(argv=None):
             effective = {row["id"]: row["value"] for row in data["responses"]}
             if effective.get("tier") != state.get("tier"):
                 raise ValueError("chosen tier differs from already installed tier; never silently mix Lite/Standard/Full")
+            manifest_path = ROOT / "harness/.bootstrap-manifest.json"
+            if not manifest_path.is_file() or manifest_path.is_symlink():
+                raise ValueError("installed manifest unavailable; cannot compare chosen Git mode")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if effective.get("git_mode") != manifest.get("config_git"):
+                raise ValueError("chosen Git mode differs from already installed mode; use reviewed installer mode change")
             output = write_trace(ROOT, data)
     except (EOFError, KeyboardInterrupt, OSError, ValueError) as err:
         print("BLOCK:", err)
