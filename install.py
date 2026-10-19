@@ -622,6 +622,12 @@ def main():
         if intake_source is not None and intake_target.exists() and digest(intake_target) != digest(intake_source):
             raise ValueError("different saved intake trace already exists; review it before applying")
         old_manifest = read_install_manifest(dest)
+        if old_manifest is not None and (
+                old_manifest.get("tier") != tier or old_manifest.get("runtime") != runtime):
+            print("MIGRATION_REQUIRED: installed tier/runtime differs from requested one.")
+            print("Installer never leaves mixed old/new role or native hook adapters.")
+            print("Review a separate migration plan; --upgrade does not switch tiers/runtimes.")
+            return 2
         if args.upgrade and old_manifest is None:
             print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
             return 2
