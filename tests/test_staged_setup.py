@@ -49,8 +49,9 @@ class StagedSetupTests(unittest.TestCase):
         """Synthetic trace validates format only; it is not a real host dialog."""
         record = {"schema_version": 1, "channel": "native_dialog", "runtime": runtime,
                   "host_event_ref": None,
-                  "responses": [{"id": "git_mode", "value": "tracked",
-                                 "source": "native_dialog"}]}
+                  "responses": [
+                      {"id": "tier", "value": "Standard", "source": "native_dialog"},
+                      {"id": "git_mode", "value": "tracked", "source": "native_dialog"}]}
         (self.root / "harness/setup-intake.json").write_text(
             json.dumps(record), encoding="utf-8")
 
@@ -410,13 +411,13 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("INTERACTIVE_INTAKE_UNAVAILABLE", no_tty.stdout)
         self.assertFalse((self.root / "harness/setup-intake.json").exists())
         module = runpy.run_path(str(path))
-        answers = iter(["2", "1", "2", "upgrade/v5"])
+        answers = iter(["2", "2", "2", "upgrade/v5"])
         output = []
         result = module["collect"]("codex", input_fn=lambda prompt: next(answers),
                                     output_fn=output.append)
         self.assertEqual(result["channel"], "cli_menu")
         self.assertEqual([r["value"] for r in result["responses"]],
-                         ["Standard", "local", "upgrade/v5"])
+                         ["Standard", "tracked", "upgrade/v5"])
         self.assertTrue(any("1) Lite" in row for row in output))
         self.assertTrue(any("2) Standard" in row for row in output))
         created = module["write_trace"](self.root, result)
@@ -428,6 +429,60 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("SETUP_INTAKE: RECORDED", audit.stdout)
         self.assertNotIn("setup-intake trace missing", audit.stdout)
         self.assertEqual(audit.returncode, 2)  # Other mandatory choices still OPEN
+
+    def test_preinstall_cli_choices_are_imported_before_tier_install(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ref = pathlib.Path(tmp) / "preinstall-intake.json"
+            src = runpy.run_path(str(REPO / "project-template/harness/common/setup_intake.py"))
+            answers = iter(["3", "2", "1"])
+            selected = src["collect"]("codex", input_fn=lambda prompt: next(answers),
+                                     output_fn=lambda message: None)
+            ref.write_text(json.dumps(selected), encoding="utf-8")
+            flags = [sys.executable, self.installer, "--target", self.root,
+                     "--runtime", "codex", "--tier", "Full",
+                     "--config-git", "tracked", "--intake-file", ref, "--staged"]
+            preview = call(*flags)
+            self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
+            self.assertFalse((self.root / "harness/setup-state.json").exists())
+            applied = call(*flags, "--apply")
+            self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
+            self.assertIn("SETUP_INTAKE: copied", applied.stdout)
+            state = json.loads((self.root / "harness/setup-state.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["tier"], "Full")
+            saved = json.loads((self.root / "harness/setup-intake.json").read_text(encoding="utf-8"))
+            self.assertEqual(saved, selected)
+            audit = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
+                         "audit", cwd=self.root)
+            self.assertIn("SETUP_INTAKE: RECORDED", audit.stdout)
+
+    def test_preinstall_mismatched_tier_or_git_choice_blocks_before_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ref = pathlib.Path(tmp) / "intake.json"
+            ref.write_text(json.dumps({
+                "schema_version": 1, "channel": "cli_menu", "runtime": "codex",
+                "responses": [
+                    {"id": "tier", "value": "Full", "source": "cli_menu"},
+                    {"id": "git_mode", "value": "tracked", "source": "cli_menu"}
+                ]}), encoding="utf-8")
+            flags = [sys.executable, self.installer, "--target", self.root,
+                     "--runtime", "codex", "--staged", "--intake-file", ref, "--apply"]
+            rejected = call(*flags)
+            self.assertEqual(rejected.returncode, 2)
+            self.assertIn("disagree with selected questionnaire", rejected.stdout)
+            self.assertFalse((self.root / "AGENTS.md").exists())
+            self.assertFalse((self.root / "harness/setup-state.json").exists())
+
+    def test_malformed_staged_state_must_not_disable_hook_guards(self):
+        self.install("codex")
+        tool = self.root / "harness/common/setup_lifecycle.py"
+        state = self.root / "harness/setup-state.json"
+        for bad in ('{bad json', '{"schema_version":1,"phase":"NOT_A_PHASE","runtime":"codex"}'):
+            state.write_text(bad, encoding="utf-8")
+            module = runpy.run_path(str(tool))
+            self.assertFalse(module["stage_active"]())
+            audit = call(sys.executable, tool, "audit", cwd=self.root)
+            self.assertEqual(audit.returncode, 2)
+            self.assertIn("setup-state.json malformed", audit.stdout)
 
     def test_cli_menu_invalid_answers_or_cancel_are_not_saved(self):
         self.install("codex")
