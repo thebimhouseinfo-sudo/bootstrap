@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Real terminal menu for CLI Bootstrap setup. Not an approval or authentication tool."""
+import argparse
 import datetime
+import os
 import json
 import pathlib
 import re
@@ -89,30 +91,57 @@ def write_trace(root, data):
     return path
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--preinstall", action="store_true",
+                        help="Collect CLI choices before the staged install (recommended)")
+    parser.add_argument("--runtime", choices=("codex", "claude", "antigravity",
+                                              "continue", "generic"))
+    parser.add_argument("--output", help="Private temporary intake record (preinstall only)")
+    args = parser.parse_args(argv)
+    if args.preinstall != bool(args.output):
+        parser.error("--preinstall requires --output and --output requires --preinstall")
+    if args.preinstall and not args.runtime:
+        parser.error("--preinstall requires --runtime matching the coding host")
+    if not args.preinstall and args.runtime:
+        parser.error("--runtime is used only with --preinstall")
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         print("INTERACTIVE_INTAKE_UNAVAILABLE: real interactive CLI terminal (TTY) required.")
         print("Use your CLI host's own numbered selector if available, otherwise run")
         print("this wizard in a real terminal. Do not pipe fabricated answers into stdin.")
         return 2
-    if OUTPUT.exists() or OUTPUT.is_symlink():
+    if not args.preinstall and (OUTPUT.exists() or OUTPUT.is_symlink()):
         print("BLOCK: prior setup-intake.json exists; inspect/reconcile, do not overwrite.")
         return 2
     try:
-        if not STATE.is_file() or STATE.is_symlink():
-            raise ValueError("first install the preliminary staged harness")
-        state = json.loads(STATE.read_text(encoding="utf-8"))
-        if not isinstance(state, dict) or state.get("phase") != "BOOTSTRAPPING":
-            raise ValueError("questionnaire is for staged BOOTSTRAPPING projects only")
-        runtime = state.get("runtime")
-        if runtime not in ("codex", "claude", "antigravity", "continue", "generic"):
-            raise ValueError("setup state has unknown runtime")
-        data = collect(runtime)
-        output = write_trace(ROOT, data)
+        if args.preinstall:
+            output = pathlib.Path(args.output).expanduser().absolute()
+            if output.is_symlink() or output.exists() or not output.parent.is_dir() or output.parent.is_symlink():
+                raise ValueError("preinstall output must be a new private file in an existing regular directory")
+            data = collect(args.runtime)
+            with output.open("x", encoding="utf-8") as handle:
+                os.chmod(output, 0o600)
+                json.dump(data, handle, indent=2, ensure_ascii=False)
+                handle.write("\n")
+        else:
+            if not STATE.is_file() or STATE.is_symlink():
+                raise ValueError("first install the preliminary staged harness")
+            state = json.loads(STATE.read_text(encoding="utf-8"))
+            if not isinstance(state, dict) or state.get("phase") != "BOOTSTRAPPING":
+                raise ValueError("questionnaire is for staged BOOTSTRAPPING projects only")
+            runtime = state.get("runtime")
+            if runtime not in ("codex", "claude", "antigravity", "continue", "generic"):
+                raise ValueError("setup state has unknown runtime")
+            data = collect(runtime)
+            effective = {row["id"]: row["value"] for row in data["responses"]}
+            if effective.get("tier") != state.get("tier"):
+                raise ValueError("chosen tier differs from already installed tier; never silently mix Lite/Standard/Full")
+            output = write_trace(ROOT, data)
     except (EOFError, KeyboardInterrupt, OSError, ValueError) as err:
         print("BLOCK:", err)
         return 2
-    print("SETUP_INTAKE: RECORDED (CLI menu, not an authorization signature)")
+    print("SETUP_INTAKE: PREINSTALL_RECORDED (pass to installer --intake-file)" if args.preinstall
+          else "SETUP_INTAKE: RECORDED (CLI menu, not an authorization signature)")
     print("Saved local/private trace:", output.relative_to(ROOT))
     print("Continue in the original setup agent session; keep it open until handoff.")
     return 0
