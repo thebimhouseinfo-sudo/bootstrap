@@ -28,8 +28,12 @@ def read_state():
 
 
 def stage_active():
+    """Only an intact, explicitly staged first install may defer hook guards."""
     state = read_state()
-    return state is not None and state.get("phase") not in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE")
+    return (isinstance(state, dict) and not state.get("invalid")
+            and state.get("schema_version") == 1
+            and state.get("phase") == "BOOTSTRAPPING"
+            and state.get("runtime") in ("codex", "claude", "antigravity", "continue", "generic"))
 
 
 def run(args, cwd=ROOT, data=None):
@@ -87,6 +91,13 @@ def audit():
     for item in missing:
         print("BLOCK: missing required setup file:", item)
     problems = list(missing)
+    state = read_state()
+    if state is not None and (state.get("invalid")
+            or state.get("phase") not in ("BOOTSTRAPPING", "READY",
+                                          "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE")
+            or state.get("runtime") not in ("codex", "claude", "antigravity", "continue", "generic")):
+        print("BLOCK: setup-state.json malformed or phase/runtime invalid; guard is NOT deferred")
+        problems.append("invalid setup state")
     if read_state() is not None:
         if not setup_intake_recorded():
             print("BLOCK: IDE-dialog/CLI-menu setup-intake trace missing/invalid; permission is not an answer")
