@@ -13,4 +13,4 @@ For a new host:
 
 Do not copy `.generic/agents/*.md` into a guessed native directory automatically. They are portable source text until a host-specific installation is explicitly validated. Human approval is required for runtime permission changes.
 
-Use `python install.py --ask-first` to print ONE set of setup questions for the AI to ask in chat; then `python install.py --target PATH --tier Standard --runtime generic --target-app cline` to preview. Apply only after approval.
+Setup choices belong in the IDE-native dialog or CLI numbered menu, never in plain chat. For the CLI fallback, run `project-template/harness/common/setup_intake.py --preinstall --runtime generic --output PRIVATE_TEMP_FILE` in a real TTY, then preview `install.py --target PATH --tier SELECTED_TIER --config-git SELECTED_GIT_MODE --runtime generic --target-app cline --staged --intake-file PRIVATE_TEMP_FILE`. Only apply after authorization. `--ask-first` is developer reference output, not the interactive questionnaire.
