@@ -455,6 +455,26 @@ class StagedSetupTests(unittest.TestCase):
                          "audit", cwd=self.root)
             self.assertIn("SETUP_INTAKE: RECORDED", audit.stdout)
 
+    def test_installed_tier_and_runtime_cannot_change_without_migration(self):
+        self.install("codex")
+        trace = self.root / "harness/.bootstrap-manifest.json"
+        state = self.root / "harness/setup-state.json"
+        old_manifest = trace.read_bytes()
+        old_state = state.read_bytes()
+        for other_tier, other_runtime in (("Lite", "codex"),
+                                          ("Full", "codex"),
+                                          ("Standard", "claude")):
+            for optional in ([], ["--upgrade"]):
+                flags = [sys.executable, self.installer, "--target", self.root,
+                         "--runtime", other_runtime, "--tier", other_tier,
+                         "--config-git", "tracked", "--staged", *optional, "--apply"]
+                failure = call(*flags)
+                self.assertEqual(failure.returncode, 2, failure.stdout + failure.stderr)
+                self.assertIn("MIGRATION_REQUIRED", failure.stdout)
+                self.assertEqual(trace.read_bytes(), old_manifest)
+                self.assertEqual(state.read_bytes(), old_state)
+        self.assertFalse((self.root / ".claude/settings.json").exists())
+
     def test_preinstall_mismatched_tier_or_git_choice_blocks_before_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             ref = pathlib.Path(tmp) / "intake.json"
