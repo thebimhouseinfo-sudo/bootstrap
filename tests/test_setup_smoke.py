@@ -15,10 +15,15 @@ class SetupSmokeTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = pathlib.Path(self.tmp.name)
+        self.root = pathlib.Path(self.tmp.name) / 'codex'
+        self.root.mkdir()
         self.install('codex')
 
     def install(self, runtime):
+        if runtime == 'claude':
+            # A host switch is a migration, not a second adapter on the same target.
+            self.root = pathlib.Path(self.tmp.name) / 'claude'
+            self.root.mkdir(exist_ok=True)
         result = self.run_command([sys.executable, str(REPO / 'install.py'),
                                    '--target', str(self.root), '--runtime', runtime, '--apply'])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
