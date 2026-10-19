@@ -601,8 +601,11 @@ def main():
     if args.staged and staged_state.exists():
         try:
             existing = json.loads(staged_state.read_text(encoding="utf-8"))
-            if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE") or existing.get("runtime") != runtime:
-                print("BLOCK: staged state is already READY or belongs to another runtime")
+            if existing.get("runtime") != runtime:
+                print("MIGRATION_REQUIRED: staged harness belongs to another runtime; no automatic adapter migration")
+                return 2
+            if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
+                print("BLOCK: staged state is already activated; final-lock policy applies")
                 return 2
         except (OSError, ValueError, AttributeError):
             print("BLOCK: staged state malformed; repair using independent maintenance")
