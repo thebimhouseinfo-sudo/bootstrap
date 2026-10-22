@@ -311,6 +311,7 @@ def host_test(surface="local"):
         print("ANTIGRAVITY: inspect installed .agents/hooks.json and test actual Stop dispatch")
         print("with configured passing and failing verification in a disposable clone.")
     elif runtime == "generic":
+        print("GENERIC TARGET CLIENT:", state.get("target_app") or "UNKNOWN_LEGACY_INSTALL")
         print("GENERIC: agent MUST read .generic/ADAPTER_REQUIREMENTS.md and .generic/PORTING.md.")
         print("Investigate the actual client, WRITE AND REGISTER its native roles/hooks/scripts")
         print("as documented by that host, then test actual allowed/denied tool paths.")
@@ -326,6 +327,7 @@ def host_test(surface="local"):
     print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
     print(' "host_version": "observed-version", "fresh_session": true,')
     if runtime == "generic":
+        print(' "target_app": "' + str(state.get("target_app") or "actual-host") + '",')
         print(' "roles_loaded": true, "checks_executed": true,')
         print(' "native_hook_available": true, "native_adapter_paths": ["host/hook-file"],')
         print(' "hook_dispatched": true, "allow_observed": true, "deny_observed": true,')
@@ -420,6 +422,10 @@ def activate(evidence):
         print("BLOCK: observed host evidence missing or mismatched")
         return 2
     generic_native = runtime == "generic" and item.get("native_hook_available") is True
+    if (generic_native and state.get("target_app") is not None
+            and item.get("target_app") != state.get("target_app")):
+        print("BLOCK: observed native adapter target_app differs from installed generic host")
+        return 2
     limited = runtime == "continue" or (runtime == "generic" and not generic_native)
     required_observations = (("fresh_session", "roles_loaded", "checks_executed")
         if limited else ("fresh_session", "hook_dispatched", "allow_observed", "deny_observed"))
