@@ -2,7 +2,7 @@
 
 **Node.js requirement:** Native hooks invoke `node`. Confirm it is on PATH for the actual Copilot hook execution environment; if absent, the setup agent must arrange a verified equivalent or report the unresolved limitation instead of claiming hooks loaded.
 
-**Select Session Target: GitHub Copilot (not VS Code Local, Claude or Codex harness).** Choose **Planner** in the agent selector. A model named Claude/Codex inside Copilot does NOT switch the harness. This runtime uses `.github/agents/*.agent.md`, `.agents/skills` and `.github/hooks/criteria.json`.
+**Select Session Target: GitHub Copilot (not VS Code Local, Claude or Codex harness).** Choose **Planner** in the agent selector. A model named Claude/Codex inside Copilot does NOT switch the harness. This runtime uses `.github/copilot-instructions.md` as always-on project guidance, `.github/instructions/criteria.instructions.md` for protected Criteria, `.github/agents/*.agent.md`, `.agents/skills` and `.github/hooks/criteria.json`.
 
 ## Startup sequence
 
