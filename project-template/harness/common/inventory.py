@@ -83,6 +83,13 @@ def main(args=None):
     folders = [ROOT / ".agents/skills"]
     if options.runtime == "claude":
         folders.append(ROOT / ".claude/skills")
+    if options.runtime == "continue":
+        folders.append(ROOT / ".continue/skills")
+        originals = {x.parent.name for x in (ROOT / ".agents/skills").glob("*/SKILL.md")}
+        native = {x.parent.name for x in (ROOT / ".continue/skills").glob("*/SKILL.md")}
+        if originals != native:
+            print("MISSING/EXTRA Continue native skills:", sorted(originals ^ native))
+            missing.append("Continue native skills parity")
     malformed = [str(p.relative_to(ROOT)) for folder in folders for p in folder.glob("*/SKILL.md") if not check_skill(p)]
     for item in malformed:
         print("INVALID_SKILL:", item)
