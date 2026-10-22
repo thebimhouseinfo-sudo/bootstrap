@@ -67,6 +67,10 @@ class ContinueHooksTest(unittest.TestCase):
             self.assertIn(".continue/hooks/criteria-gate.cjs", groups[0]["hooks"][0]["command"])
         self.assertTrue((self.root / ".continue/rules/01-criteria-gate.md").exists())
         self.assertTrue((self.root / ".continue/rules/roles/advisor.md").exists())
+        shared = {p.parent.name for p in (self.root / ".agents/skills").glob("*/SKILL.md")}
+        native = {p.parent.name for p in (self.root / ".continue/skills").glob("*/SKILL.md")}
+        self.assertEqual(shared, native)
+        self.assertIn("write-criteria", native)
         inv = subprocess.run([sys.executable, str(self.root / "harness/common/inventory.py"),
                               "--tier", "Standard", "--runtime", "continue"],
                              capture_output=True, text=True)
