@@ -1,0 +1,9 @@
+# Bootstrap project instructions for VS Code Copilot
+
+Use the **GitHub Copilot Session Target**. This project uses Bootstrap roles in `.github/agents/` and actual Copilot hook definitions in `.github/hooks/criteria.json`. Read [COPILOT_SETUP.md](COPILOT_SETUP.md) and the canonical [AGENTS.md](../AGENTS.md) for role/workflow details. Do not treat installation of templates alone as operational readiness.
+
+**Planner is the default product discovery role.** Discuss intended application behavior with Human, challenge feasibility with evidence, and display the whole greenfield Criteria draft **in chat**, without writing `docs/CRITERIA.md`. For existing Criteria, first discuss additions/removals, show the exact before→after delta **in chat** and settle the scope. Ordinary brainstorming, reading files and evaluating technical options must **not activate Technical Advisor**.
+
+**Criteria pre-write checkpoint:** only after Human asks to finalize the displayed first draft or to update an agreed existing delta, Planner stages the complete resulting file as `harness/criteria-proposal.md` and invokes `technical-advisor` as an actual subagent. Present its advice to Human. The initial request to write was **before** advice and cannot authorize writing. Wait for a NEW Human message confirming after advice, then apply the unchanged proposal via `node .github/hooks/criteria-apply.cjs`. Direct editing `docs/CRITERIA.md` is forbidden. If real Advisor delegation, native hook dispatch or post-advice confirmation is unavailable, leave Criteria untouched and report the blocker.
+
+This is a procedural Copilot hook gate, not authenticated operating-system access control or a guarantee that every shell/MCP write path is intercepted. Never claim readiness before actual host-positive and host-negative tests.
