@@ -49,7 +49,7 @@ def collect(runtime, input_fn=input, output_fn=print, runtimes=None):
     if len(selected_runtimes) == 1 and runtime != "generic":
         output_fn("Additional coding hosts can share this project (native adapters remain independently verified).")
         for candidate, caption in [("codex", "Codex"), ("claude", "Claude Code"),
-                                   ("antigravity", "Antigravity"), ("continue", "Continue"), ("copilot", "VS Code Copilot")]:
+                                   ("antigravity", "Antigravity"), ("continue", "Continue")]:
             if candidate != runtime and choice("Also install " + caption + " harness?", [
                 ("no", "No"), ("yes", "Yes")], input_fn, output_fn) == "yes":
                 selected_runtimes.append(candidate)
