@@ -8,6 +8,17 @@ description: Planner uses this to draft or amend the single human-readable produ
 ## Purpose
 `docs/CRITERIA.md` is the **single source of truth about the product humans want**, not a code specification, implementation plan, architecture diagram or agent execution log. A Human should understand what is being made, who uses it, why, the expected behaviors and accepted limits without needing software-engineering knowledge.
 
+## Scope discovery inputs — prevent overengineering
+Before writing, reuse answers from `brainstorm-theory` and the Planner's Discovery questions. Ask only missing details that would materially change product scope:
+- Who uses it **now** (single person/team/customers), in which real environment?
+- What is the smallest successful workflow and expected scale (users, machines, data, access)?
+- Is future commercial/multi-user/enterprise growth a committed requirement, an optional possibility, or out of scope?
+- What can go wrong, what user data or operations are sensitive, and what level of recovery/security is actually needed?
+- Which features, deployment modes and costly safeguards are explicitly **not** needed?
+- Which constraints are user-decided, and which are AI assumptions needing confirmation?
+
+Ask conversationally in small relevant batches, not a mandatory long form. Do not invent answers; leave material unknowns OPEN. Do not omit minimum safety requirements when the chosen scope makes them necessary. In CRITERIA, summarize the **decisions** in plain language, not the questionnaire or a technical threat model. Scale, trust and explicit non-goals bound the later engineering Plan.
+
 ## Required writing approach
 1. Write in clear, natural language centered on the user's real problem: what the product is, who it serves, what it is for, user journeys, observable behavior, important constraints, exclusions and success criteria.
 2. Express requirements as outcomes and examples understandable to a non-developer. Stable identifiers can be used for traceability but never dominate readability.
