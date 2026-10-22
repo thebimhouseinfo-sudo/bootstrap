@@ -19,14 +19,14 @@ function save(state) {
 }
 function output(value) { process.stdout.write(JSON.stringify(value) + '\n'); }
 function deny(reason) {
-  process.stderr.write('CONTINUE_CRITERIA_BLOCK: ' + reason + '\\n');
+  process.stderr.write('CONTINUE_CRITERIA_BLOCK: ' + reason + '\n');
   output({hookSpecificOutput: {hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason}});
   process.exitCode = 2;
 }
 function cleanTool(x) { return String(x || '').toLowerCase(); }
 function matchCriteria(s) { return /(?:^|[\\/\s"'=:])(?:docs[\\/])?criteria\.md\b/i.test(s); }
 function applyCommand(s) {
-  return /^\s*(?:(?:node|node\.exe)\s+)?(?:["']?\.github[\\/]hooks[\\/]criteria-apply\.cjs["']?)(?:\s+apply)?\s*$/i.test(s);
+  return /^\s*(?:(?:node|node\.exe)\s+)?(?:["']?\.continue[\\/]hooks[\\/]criteria-apply\.cjs["']?)(?:\s+apply)?\s*$/i.test(s);
 }
 function safeReadCommand(s) {
   // Chained shell commands and redirection must not bypass read-only checks.
@@ -51,17 +51,18 @@ function preTool(event) {
         state.baseSha === fileHash(target)) return output({});
     return deny('Criteria is LOCKED. Show a complete draft/delta in chat; Human must ask to write, then consult Technical Advisor, then obtain the Human post-advice confirmation shown by `node .continue/hooks/criteria-apply.cjs status`.');
   }
-  const mutation = /^(?:edit|create|write|apply_patch|str_replace_editor|bash|powershell|run_in_terminal|execute|write_file|edit_existing_file|create_new_file|run_terminal_command)$/i.test(name);
+  const readOnly = /^(?:read|read_file|read_currently_open_file|ls|glob_search|grep_search|fetch_url_content|search_web|view_diff|view_repo_map|view_subdirectory)$/i.test(name);
+  const mutation = !readOnly;
   if (!mutation) return output({});
   let serialized = '';
   try { serialized = JSON.stringify(args); } catch { return deny('Unable to inspect tool arguments safely.'); }
   if (!matchCriteria(serialized)) return output({});
   if (['bash','powershell','run_in_terminal','run_terminal_command','execute'].includes(name) && safeReadCommand(cmd)) return output({});
-  return deny('BLOCKED before editing docs/CRITERIA.md. Do NOT call Advisor during brainstorming. First show draft or settled delta in chat, wait for Human request to write, create harness/criteria-proposal.md, invoke technical-advisor as subagent, present advice to Human, await a new Human confirmation and apply only with node .continue/hooks/criteria-apply.cjs. Direct Criteria edits are never unlocked.');
+  return deny('BLOCKED before editing docs/CRITERIA.md. Do NOT call Advisor during brainstorming. First show draft or settled delta in chat, wait for Human request to write, create harness/criteria-proposal.md, invoke technical-advisor in a REAL separately observed advisor session, present advice to Human, await a new Human confirmation and apply only with node .continue/hooks/criteria-apply.cjs. Direct Criteria edits are never unlocked.');
 }
 function advisorStop(event) {
   const agent = cleanTool(event.agent_type);
-  const sessionId = event.sessionId ?? event.session_id;
+  const sessionId = event.session_id;
   if (agent !== 'technical-advisor' || !sessionId || !fs.existsSync(proposal)) return output({});
   const response = event.last_assistant_message;
   if (typeof response !== 'string' || !response.trim()) return output({});
@@ -85,8 +86,7 @@ function userPrompt(event) {
 function main() {
   const event = JSON.parse(fs.readFileSync(0, 'utf8'));
   if (!event || typeof event !== 'object') throw Error('Expected hook event object');
-  const type = event.hook_event_name ||
-    (event.toolName || event.tool_name ? 'preToolUse' : event.agentName ? 'subagentStop' : 'unknown');
+  const type = event.hook_event_name || 'unknown';
   switch(type) {
     case 'SessionStart':
       return output({hookSpecificOutput:{hookEventName:'SessionStart', additionalContext:'Bootstrap Continue CLI: select Planner. Never write Criteria directly. Advisor is called ONLY after Human asks to finalize a displayed initial draft or settled existing delta, before any Criteria file write. See .continue/HOOKS_SETUP.md.'}});
