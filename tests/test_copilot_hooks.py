@@ -135,8 +135,8 @@ class CopilotNativeTests(unittest.TestCase):
             self.assertIn(name, config["hooks"])
         planner=(self.root / ".github/agents/planner.agent.md").read_text()
         advisor=(self.root / ".github/agents/technical-advisor.agent.md").read_text()
-        self.assertIn("When no Criteria exists", planner)
-        self.assertIn("When Criteria exists", planner)
+        self.assertIn("When no Human-approved Criteria exists", planner)
+        self.assertIn("When approved Criteria already exists", planner)
         self.assertIn("Act ONLY when Planner has received a Human request", advisor)
         self.assertIn("name: technical-advisor", advisor)
 
