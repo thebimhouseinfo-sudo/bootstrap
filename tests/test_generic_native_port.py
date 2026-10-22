@@ -95,6 +95,24 @@ class GenericNativePortTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stdout)
         self.assertIn("must attempt host-native port", result.stdout)
 
+    def test_installer_requires_native_directory_migration(self):
+        flags = [INSTALL, "--target", self.root, "--tier", "Standard", "--runtime",
+                 "generic", "--target-app", "opencode", "--staged"]
+        preview = call(*flags)
+        self.assertIn("HOST_NATIVE_MIGRATION_REQUIRED", preview.stdout)
+        self.assertTrue((self.root / ".generic/HOST_NATIVE_LAYOUT.md").is_file())
+        guidance = call(self.tool, "host-test")
+        self.assertIn("WRITE AND REGISTER", guidance.stdout)
+
+    def test_generic_source_file_cannot_pass_as_native_adapter(self):
+        self.configure()
+        result = fixture_transition(self.tool, "activate", self.evidence(
+            native_adapter_paths=[".generic/agents/planner.md"]))
+        self.assertEqual(result.returncode, 2, result.stdout)
+        self.assertIn("NOT host-native adapter paths", result.stdout)
+        self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"],
+                         "BOOTSTRAPPING")
+
     def test_native_claim_must_match_actual_installed_host(self):
         self.configure()
         hook = self.root / ".opencode/bootstrap-hooks.py"
