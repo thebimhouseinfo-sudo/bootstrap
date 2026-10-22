@@ -1,8 +1,5 @@
 # Native hooks and portability contract
 
-**Copilot native:** `--runtime copilot` installs `.github/hooks/criteria.json` (Copilot camelCase `sessionStart`, `preToolUse`, `subagentStop`, `userPromptSubmitted`) and `.github/agents/*.agent.md`. A recognized direct edit of Criteria is denied. One-shot staged apply needs an observed `technical-advisor` subagentStop and a LATER Human chat confirmation bound to that session and staged proposal hash. This remains a procedural host/tool-scoped gate, not cryptographic Human identity or universal indirect write protection. Native VS Code hook dispatch remains UNVERIFIED until a real host smoke.
-
-
 **Generic target host implementation is mandatory during setup when technically supported:** `.generic/ADAPTER_REQUIREMENTS.md` defines what the installing agent must research, write and test for each actual IDE/CLI. Do not confuse the absence of a prebuilt generic adapter with an optional port, nor claim equivalence from copied Python source. A verified native hook may only claim the exact operations actually intercepted.
 
 **Installed for Codex:** `.codex/hooks.json` declares `SessionStart`, `PreToolUse` (exact `apply_patch`), and `Stop`; each calls `harness/codex/hook.py` using the installed Python interpreter (project-root lookup works from nested directories). Hook JSON input/output follows official Codex hook schemas: https://learn.chatgpt.com/docs/hooks
