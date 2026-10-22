@@ -35,7 +35,7 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 # template's own .gitignore: the template is distributable source in this repo.
 LOCAL_SETUP_PATHS = (
     ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/",
-    ".github/agents/", ".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
+    ".github/agents/", ".github/COPILOT_SETUP.md", ".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
     ".github/hooks/criteria-apply.cjs", "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
     "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
