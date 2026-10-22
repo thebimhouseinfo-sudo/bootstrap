@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "python .github/hooks/criteria_guard.py",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
