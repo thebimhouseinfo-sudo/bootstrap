@@ -41,6 +41,14 @@ class CopilotNativeTests(unittest.TestCase):
                 self.assertEqual(cfg["hooks"]["preToolUse"][0]["type"], "command")
                 self.assertTrue((root / ".github/copilot-instructions.md").exists())
 
+    def test_copilot_host_test_describes_installed_native_hooks(self):
+        root = self.install()
+        report = invoke(root / "harness/common/setup_lifecycle.py", "host-test")
+        self.assertEqual(report.returncode, 0, report.stdout + report.stderr)
+        self.assertIn("packaged native .github/agents", report.stdout)
+        self.assertIn("Test DENY before review, ASK", report.stdout)
+        self.assertNotIn("WRITE AND REGISTER", report.stdout)
+
     def test_other_generic_clients_are_not_given_copilot_files(self):
         root = self.install(app="qwen-code")
         self.assertFalse((root / ".github").exists())
