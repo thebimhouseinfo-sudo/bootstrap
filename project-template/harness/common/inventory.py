@@ -57,7 +57,8 @@ def main(args=None):
                        "harness/hook-policy.json", "harness/active-task.json"])
         needed += [".codex/agents/" + role + ".toml" for role in sorted(roles)]
     if options.runtime == "copilot":
-        needed.extend([".github/COPILOT_SETUP.md", ".github/hooks/criteria.json",
+        needed.extend([".github/COPILOT_SETUP.md", ".github/copilot-instructions.md",
+                       ".github/instructions/criteria.instructions.md", ".github/hooks/criteria.json",
                        ".github/hooks/criteria-gate.cjs", ".github/hooks/criteria-apply.cjs"])
         needed += [".github/agents/" + ("technical-advisor" if role == "advisor" else role)
                    + ".agent.md" for role in sorted(roles)]
