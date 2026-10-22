@@ -1,8 +1,8 @@
 # Enforcement inventory — actual implementation and missing boundaries
 
 | Mechanism | State before real host smoke |
-| Copilot `.github/hooks/criteria.json` + `criteria-gate.cjs` / `criteria-apply.cjs` | SCRIPT_TESTED in CI; native Copilot dispatch UNVERIFIED, direct paths only |
 |---|---|
+| Copilot `.github/hooks/criteria.json` + `criteria-gate.cjs` / `criteria-apply.cjs` | SCRIPT_TESTED in CI; native Copilot dispatch UNVERIFIED, direct paths only |
 | Codex `.codex/hooks.json` + `harness/codex/hook.py` for SessionStart/PreToolUse/Stop | SCRIPT_TESTED; native trust UNVERIFIED |
 | Direct apply_patch pre-edit snapshot, hash-check restoration | SCRIPT_TESTED on supported direct paths only |
 | Verification + single-task trace/evidence link check | SCRIPT_TESTED; not human gate approval |
