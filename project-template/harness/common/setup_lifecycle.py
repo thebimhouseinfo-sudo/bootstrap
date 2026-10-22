@@ -33,7 +33,7 @@ def stage_active():
     return (isinstance(state, dict) and not state.get("invalid")
             and state.get("schema_version") == 1
             and state.get("phase") == "BOOTSTRAPPING"
-            and state.get("runtime") in ("codex", "claude", "antigravity", "continue", "generic"))
+            and state.get("runtime") in ("codex", "claude", "antigravity", "continue", "copilot", "generic"))
 
 
 def run(args, cwd=ROOT, data=None):
@@ -106,7 +106,7 @@ def audit():
     if state is not None and (state.get("invalid")
             or state.get("phase") not in ("BOOTSTRAPPING", "READY",
                                           "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE")
-            or state.get("runtime") not in ("codex", "claude", "antigravity", "continue", "generic")):
+            or state.get("runtime") not in ("codex", "claude", "antigravity", "continue", "copilot", "generic")):
         print("BLOCK: setup-state.json malformed or phase/runtime invalid; guard is NOT deferred")
         problems.append("invalid setup state")
     if read_state() is not None:
@@ -253,6 +253,8 @@ def locked_files(runtime, native_paths=()):
         "codex": [".codex/hooks.json", "harness/codex/hook.py"],
         "claude": [".claude/settings.json", "harness/claude/hook.py"],
         "antigravity": [".agents/hooks.json", "harness/common/setup_hook.py"],
+        "copilot": [".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
+                    ".github/hooks/criteria-apply.cjs"],
     }.get(runtime, [])
     names += list(native_paths)
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
@@ -310,6 +312,12 @@ def host_test(surface="local"):
     elif runtime == "antigravity":
         print("ANTIGRAVITY: inspect installed .agents/hooks.json and test actual Stop dispatch")
         print("with configured passing and failing verification in a disposable clone.")
+    elif runtime == "copilot":
+        print("COPILOT: choose the GitHub Copilot Session Target in VS Code, not Local/Claude.")
+        print("Verify Planner and technical-advisor custom agents under .github/agents and")
+        print("Copilot native sessionStart/subagentStop/userPromptSubmitted/preToolUse hooks.")
+        print("Follow .github/COPILOT_SETUP.md on a disposable checkout; test direct DENY")
+        print("and exact post-Advisor/Human confirmation before claiming coverage.")
     elif runtime == "generic":
         print("GENERIC TARGET CLIENT:", state.get("target_app") or "UNKNOWN_LEGACY_INSTALL")
         print("GENERIC: agent MUST read .generic/ADAPTER_REQUIREMENTS.md and .generic/PORTING.md.")
@@ -326,6 +334,9 @@ def host_test(surface="local"):
     print("in harness/setup-live-evidence.json (state/private), not in an approved plan.")
     print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
     print(' "host_version": "observed-version", "fresh_session": true,')
+    if runtime == "copilot":
+        print(' "hook_dispatched": true, "allow_observed": true,')
+        print(' "deny_observed": true, "notes": "real Copilot Session Target event evidence"}')
     if runtime == "generic":
         print(' "port_attempted": true, "host_api_evidence": "doc/version or observed API",')
         print(' "target_app": "' + str(state.get("target_app") or "actual-host") + '",')
@@ -406,7 +417,7 @@ def activate(evidence):
     smoke_result = smoke()
     # Native generic adapter is written for the actual host during installation.
     # The bundled Codex/Claude smoke cannot validate that newly written native hook.
-    if audit_result or (smoke_result and runtime not in ("continue", "generic")):
+    if audit_result or (smoke_result and runtime not in ("continue", "generic", "copilot")):
         print("BLOCK: setup audit/smoke incomplete")
         return 2
     path = pathlib.Path(evidence).resolve()

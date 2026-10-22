@@ -1,3 +1,7 @@
+# Copilot has a packaged native runtime
+
+**For a fresh Copilot harness project select `--runtime copilot`**, which installs `.github/agents/`, `.github/hooks/` and `.github/COPILOT_SETUP.md` from Bootstrap. This generic porting guide remains for legacy generic installs; upgrading from an existing generic Copilot installation requires reviewed migration of managed files/state, not silent rebinding.
+
 # GitHub Copilot in VS Code — installing agent generates native adapter
 
 `--runtime generic --target-app copilot --tier Standard` installs portable role text and Python support, **NOT Copilot-native agents, hooks, or a Criteria write guard**. The same is true for generic CLI targeting Copilot. This is **only stage 1**. The installing agent must read `../ADAPTER_REQUIREMENTS.md`, implement the Copilot-native registration and hooks the installed version supports, and verify them before completing setup.

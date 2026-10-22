@@ -12,7 +12,7 @@ SOURCE = ROOT / "project-template"
 INSTALLER = ROOT / "install.py"
 INVENTORY = SOURCE / "harness/common/inventory.py"
 TIERS = ("Lite", "Standard", "Full")
-RUNTIMES = ("codex", "antigravity", "claude", "continue", "generic")
+RUNTIMES = ("codex", "antigravity", "claude", "continue", "copilot", "generic")
 EXPECTED = {
     "Lite": {"coder", "reviewer", "advisor"},
     "Standard": {"coder", "reviewer", "advisor", "planner", "tester", "critic", "explorer"},
@@ -52,7 +52,7 @@ class InstallTests(unittest.TestCase):
                     self.assertEqual(installed, EXPECTED[tier])
                     for other in RUNTIMES:
                         path = {"codex": ".codex/agents", "antigravity": ".antigravity/agents", "claude": ".claude/agents",
-                                "continue": ".continue/agents", "generic": ".generic/agents"}[other]
+                                "continue": ".continue/agents", "copilot": ".github/agents", "generic": ".generic/agents"}[other]
                         self.assertEqual((root / path).exists(), other == runtime)
                     if runtime == "antigravity":
                         native = {x.stem for x in (root / ".antigravity/agents").glob("*.md")}
@@ -62,6 +62,11 @@ class InstallTests(unittest.TestCase):
                         native = {x.stem for x in (root / ".claude/agents").glob("*.md")}
                     elif runtime == "continue":
                         native = {x.name for x in (root / ".continue/agents").iterdir()}
+                    elif runtime == "copilot":
+                        native = {("advisor" if x.name == "technical-advisor.agent.md" else x.name.removesuffix(".agent.md"))
+                                  for x in (root / ".github/agents").glob("*.agent.md")}
+                        self.assertTrue((root / ".github/hooks/criteria.json").is_file())
+                        self.assertTrue((root / ".github/hooks/criteria-gate.cjs").is_file())
                     else:
                         native = {x.stem for x in (root / ".generic/agents").glob("*.md")}
                         self.assertIn("PORT_REQUIRED", preview.stdout)
@@ -95,6 +100,7 @@ class InstallTests(unittest.TestCase):
             self.assertIn("Continue: provider/model selection", questions.stdout)
             self.assertFalse((root / "AGENTS.md").exists())
             for flags in (("--runtime", "generic"), ("--runtime", "generic", "--apply"),
+                          ("--runtime", "generic", "--target-app", "copilot"),
                           ("--runtime", "codex", "--target-app", "cline"),
                           ("--runtime", "generic", "--target-app", "../traversal")):
                 with self.subTest(generic_flags=flags):

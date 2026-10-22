@@ -34,7 +34,7 @@ def check_skill(path):
 def main(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tier", choices=["Lite", "Standard", "Full"], default="Standard")
-    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "generic"], required=True)
+    parser.add_argument("--runtime", choices=["antigravity", "codex", "claude", "continue", "copilot", "generic"], required=True)
     options = parser.parse_args(args)
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -56,6 +56,12 @@ def main(args=None):
                        "harness/common/snapshot.py", "harness/common/task.py",
                        "harness/hook-policy.json", "harness/active-task.json"])
         needed += [".codex/agents/" + role + ".toml" for role in sorted(roles)]
+    if options.runtime == "copilot":
+        needed.extend([".github/COPILOT_SETUP.md", ".github/copilot-instructions.md",
+                       ".github/instructions/criteria.instructions.md", ".github/hooks/criteria.json",
+                       ".github/hooks/criteria-gate.cjs", ".github/hooks/criteria-apply.cjs"])
+        needed += [".github/agents/" + ("technical-advisor" if role == "advisor" else role)
+                   + ".agent.md" for role in sorted(roles)]
     if options.runtime == "generic":
         needed += [".generic/README.md", ".generic/PORTING.md",
                    ".generic/platforms/cline.md", ".generic/platforms/qwen-code.md",

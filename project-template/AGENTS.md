@@ -1,3 +1,5 @@
+**Copilot native:** If `.github/COPILOT_SETUP.md` is present and the Session Target is Copilot, follow the native Planner→Human request-to-write→Technical Advisor advice→Human post-advice confirmation→single Criteria apply flow. Never write Criteria directly or summon Advisor while drafting/discussing scope; the `.github/hooks/criteria.json` preToolUse script will deny identifiable direct writes. Do not claim every shell/MCP route is secured.
+
 # Project agent instructions
 
 This is a reusable workflow. `docs/CRITERIA.md` is the **only approved product-theory source**, including use/scope/security exclusions; `docs/PROJECT_PROFILE.md` records verified host/stack/API; `docs/IMPLEMENTATION_PLAN.md` owns GOALMAP and implementation goals; `docs/MILESTONES.md` organizes approved plan deliverables; `TASKS.md` records approved task scope. Use matching generic role and skills under `.agents/`.
