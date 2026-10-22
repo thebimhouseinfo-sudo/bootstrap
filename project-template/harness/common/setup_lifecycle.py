@@ -311,11 +311,19 @@ def host_test(surface="local"):
         print("ANTIGRAVITY: inspect installed .agents/hooks.json and test actual Stop dispatch")
         print("with configured passing and failing verification in a disposable clone.")
     elif runtime == "generic":
-        print("GENERIC TARGET CLIENT:", state.get("target_app") or "UNKNOWN_LEGACY_INSTALL")
-        print("GENERIC: agent MUST read .generic/ADAPTER_REQUIREMENTS.md and .generic/PORTING.md.")
-        print("Investigate the actual client, WRITE AND REGISTER its native roles/hooks/scripts")
-        print("as documented by that host, then test actual allowed/denied tool paths.")
-        print("The generic installer copied only source; porting is part of setup, NOT optional.")
+        app = state.get("target_app") or "UNKNOWN_LEGACY_INSTALL"
+        print("GENERIC TARGET CLIENT:", app)
+        if app == "copilot":
+            print("COPILOT: packaged native .github/agents and .github/hooks are provided.")
+            print("Choose the Copilot session harness; inspect registered Planner/Technical Advisor")
+            print("and preToolUse dispatch. Test DENY before review, ASK with post-advice receipt")
+            print("in a disposable workspace. Do NOT regenerate the packaged adapter.")
+            print("Record genuine native adapter files plus host observations, not simulated claims.")
+        else:
+            print("GENERIC: agent MUST read .generic/ADAPTER_REQUIREMENTS.md and .generic/PORTING.md.")
+            print("Investigate the actual client, WRITE AND REGISTER its native roles/hooks/scripts")
+            print("as documented by that host, then test actual allowed/denied tool paths.")
+            print("The generic installer copied only source; porting is part of setup, NOT optional.")
         print("If a requirement is unsupported, record evidence and report GUIDED_ONLY.")
     else:
         print("CONTINUE: test host roles and implement native hook integration if supported.")
