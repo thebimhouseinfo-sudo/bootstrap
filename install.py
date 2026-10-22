@@ -566,9 +566,14 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
         print("  WARNING          : approvals are local and do not support multiple Humans")
     if runtime == "generic":
         print("  Target app/client:", target_app)
-        print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
-        print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
-        print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
+        if target_app == "copilot":
+            print("  Porting status   : Copilot-native agents and preToolUse hook PACKAGED; real host UNVERIFIED")
+            print("  HOOKS            : install .github/hooks/*.json; test actual dispatch in Copilot harness")
+            print("  CRITERIA GATE    : deny/ask for recognized Criteria edits; not authenticated or universal")
+        else:
+            print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
+            print("  HOOKS            : NONE included for this generic host before the agent ports them")
+            print("  CRITERIA GATE    : GUIDED_ONLY until host-native protection is implemented/verified")
         print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
         if target_app == "copilot":
             print("  COPILOT NATIVE   : packaged .github/agents + .github/hooks/preToolUse Criteria gate")
