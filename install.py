@@ -319,7 +319,7 @@ def rollback_install(dest, added, replaced, ignore_before, ignore_after, state_c
         print("ROLLBACK_MANUAL: .gitignore", exc)
 
 
-def checked_intake_source(path, runtime, tier, mode):
+def checked_intake_source(path, runtimes, tier, mode):
     """Inspect a pre-install IDE/CLI selection record without modifying any target."""
     if not path:
         return None
@@ -333,8 +333,11 @@ def checked_intake_source(path, runtime, tier, mode):
     if not isinstance(value, dict) or value.get("schema_version") != 1:
         raise ValueError("invalid pre-install intake version")
     channel = value.get("channel")
-    if channel not in ("cli_menu", "native_dialog") or value.get("runtime") != runtime:
+    if channel not in ("cli_menu", "native_dialog") or value.get("runtime") != runtimes[0]:
         raise ValueError("intake channel/runtime does not match target coding host")
+    recorded_runtimes = value.get("runtimes", [value.get("runtime")])
+    if recorded_runtimes != runtimes:
+        raise ValueError("intake host selections disagree with --runtime options")
     responses = value.get("responses")
     if not isinstance(responses, list) or not responses:
         raise ValueError("intake answers missing")
@@ -651,7 +654,7 @@ def main():
         print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
     try:
-        intake_source = checked_intake_source(args.intake_file, runtime, tier, mode)
+        intake_source = checked_intake_source(args.intake_file, runtimes, tier, mode)
         intake_target = dest / "harness/setup-intake.json"
         confine(dest, intake_target)
         if intake_source is not None and intake_target.exists() and digest(intake_target) != digest(intake_source):
