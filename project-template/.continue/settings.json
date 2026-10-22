@@ -45,6 +45,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .continue/hooks/stop-verify.cjs",
+            "timeout": 130
+          }
+        ]
+      }
     ]
   }
 }
