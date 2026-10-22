@@ -20,7 +20,7 @@ SKIP = {"README.md", "SETUP.md"}
 # Restrict copied artifacts to packaged template sources, never test/build/editor output.
 # This explicit filter is applied BEFORE tier/runtime filtering and is independent
 # of whether tests ran in this checkout.
-RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", ".generic", "docs", "harness", "lessons"}
+RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", ".generic", ".github", "docs", "harness", "lessons"}
 RELEASE_FILES = {"AGENTS.md", "CLAUDE.md", "README.md", "SETUP.md", "TASKS.md", ".gitignore"}
 RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".gitkeep"}
 CACHE_DIRS = {
@@ -34,7 +34,9 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 # Applied to installed projects only. Do not put these rules in the canonical
 # template's own .gitignore: the template is distributable source in this repo.
 LOCAL_SETUP_PATHS = (
-    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/", "harness/", "lessons/",
+    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/",
+    ".github/agents/", ".github/hooks/", ".github/copilot-instructions.md",
+    "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
     "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
@@ -45,6 +47,7 @@ STATE_PATHS = (
     "harness/last-block.json", "harness/inbox.html",
     "harness/snapshots/", "harness/requests/",
     "docs/TRACE.md", ".claude/settings.local.json",
+    "harness/criteria-write-authorization.json",
     "harness/setup-state.json", "harness/setup-live-evidence.json",
     "harness/setup-postlock-evidence.json", "harness/setup-intake.json", "harness/recovery-backups/",
 )
@@ -368,7 +371,7 @@ def role_names(tier):
         current = entry.get("inherits")
     return roles
 
-def eligible(rel, tier, runtime, roles):
+def eligible(rel, tier, runtime, roles, target_app=None):
     name = rel.as_posix()
     if name in SKIP:
         return False
@@ -376,6 +379,12 @@ def eligible(rel, tier, runtime, roles):
         return False
     if name.startswith(".antigravity/agents/") and rel.stem not in roles:
         return False
+    if name.startswith(".github/"):
+        if not (runtime == "generic" and target_app == "copilot"):
+            return False
+        if name.startswith(".github/agents/"):
+            role = rel.name.removesuffix(".agent.md")
+            return role in roles
     if name.startswith(".generic/") and runtime != "generic":
         return False
     if name.startswith(".generic/agents/") and rel.stem not in roles:
@@ -411,24 +420,24 @@ def eligible(rel, tier, runtime, roles):
         return False
     return True
 
-def entries(tier, runtime):
+def entries(tier, runtime, target_app=None):
     roles = role_names(tier)
     files = []
     for src in SOURCE.rglob("*"):
         if src.is_symlink() or not src.is_file() or any(parent.is_symlink() for parent in src.parents if parent != SOURCE.parent):
             continue
         rel = src.relative_to(SOURCE)
-        if is_release_source(rel) and eligible(rel, tier, runtime, roles):
+        if is_release_source(rel) and eligible(rel, tier, runtime, roles, target_app):
             files.append((src, rel))
             if runtime == "claude" and rel.parts[:2] == (".agents", "skills"):
                 files.append((src, pathlib.Path(".claude", "skills", *rel.parts[2:])))
     return sorted(files, key=lambda item: item[1].as_posix())
 
-def multi_entries(tier, runtimes):
+def multi_entries(tier, runtimes, target_app=None):
     """Deduplicate shared files; fail closed on different source payloads."""
     unique = {}
     for runtime in runtimes:
-        for src, rel in entries(tier, runtime):
+        for src, rel in entries(tier, runtime, target_app):
             key = rel.as_posix()
             if key in unique and digest(unique[key]) != digest(src):
                 raise ValueError("cross-runtime file collision: " + key)
@@ -436,9 +445,9 @@ def multi_entries(tier, runtimes):
     return [(src, pathlib.Path(name)) for name, src in sorted(unique.items())]
 
 
-def plan_multi(dest, tier, runtimes, mode, upgrade=False, previous=None):
+def plan_multi(dest, tier, runtimes, mode, upgrade=False, previous=None, target_app=None):
     ops = []
-    for src, rel in multi_entries(tier, runtimes):
+    for src, rel in multi_entries(tier, runtimes, target_app):
         target = dest / rel
         if rel.as_posix() == ".gitignore":
             rendered = ignore_contents(dest, src, mode)
@@ -561,6 +570,9 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
         print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
         print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
         print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
+        if target_app == "copilot":
+            print("  COPILOT NATIVE   : packaged .github/agents + .github/hooks/preToolUse Criteria gate")
+            print("  TEST REQUIRED    : verify Copilot harness discovery, DENY and ASK live dispatch")
         print("                     MIGRATES active .generic settings into real host-native directories,")
         print("                     then writes/registers/tests host scripts before handoff")
     if runtime == "continue":
@@ -680,7 +692,7 @@ def main():
         if args.upgrade and old_manifest is None:
             print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
             return 2
-        ops = plan_multi(dest, tier, runtimes, mode, upgrade=args.upgrade, previous=old_manifest)
+        ops = plan_multi(dest, tier, runtimes, mode, upgrade=args.upgrade, previous=old_manifest, target_app=args.target_app)
         tracked = tracked_local_setup(dest, mode)
     except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
         print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
@@ -699,7 +711,10 @@ def main():
         print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
         print("HOST_NATIVE_MIGRATION_REQUIRED: consult .generic/HOST_NATIVE_LAYOUT.md; migrate/convert")
         print("active settings into the client's discovered paths; do not rely on .generic as active config.")
-        print("NATIVE_HOOKS_NOT_INSTALLED: generic Standard provides NO native preToolUse/PreToolUse guard.")
+        if args.target_app == "copilot":
+            print("COPILOT_NATIVE_FILES: packaged .github agents/hooks installed or conflict-reported; real host check required.")
+        else:
+            print("NATIVE_HOOKS_NOT_INSTALLED: generic requires generated native hooks for actual target.")
         print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
         print("After permission to configure the actual host, port, register, allow/deny-test and record evidence.")
         print("If the host cannot support a capability, report that limitation; NEVER claim untested enforcement.")
@@ -788,7 +803,7 @@ def main():
                     records[target.relative_to(dest).as_posix()] = {
                         "source_sha256": digest(source), "installed_sha256": digest(target)}
         template_fingerprint = hashlib.sha256("\\n".join(
-            rel.as_posix() + ":" + digest(src) for src, rel in multi_entries(tier, runtimes)
+            rel.as_posix() + ":" + digest(src) for src, rel in multi_entries(tier, runtimes, args.target_app)
         ).encode("utf-8")).hexdigest()
         new_manifest = {"schema_version": 1, "template_fingerprint_sha256": template_fingerprint,
                         "tier": tier, "runtime": runtime, "runtimes": runtimes,
