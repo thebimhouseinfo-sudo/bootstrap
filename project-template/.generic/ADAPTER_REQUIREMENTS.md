@@ -2,6 +2,10 @@
 
 **Mandatory for the setup agent, not for the Human to code.** Bootstrap deliberately does **not** ship a guessed adapter for every IDE/CLI. `--runtime generic --target-app CLIENT` copies portable contracts; **the installation workflow must then research, implement, register, and test the actual CLIENT-native integration**, within verified host capabilities. Copying files is phase 1, **not** completion. Applicable to OpenCode, Claude/Command Code variants, Qwen Code, Copilot, and any actual DeepSeek-based client; identify the *client and its harness*, not merely the model name.
 
+## Mandatory rename / native layout conversion
+
+**Before any real-host smoke:** read `HOST_NATIVE_LAYOUT.md`. The installed `.generic/` is portable staging, **not the active settings directory**. The setup agent must **rename/move or convert** its role/skill/hook material into the coding host's own project-local configuration directory (e.g. `.opencode/`, `.qwen/`, `.github/` for Copilot). Do not simply rename the whole folder: each host has different paths, schema and configuration precedence. If safe migration requires retaining the Bootstrap-owned portable source for later upgrades, leave `.generic` as *inactive* source, but register the host-native copy as the authoritative configuration. Verify native discovery and effective precedence; actual `native_adapter_paths` must never point inside `.generic/`.
+
 ## Inputs and evidence (before writing native files)
 
 1. Identify exact host/client, harness mode, version, OS, execution model (local/cloud), and supported workspace hooks/subagents/skills/tool permissions. Capture official documentation or actual inspected schema/tool output and its version. Do not transplant `.codex/hooks.json` into other clients.
@@ -11,7 +15,7 @@
 
 ## Implement: native files, not more generic prose
 
-- **Role and skill discovery:** place/configure Planner, Technical Advisor, Coder, Tester and other tier agents and shared `.agents/skills` using the documented host mechanism. Verify a real agent session can invoke them. A language model selected inside another host does not change which host's hooks are active.
+- **Role and skill discovery:** after converting the portable `.generic/agents/` content into the native directory specified by `HOST_NATIVE_LAYOUT.md`, place/configure Planner, Technical Advisor, Coder, Tester and other tier agents and shared `.agents/skills` using the documented host mechanism. Verify a real agent session can invoke them. A language model selected inside another host does not change which host's hooks are active.
 - **Session/start or equivalent:** load succinct project instructions, configured task/status, and available capability limits if host supports an entry event.
 - **Before write/tool use:** when the host provides interception, implement a native pre-tool script or adapter that uses real event input/output schema, runs applicable existing `harness/common/` checks, and denies supported unsafe operations *before mutation*. Map actual write tools (file edit, patch, terminal, MCP) individually; do not pretend an intercepted tool implies universal write coverage. Handle path normalization, workspace escape, bypass routes and error behavior conservatively.
 - **Protected Criteria:** Planner must present an exact proposed draft/delta, obtain Technical Advisor advice on that proposal, and only edit after Human's **subsequent** decision. A prompt or agent-writable receipt is not trusted proof of Human authorization. If the host cannot supply an independently verifiable approval path, leave this part `GUIDED_ONLY`; do not silently invent signed gates. A host script may deny protected writes absent authorization if all relevant paths are intercepted, but then Human needs a real, reviewed unlock process.
@@ -30,7 +34,7 @@
 | Verification / Stop | successful configured command observed | failed command reported; no unbounded retry or fabricated approval |
 | Recovery | legitimate Human can resume/edit via documented path | agent cannot silently self-authorize an exception where claimed guarded |
 
-Test native registration, tool input/output, actual allow/deny outcomes, workspace file integrity, and the configured release phase. Record host name/version, native adapter file paths, hook events, observed test logs and exclusions. CI that only exercises Python scripts proves `SCRIPT_TESTED`, not `RUNTIME_VERIFIED` or `ENFORCED`.
+Test host-native folder precedence and loading after migrating from `.generic`, then test native registration, tool input/output, actual allow/deny outcomes, workspace file integrity, and the configured release phase. Record host name/version, native adapter file paths, hook events, observed test logs and exclusions. CI that only exercises Python scripts proves `SCRIPT_TESTED`, not `RUNTIME_VERIFIED` or `ENFORCED`.
 
 ## Completion and limitations
 
