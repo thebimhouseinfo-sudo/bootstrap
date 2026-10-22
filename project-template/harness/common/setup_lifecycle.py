@@ -274,12 +274,27 @@ def check_lock(state):
     return True
 
 
-def host_test():
+def host_test(surface="local"):
     state = read_state()
     if state is None:
         print("BLOCK: no staged setup; follow legacy host-specific instructions")
         return 2
     runtime = state.get("runtime")
+    if surface == "codex-cloud":
+        if runtime != "codex":
+            print("BLOCK: codex-cloud test instructions require primary runtime codex")
+            return 2
+        print("CODEX_CLOUD_LIMITED_VERIFICATION: use the CURRENT cloud task; do not require a new IDE tab/session.")
+        print("1. Preserve the original source; use a disposable checkout/temporary test project in the same task.")
+        print("2. Run setup_lifecycle.py audit and smoke, plus relevant installer regression in that disposable workspace.")
+        print("3. Record which native hook events, if any, the cloud service actually dispatched.")
+        print("4. Same-task Python probes are SCRIPT_TESTED only; do NOT claim fresh-session, native-hook enforcement,")
+        print("   trusted host integration, authenticated Human approval, or a completed final lock.")
+        print("5. Submit the tested changes and limitations to Human for review (e.g. PR); the agent cannot")
+        print("   impersonate the Human-operated activate/finalize terminal confirmation.")
+        print("If no independent Human confirmation/host test is available, leave BOOTSTRAPPING and report")
+        print("HOOK_RUNTIME_UNVERIFIED / MANUAL_HANDOFF_REQUIRED. This is not a failure of code smoke.")
+        return 0
     print("WARNING: DO NOT CLOSE THE ORIGINAL SETUP TAB.")
     print("Keep setup session open. Open a NEW coding agent tab in a safe temporary COPY,")
     print("never a production branch when testing forbidden writes. Return FAIL/BLOCK logs")
@@ -450,7 +465,9 @@ def main(argv=None):
     choices.add_parser("status")
     choices.add_parser("audit")
     choices.add_parser("smoke")
-    choices.add_parser("host-test")
+    host = choices.add_parser("host-test")
+    host.add_argument("--surface", choices=("local", "codex-cloud"), default="local",
+                      help="Host verification instructions; Codex Cloud uses same-task LIMITED checks")
     act = choices.add_parser("activate")
     act.add_argument("--evidence", required=True, help="Manual real-host observation JSON inside the project")
     act.add_argument("--human-approved", action="store_true", help="Deprecated compatibility flag; never bypasses manual terminal gate")
@@ -469,7 +486,7 @@ def main(argv=None):
     if a.action == "smoke":
         return smoke()
     if a.action == "host-test":
-        return host_test()
+        return host_test(a.surface)
     if not manual_terminal_gate(a.action):
         return 2
     if a.action == "activate":
