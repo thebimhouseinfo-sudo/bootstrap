@@ -243,7 +243,7 @@ def smoke():
 
 
 
-def locked_files(runtime):
+def locked_files(runtime, native_paths=()):
     """Local change detection, not OS-level immutability or authenticated locking."""
     names = ["harness/hook-policy.json", "harness/common/setup_lifecycle.py",
              "harness/common/branch_authority.py", "harness/common/snapshot.py",
@@ -254,6 +254,7 @@ def locked_files(runtime):
         "claude": [".claude/settings.json", "harness/claude/hook.py"],
         "antigravity": [".agents/hooks.json", "harness/common/setup_hook.py"],
     }.get(runtime, [])
+    names += list(native_paths)
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
             for name in names if (ROOT / name).is_file()}
 
@@ -263,7 +264,7 @@ def check_lock(state):
     if not isinstance(expected, dict) or not expected:
         print("LOCK_INTEGRITY: UNVERIFIED (no recorded hashes)")
         return False
-    actual = locked_files(state.get("runtime"))
+    actual = locked_files(state.get("runtime"), state.get("native_adapter_paths", []))
     if actual != expected:
         print("LOCK_INTEGRITY: DRIFT; do not call setup complete, request reviewed maintenance")
         for name in sorted(set(actual) | set(expected)):
@@ -309,9 +310,14 @@ def host_test(surface="local"):
     elif runtime == "antigravity":
         print("ANTIGRAVITY: inspect installed .agents/hooks.json and test actual Stop dispatch")
         print("with configured passing and failing verification in a disposable clone.")
+    elif runtime == "generic":
+        print("GENERIC: agent MUST read .generic/ADAPTER_REQUIREMENTS.md and .generic/PORTING.md.")
+        print("Investigate the actual client, WRITE AND REGISTER its native roles/hooks/scripts")
+        print("as documented by that host, then test actual allowed/denied tool paths.")
+        print("The generic installer copied only source; porting is part of setup, NOT optional.")
+        print("If a requirement is unsupported, record evidence and report GUIDED_ONLY.")
     else:
-        print("GENERIC/CONTINUE: native hooks are not registered by this portable setup.")
-        print("Verify real roles/skills and configured checks; report native guard UNVERIFIED.")
+        print("CONTINUE: test host roles and implement native hook integration if supported.")
     print("Staged project hooks intentionally defer blocking until lock. For negative")
     print("pre-lock tests, inspect a DISPOSABLE fixture with the staged marker absent;")
     print("do not remove/change setup-state.json in the actual project.")
@@ -319,7 +325,12 @@ def host_test(surface="local"):
     print("in harness/setup-live-evidence.json (state/private), not in an approved plan.")
     print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
     print(' "host_version": "observed-version", "fresh_session": true,')
-    if runtime in ("continue", "generic"):
+    if runtime == "generic":
+        print(' "roles_loaded": true, "checks_executed": true,')
+        print(' "native_hook_available": true, "native_adapter_paths": ["host/hook-file"],')
+        print(' "hook_dispatched": true, "allow_observed": true, "deny_observed": true,')
+        print(' "notes": "real host evidence; use native_hook_available=false if unsupported"}')
+    elif runtime == "continue":
         print(' "roles_loaded": true, "checks_executed": true,')
         print(' "native_hook_available": false, "notes": "actual observed results"}')
     else:
@@ -387,10 +398,12 @@ def activate(evidence):
     if state.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
         print("READY: already activated; do not rewrite lock evidence")
         return 0
-    limited = state.get("runtime") in ("continue", "generic")
+    runtime = state.get("runtime")
     audit_result = audit()
     smoke_result = smoke()
-    if audit_result or (smoke_result and not limited):
+    # Native generic adapter is written for the actual host during installation.
+    # The bundled Codex/Claude smoke cannot validate that newly written native hook.
+    if audit_result or (smoke_result and runtime not in ("continue", "generic")):
         print("BLOCK: setup audit/smoke incomplete")
         return 2
     path = pathlib.Path(evidence).resolve()
@@ -402,24 +415,47 @@ def activate(evidence):
     except (OSError, ValueError):
         print("BLOCK: invalid evidence JSON")
         return 2
-    if (not isinstance(item, dict) or item.get("runtime") != state.get("runtime") or
+    if (not isinstance(item, dict) or item.get("runtime") != runtime or
             not isinstance(item.get("host_version"), str) or not item["host_version"].strip()):
         print("BLOCK: observed host evidence missing or mismatched")
         return 2
+    generic_native = runtime == "generic" and item.get("native_hook_available") is True
+    limited = runtime == "continue" or (runtime == "generic" and not generic_native)
     required_observations = (("fresh_session", "roles_loaded", "checks_executed")
         if limited else ("fresh_session", "hook_dispatched", "allow_observed", "deny_observed"))
+    if generic_native:
+        required_observations += ("roles_loaded", "checks_executed")
     if any(item.get(name) is not True for name in required_observations):
         print("BLOCK: missing verified observations:", ", ".join(required_observations))
         return 2
     if limited and item.get("native_hook_available") is not False:
-        print("BLOCK: portable adapter must honestly record missing native hook")
+        print("BLOCK: unsupported portable host must record missing native hook")
         return 2
     if not isinstance(item.get("notes"), str) or not item["notes"].strip():
         print("BLOCK: provide concrete observation notes")
         return 2
-    updated = dict(state, phase="READY_WITH_LIMITATIONS" if limited else "READY", evidence_path=str(path.relative_to(ROOT)),
+    native_paths = []
+    if generic_native:
+        paths = item.get("native_adapter_paths")
+        if (not isinstance(paths, list) or not paths
+                or not all(isinstance(x, str) for x in paths)
+                or len(set(paths)) != len(paths)):
+            print("BLOCK: native generic setup requires unique actual native_adapter_paths")
+            return 2
+        for name in paths:
+            rel = pathlib.Path(name)
+            f = ROOT / rel
+            if (rel.is_absolute() or not rel.parts or ".." in rel.parts
+                    or not f.is_file() or f.is_symlink()
+                    or not f.resolve().is_relative_to(ROOT.resolve())):
+                print("BLOCK: missing or unsafe native adapter path:", name)
+                return 2
+            native_paths.append(rel.as_posix())
+    updated = dict(state, phase="READY_WITH_LIMITATIONS" if limited else "READY",
+                   evidence_path=str(path.relative_to(ROOT)),
                    evidence_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-                   locked_files=locked_files(state.get("runtime")))
+                   native_adapter_paths=native_paths,
+                   locked_files=locked_files(runtime, native_paths))
 
     temp = STATE.with_name("setup-state.json.new")
     if temp.exists() or temp.is_symlink():
@@ -432,7 +468,10 @@ def activate(evidence):
         if temp.exists():
             temp.unlink()
     print("READY_WITH_LIMITATIONS: native hooks unavailable; GUIDED_ONLY" if limited
-          else "READY: configuration activation recorded; requires POST-LOCK LIVE retest")
+          else "READY: native adapter observations recorded; requires POST-LOCK LIVE retest")
+    if generic_native:
+        print("GENERIC: observed hook paths hash-recorded, but no authenticated Human approval;")
+        print("enforcement is limited to the specific verified host operations.")
     print("MANUAL_COORDINATION ONLY: file evidence does not authenticate human approval")
     return 0
 
