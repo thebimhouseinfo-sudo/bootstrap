@@ -637,7 +637,7 @@ def main():
         try:
             existing = json.loads(staged_state.read_text(encoding="utf-8"))
             if existing.get("runtime") != runtime:
-                print("PRIMARY_HOST_IMMUTABLE: staged lifecycle remains attached to its original primary runtime")
+                print("MIGRATION_REQUIRED: PRIMARY_HOST_IMMUTABLE: staged lifecycle remains attached to its original primary runtime")
                 return 2
             if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
                 print("BLOCK: staged state is already activated; final-lock policy applies")
