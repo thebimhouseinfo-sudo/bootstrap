@@ -643,6 +643,9 @@ def main():
             if existing.get("runtime") != runtime:
                 print("MIGRATION_REQUIRED: PRIMARY_HOST_IMMUTABLE: staged lifecycle remains attached to its original primary runtime")
                 return 2
+            if runtime == "generic" and existing.get("target_app") not in (None, args.target_app):
+                print("MIGRATION_REQUIRED: staged generic host differs; never silently replace native adapter target")
+                return 2
             if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
                 print("BLOCK: staged state is already activated; final-lock policy applies")
                 return 2
@@ -668,6 +671,9 @@ def main():
             installed = old_manifest.get("runtimes", [old_manifest["runtime"]])
             if old_manifest.get("tier") != tier or old_manifest["runtime"] != runtime:
                 print("MIGRATION_REQUIRED: tier or primary runtime differs; keep the original primary --runtime first.")
+                return 2
+            if runtime == "generic" and old_manifest.get("target_app") not in (None, args.target_app):
+                print("MIGRATION_REQUIRED: installed generic adapter target differs; requires reviewed host migration")
                 return 2
             runtimes = list(dict.fromkeys(installed + runtimes))
         if args.upgrade and old_manifest is None:
@@ -747,7 +753,7 @@ def main():
             confine(dest, staged_state)
             with staged_state.open("x", encoding="utf-8") as out:
                 json.dump({"schema_version": 1, "phase": "BOOTSTRAPPING",
-                           "runtime": runtime, "tier": tier}, out, indent=2)
+                           "runtime": runtime, "tier": tier, "target_app": args.target_app}, out, indent=2)
                 out.write("\n")
             state_created = staged_state.read_bytes()
             print("STAGED_STATE: BOOTSTRAPPING")
@@ -783,7 +789,7 @@ def main():
         ).encode("utf-8")).hexdigest()
         new_manifest = {"schema_version": 1, "template_fingerprint_sha256": template_fingerprint,
                         "tier": tier, "runtime": runtime, "runtimes": runtimes,
-                        "config_git": mode, "files": records}
+                        "target_app": args.target_app, "config_git": mode, "files": records}
         write_install_manifest(dest, new_manifest, manifest_before)
         manifest_written = manifest_path.read_bytes()
     except (OSError, ValueError, subprocess.TimeoutExpired, KeyError, StopIteration) as exc:
