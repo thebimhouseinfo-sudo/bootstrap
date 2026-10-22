@@ -17,22 +17,22 @@ def call(*args):
 
 
 class HostBoundaryTests(unittest.TestCase):
-    def test_copilot_generic_has_explicit_missing_hook_warning_and_no_native_files(self):
+    def test_copilot_requires_native_runtime_in_new_install(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = pathlib.Path(tmp)
             flags = ["--target", target, "--tier", "Standard", "--runtime",
                      "generic", "--target-app", "copilot", "--staged"]
             preview = call(INSTALL, *flags)
-            self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
-            for marker in ("native adapter NOT INSTALLED", "HOOKS", "GUIDED_ONLY",
-                           "NATIVE_HOOKS_NOT_INSTALLED", "CRITERIA_WRITE_GUARD_NOT_CONFIGURED"):
-                self.assertIn(marker, preview.stdout)
-            applied = call(INSTALL, *flags, "--apply")
+            self.assertEqual(preview.returncode, 2, preview.stdout + preview.stderr)
+            self.assertIn("COPILOT_NATIVE_AVAILABLE", preview.stderr)
+            self.assertFalse((target / ".generic").exists())
+            applied = call(INSTALL, "--target", target, "--tier", "Standard",
+                           "--runtime", "copilot", "--staged", "--apply")
             self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-            self.assertFalse((target / ".github/hooks").exists())
-            self.assertTrue((target / ".generic/platforms/copilot.md").is_file())
-            status = json.loads((target / "harness/setup-state.json").read_text())
-            self.assertEqual(status["phase"], "BOOTSTRAPPING")
+            self.assertTrue((target / ".github/hooks/criteria.json").is_file())
+            self.assertTrue((target / ".github/agents/planner.agent.md").is_file())
+            state = json.loads((target / "harness/setup-state.json").read_text())
+            self.assertEqual(state["phase"], "BOOTSTRAPPING")
 
     def test_codex_cloud_same_task_checklist_never_fabricates_native_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -59,7 +59,7 @@ class HostBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             target = pathlib.Path(tmp)
             applied = call(INSTALL, "--target", target, "--tier", "Standard",
-                           "--runtime", "generic", "--target-app", "copilot", "--staged", "--apply")
+                           "--runtime", "generic", "--target-app", "cline", "--staged", "--apply")
             self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
             result = call(target / "harness/common/setup_lifecycle.py", "host-test",
                           "--surface", "codex-cloud")
