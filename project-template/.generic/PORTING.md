@@ -1,6 +1,6 @@
 # Agent-executed native port: mandatory generic setup stage
 
-**This is an action contract for the installing agent**, not instructions for the Human to hand-code their host adapter. The generic installer copies the requirements first; the same setup run must attempt to build, register, test and document the actual host-specific scripts before claiming completion. Begin with [ADAPTER_REQUIREMENTS.md](ADAPTER_REQUIREMENTS.md).
+**This is an action contract for the installing agent**, not instructions for the Human to hand-code their host adapter. The generic installer copies the requirements first; the same setup run must attempt to build, register, test and document the actual host-specific scripts before claiming completion. Begin with [ADAPTER_REQUIREMENTS.md](ADAPTER_REQUIREMENTS.md) and [HOST_NATIVE_LAYOUT.md](HOST_NATIVE_LAYOUT.md). The setup agent **must migrate `.generic` role/skill/settings material to the client's native project configuration directory**, and prove host discovery; `.generic` itself is not active configuration.
 
 ## Minimal adaptation contract
 
