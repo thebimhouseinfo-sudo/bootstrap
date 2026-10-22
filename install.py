@@ -15,14 +15,14 @@ REPO = pathlib.Path(__file__).resolve().parent
 SOURCE = REPO / "project-template"
 MANIFEST = SOURCE / "harness/specs/TIER_MANIFEST.json"
 TIERS = ("Lite", "Standard", "Full")
-RUNTIMES = ("antigravity", "codex", "claude", "continue", "generic")
+RUNTIMES = ("antigravity", "codex", "claude", "continue", "copilot", "generic")
 SKIP = {"README.md", "SETUP.md"}
 # Restrict copied artifacts to packaged template sources, never test/build/editor output.
 # This explicit filter is applied BEFORE tier/runtime filtering and is independent
 # of whether tests ran in this checkout.
-RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", ".generic", "docs", "harness", "lessons"}
+RELEASE_ROOTS = {".agents", ".antigravity", ".claude", ".codex", ".continue", ".copilot", ".github", ".generic", "docs", "harness", "lessons"}
 RELEASE_FILES = {"AGENTS.md", "CLAUDE.md", "README.md", "SETUP.md", "TASKS.md", ".gitignore"}
-RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".gitkeep"}
+RELEASE_SUFFIXES = {".md", ".toml", ".yaml", ".yml", ".json", ".py", ".cjs", ".gitkeep"}
 CACHE_DIRS = {
     "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
     ".tox", ".nox", ".venv", "venv", "node_modules", "dist", "build",
@@ -34,7 +34,9 @@ CACHE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".swp", ".swo", ".tmp", ".bak"}
 # Applied to installed projects only. Do not put these rules in the canonical
 # template's own .gitignore: the template is distributable source in this repo.
 LOCAL_SETUP_PATHS = (
-    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/", "harness/", "lessons/",
+    ".agents/", ".antigravity/", ".codex/", ".claude/", ".continue/", ".generic/",
+    ".github/agents/", ".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
+    ".github/hooks/criteria-apply.cjs", "harness/", "lessons/",
     "AGENTS.md", "AGENTS.bootstrap.md", "CLAUDE.md", "TASKS.md",
     "docs/PROJECT_PROFILE.md", "docs/TRACE.md",
     "docs/reports/_TEMPLATE.md", "docs/reports/_REVIEW_TEMPLATE.md",
@@ -47,6 +49,7 @@ STATE_PATHS = (
     "docs/TRACE.md", ".claude/settings.local.json",
     "harness/setup-state.json", "harness/setup-live-evidence.json",
     "harness/setup-postlock-evidence.json", "harness/setup-intake.json", "harness/recovery-backups/",
+    "harness/criteria-proposal.md", "harness/criteria-guard.json",
 )
 
 IGNORE_START = b"# BEGIN bootstrap local agent setup"
@@ -376,6 +379,14 @@ def eligible(rel, tier, runtime, roles):
         return False
     if name.startswith(".antigravity/agents/") and rel.stem not in roles:
         return False
+    if name.startswith(".github/") and runtime != "copilot":
+        return False
+    if name.startswith(".github/agents/"):
+        who = rel.name.replace(".agent.md", "")
+        if who == "technical-advisor":
+            who = "advisor"
+        if who not in roles:
+            return False
     if name.startswith(".generic/") and runtime != "generic":
         return False
     if name.startswith(".generic/agents/") and rel.stem not in roles:
@@ -526,7 +537,7 @@ def print_setup_questions():
     print("PRE-ASK / ONE-BATCH SETUP QUESTIONS (DEVELOPER REFERENCE, NOT USER UI)")
     print("1. Target project directory and existing/new code? [required]")
     print("2. Tier: Lite / Standard (default) / Full?")
-    print("3. Coding host: Codex / Antigravity / Claude Code / Continue / Other (generic)?")
+    print("3. Coding host: Copilot (VS Code) / Codex / Antigravity / Claude Code / Continue / Other (generic)?")
     print("   If Other: exact app/client + version? e.g. Cline, Qwen Code, DeepSeek-based client.")
     print("   DeepSeek model/provider alone is NOT an IDE; identify the actual client.")
     print("4. OS, shell, Git remote, HUMAN-selected active development and frozen branches?")
@@ -605,6 +616,8 @@ def main():
         ap.error("--runtime is required; run --ask-first to select a coding client")
     if "generic" in args.runtime and len(args.runtime) > 1:
         ap.error("generic must be installed separately with its own verified target adapter")
+    if args.runtime[0] == "generic" and args.target_app in ("copilot", "github-copilot", "vscode-copilot"):
+        ap.error("COPILOT_NATIVE_AVAILABLE: use --runtime copilot for first install; generic copied no native hook")
     if args.runtime[0] == "generic":
         if not args.target_app or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}", args.target_app):
             ap.error("--runtime generic requires --target-app <client-name> (letters, digits, ._-)")
