@@ -26,7 +26,7 @@ function applyCommand(s) {
 }
 function safeReadCommand(s) {
   // Chained shell commands and redirection must not bypass read-only checks.
-  if (/[;&|<>`]/.test(s) || /\$\(/.test(s)) return false;
+  if (/[;&|<>`\r\n]/.test(s) || /\$\(/.test(s)) return false;
   return /^\s*(?:cat|head|tail|type|more|less|Get-Content|sed\s+-n|grep|rg)\s+/i.test(s);
 }
 function toolCommand(args) {
