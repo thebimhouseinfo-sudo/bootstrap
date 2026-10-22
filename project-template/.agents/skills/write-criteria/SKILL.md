@@ -16,6 +16,9 @@ description: Planner uses this to draft or amend the single human-readable produ
 
 For both paths, reuse any known answers to the scope questions (who uses it; real scale and environment; current versus optional future ambitions; real risks; acceptable protections; exclusions). If an important answer is missing, ask just that question in ordinary language. Keep the questions in `brainstorm-theory`; CRITERIA records **answers and confirmed outcomes**, not a copied questionnaire, raw source notes or a technical threat model. Leave unresolved matters OPEN.
 
+## Mandatory pre-write handoff
+Drafting a proposal in conversation is allowed without Advisor. Immediately before **any write to the finalized/approved CRITERIA file**, including initial finalization and edits to an existing file, check: (a) Advisor consulted on the exact material proposal, and (b) Human made a decision after the advice. If missing, do not write; invoke Advisor and return to Human for keep/revise/reject. A materially revised scope resets consultation. Advisor never decides or approves. If actual delegation is unavailable, report the blocker rather than falsely claiming the consultation occurred.
+
 ## Required writing approach
 1. Write in clear, natural language centered on the user's real problem: what the product is, who it serves, what it is for, user journeys, observable behavior, important constraints, exclusions and success criteria.
 2. Express requirements as outcomes and examples understandable to a non-developer. Stable identifiers can be used for traceability but never dominate readability.
