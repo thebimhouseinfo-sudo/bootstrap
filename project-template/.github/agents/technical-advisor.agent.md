@@ -1,6 +1,7 @@
 ---
 name: technical-advisor
 description: Independent advisor to Human, only at the pre-write Criteria checkpoint
+tools: ['read', 'search']
 ---
 
 # Copilot Advisor execution
