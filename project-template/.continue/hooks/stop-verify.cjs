@@ -18,7 +18,9 @@ function main() {
   if (setup.phase === 'BOOTSTRAPPING') return emit({});
   const task = read('harness/active-task.json');
   const policy = read('harness/hook-policy.json');
-  if (input.stop_hook_active || task.status !== 'ACTIVE' || policy.stop_verify !== true)
+  // Continue fireStop() sets stop_hook_active=true on the initial Stop too.
+  // It cannot be used as Claude's retry indicator: always check an active task.
+  if (task.status !== 'ACTIVE' || policy.stop_verify !== true)
     return emit({});
   const python = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
   const work = cp.spawnSync(python, [path.join(root, 'harness/common/task.py')],
