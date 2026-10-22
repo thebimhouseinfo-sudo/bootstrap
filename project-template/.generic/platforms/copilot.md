@@ -2,24 +2,11 @@
 
 **For a fresh Copilot harness project select `--runtime copilot`**, which installs `.github/agents/`, `.github/hooks/` and `.github/COPILOT_SETUP.md` from Bootstrap. This generic porting guide remains for legacy generic installs; upgrading from an existing generic Copilot installation requires reviewed migration of managed files/state, not silent rebinding.
 
-# GitHub Copilot in VS Code — installing agent generates native adapter
+## Legacy generic installations only
 
-`--runtime generic --target-app copilot --tier Standard` installs portable role text and Python support, **NOT Copilot-native agents, hooks, or a Criteria write guard**. The same is true for generic CLI targeting Copilot. This is **only stage 1**. The installing agent must read `../ADAPTER_REQUIREMENTS.md`, implement the Copilot-native registration and hooks the installed version supports, and verify them before completing setup.
+The remaining work for an existing generic Copilot project is a reviewed migration to the packaged native adapter. Inspect existing native files and managed state, preserve user changes, and reconcile them with `.github/COPILOT_SETUP.md`. Do not run the first-install generic command again: the installer rejects new `generic --target-app copilot` installs.
 
-## Distinguish client, harness and model
-
-Select the actual **Session Target / harness**. Running a model named "Codex" or "Claude" inside a **Copilot** session does not make `.codex/hooks.json` or `.claude/settings.json` authoritative for that Copilot session. See the official VS Code *Agent harnesses* and *Configure agent hooks* documentation.
-
-## Mandatory porting checklist (executed by setup agent after permission)
-
-1. Inspect the target VS Code / Copilot runtime and whether its native hook feature is available and permitted by the organization.
-2. Port required project roles/instructions into documented Copilot-native mechanisms; keep `.agents/skills/` as reusable source. Test that Planner and Technical Advisor really appear as active roles. Merely listing generic `.md` files is insufficient.
-3. For Copilot harness, repository hook definitions are discovered from `.github/hooks/*.json`, with documented `preToolUse` and `sessionStart` events. The Copilot schema is **NOT** the Codex/Claude schema. Implement and register a reviewed native hook, using the exact Copilot event payload and top-level `permissionDecision: "deny"` when denial is supported.
-4. Test on a **disposable project**: (a) hook is visible/dispatched; (b) harmless edit allowed; (c) protected Criteria write denied **before the file changes** without the required independent authorization; (d) alternate write routes (terminal, agent edit tool, MCP) checked separately. Unsupported routes must be reported as gaps, not as enforced.
-5. A hook can deny known tool calls but **cannot prove that Technical Advisor consulted Human** merely from prompt text. Bootstrap currently has no authenticated pre-write Criteria gate. Until a genuinely independent, host-verified authorization mechanism exists, treat Advisor/Human coordination as **GUIDED_ONLY** and require Human review of any Criteria change.
-6. Record real host evidence. Do not set `ENFORCED` or `READY` based on package copy, `Standard` tier, script-only smoke, or a positive test alone.
-
-**Current shipped state:** Bootstrap provides portable code and the requirements, not a universal prebuilt Copilot hook. `Hooks: 0` immediately after file copy is expected **only temporarily**. The agent must create and test the native adapter if the host supports it. Stop at `PORT_REQUIRED` **only if** research/testing shows the capability is unavailable or necessary permissions are denied; explain the evidence and limits instead of skipping the port.
+Verify the actual Copilot Session Target, Node.js, native role discovery and hook allow/deny events on a disposable project. Native scripts are procedural, tool-scoped checks; they do not authenticate Human identity or cover every indirect shell/MCP write. Never fabricate Advisor or Human events to complete a migration.
 
 Official references:
 - https://code.visualstudio.com/docs/agent-customization/hooks

@@ -245,19 +245,33 @@ def smoke():
 
 def locked_files(runtime, native_paths=()):
     """Local change detection, not OS-level immutability or authenticated locking."""
+    manifest = ROOT / "harness/.bootstrap-manifest.json"
+    runtimes = [runtime]
+    if manifest.exists():
+        if manifest.is_symlink():
+            raise ValueError("unsafe bootstrap manifest")
+        installed = json.loads(manifest.read_text(encoding="utf-8"))
+        selected = installed.get("runtimes", [installed.get("runtime")])
+        allowed = {"codex", "claude", "antigravity", "continue", "copilot", "generic"}
+        if (not isinstance(selected, list) or not selected
+                or not all(isinstance(host, str) and host in allowed for host in selected)):
+            raise ValueError("invalid installed runtime selection")
+        runtimes = list(dict.fromkeys(runtimes + selected))
     names = ["harness/hook-policy.json", "harness/common/setup_lifecycle.py",
              "harness/common/branch_authority.py", "harness/common/snapshot.py",
              "harness/common/task.py", "harness/common/verify.py",
-             "harness/common/checks.json"]
-    names += {
+             "harness/common/checks.json", "harness/.bootstrap-manifest.json"]
+    adapters = {
         "codex": [".codex/hooks.json", "harness/codex/hook.py"],
         "claude": [".claude/settings.json", "harness/claude/hook.py"],
         "antigravity": [".agents/hooks.json", "harness/common/setup_hook.py"],
         "continue": [".continue/settings.json", ".continue/hooks/criteria-gate.cjs",
-                     ".continue/hooks/criteria-apply.cjs"],
+                     ".continue/hooks/criteria-apply.cjs", ".continue/hooks/stop-verify.cjs"],
         "copilot": [".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
                     ".github/hooks/criteria-apply.cjs"],
-    }.get(runtime, [])
+    }
+    for host in runtimes:
+        names += adapters.get(host, [])
     names += list(native_paths)
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
             for name in names if (ROOT / name).is_file()}
@@ -268,7 +282,11 @@ def check_lock(state):
     if not isinstance(expected, dict) or not expected:
         print("LOCK_INTEGRITY: UNVERIFIED (no recorded hashes)")
         return False
-    actual = locked_files(state.get("runtime"), state.get("native_adapter_paths", []))
+    try:
+        actual = locked_files(state.get("runtime"), state.get("native_adapter_paths", []))
+    except (OSError, ValueError, AttributeError) as exc:
+        print("LOCK_INTEGRITY: DRIFT; cannot inspect installed adapters:", exc)
+        return False
     if actual != expected:
         print("LOCK_INTEGRITY: DRIFT; do not call setup complete, request reviewed maintenance")
         for name in sorted(set(actual) | set(expected)):

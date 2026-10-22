@@ -7,7 +7,8 @@ const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..', '..');
 const target = path.join(root, 'docs', 'CRITERIA.md');
 const proposal = path.join(root, 'harness', 'criteria-proposal.md');
-const receipt = path.join(root, 'harness', 'criteria-guard.json');
+const runtime = 'copilot';
+const receipt = path.join(root, 'harness', 'criteria-guard.copilot.json');
 const sha = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = p => fs.existsSync(p) ? sha(fs.readFileSync(p)) : null;
 function readState() { try { return JSON.parse(fs.readFileSync(receipt, 'utf8')); } catch { return {}; } }
@@ -25,9 +26,10 @@ function applyCommand(s) {
   return /^\s*(?:(?:node|node\.exe)\s+)?(?:["']?\.github[\\/]hooks[\\/]criteria-apply\.cjs["']?)(?:\s+apply)?\s*$/i.test(s);
 }
 function safeReadCommand(s) {
-  // Chained shell commands and redirection must not bypass read-only checks.
-  if (/[;&|<>`\r\n]/.test(s) || /\$\(/.test(s)) return false;
-  return /^\s*(?:cat|head|tail|type|more|less|Get-Content|sed\s+-n|grep|rg)\s+/i.test(s);
+  // Only simple reads with literal arguments. sed can write, rg --pre executes
+  // commands, and pagers can launch a shell; a command prefix is not read-only.
+  if (/[;&|<>`$\r\n]/.test(s)) return false;
+  return /^\s*(?:cat|head|tail|type|Get-Content)\s+(?:[A-Za-z0-9_./\\: -]+|"[A-Za-z0-9_./\\: -]+"|'[A-Za-z0-9_./\\: -]+')\s*$/i.test(s);
 }
 function toolCommand(args) {
   if (!args || typeof args !== 'object') return '';
@@ -42,7 +44,7 @@ function preTool(event) {
   const cmd = toolCommand(args);
   const state = readState();
   if (applyCommand(cmd)) {
-    if (state.phase === 'AUTHORIZED' && state.sessionId === (event.sessionId ?? event.session_id) &&
+    if (state.runtime === runtime && state.phase === 'AUTHORIZED' && state.sessionId === (event.sessionId ?? event.session_id) &&
         Date.now() < state.expiresAt && state.proposalSha === fileHash(proposal) &&
         state.baseSha === fileHash(target)) return output({});
     return deny('Criteria is LOCKED. Show a complete draft/delta in chat; Human must ask to write, then consult Technical Advisor, then obtain the Human post-advice confirmation shown by `node .github/hooks/criteria-apply.cjs status`.');
@@ -62,7 +64,7 @@ function advisorStop(event) {
   const response = event.response ?? event.last_assistant_message;
   if (typeof response !== 'string' || !response.trim()) return output({});
   const nonce = crypto.randomBytes(4).toString('hex').toUpperCase();
-  save({phase:'ADVISED',sessionId, nonce, proposalSha:fileHash(proposal),
+  save({runtime, phase:'ADVISED',sessionId, nonce, proposalSha:fileHash(proposal),
         baseSha:fileHash(target), advisedAt:Date.now()});
   output({});
 }
@@ -70,7 +72,7 @@ function userPrompt(event) {
   const state = readState();
   const prompt = typeof event.prompt === 'string' ? event.prompt.trim() : '';
   const sessionId = event.sessionId ?? event.session_id;
-  if (state.phase === 'ADVISED' && state.sessionId === sessionId &&
+  if (state.runtime === runtime && state.phase === 'ADVISED' && state.sessionId === sessionId &&
       prompt === 'CONFIRM CRITERIA ' + state.nonce &&
       Date.now() - state.advisedAt < 3600000 &&
       state.proposalSha === fileHash(proposal) && state.baseSha === fileHash(target)) {

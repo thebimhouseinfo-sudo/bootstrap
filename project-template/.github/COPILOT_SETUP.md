@@ -28,3 +28,11 @@ If setup starts from a legacy `--runtime generic --target-app copilot` installat
 - Missing Node/runtime hooks, mismatched Session Target, alternate MCP or indirect shell writes: **UNVERIFIED** rather than claimed protection.
 
 Official contracts: https://code.visualstudio.com/docs/agent-customization/hooks and https://code.visualstudio.com/docs/agent-customization/custom-agents.
+
+## Sharing a project and upgrading
+
+Copilot receipts now live at `harness/criteria-guard.copilot.json` with `runtime: copilot`; Continue uses a separate receipt. The proposal remains shared at `harness/criteria-proposal.md`, so conduct one Criteria transaction at a time. The helper ignores legacy unscoped receipts; after upgrading, obtain fresh Advisor advice and a new post-advice Human confirmation. Never rename a stale receipt to bypass this step.
+
+Only simple literal `cat`, `head`, `tail`, `type` and `Get-Content` shell commands receive the read-only exception. `sed`, execution-capable search options and interactive pagers cannot use that exception. Native read tools remain available. This is still a procedural parser, not universal shell isolation.
+
+The lock covers installed adapters for all selected harnesses; real-host tests are still separate for each host. See `../harness/MULTI_HARNESS.md` for the shared-plan workflow.

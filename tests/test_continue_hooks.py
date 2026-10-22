@@ -143,10 +143,31 @@ class ContinueHooksTest(unittest.TestCase):
         (self.root / "harness/active-task.json").write_text(json.dumps(
             {"status":"ACTIVE", "goal_id":"GOAL-1", "theory_ids": [],
              "tests":[], "evidence":[]}))
-        self.assertEqual(json.loads(stop_event(active=True).stdout), {})
+        # Continue fireStop() sends true even on the first Stop, unlike Claude.
+        self.assertEqual(json.loads(stop_event(active=True).stdout).get("decision"), "block")
         check = stop_event()
         self.assertEqual(check.returncode, 0, check.stderr)
         self.assertEqual(json.loads(check.stdout)["decision"], "block")
+
+    def test_stop_with_upstream_true_flag_executes_configured_checks(self):
+        (self.root / "harness/setup-state.json").unlink()
+        (self.root / "docs/CRITERIA.md").write_text("STATUS: APPROVED\nREQ-1: fixture\n")
+        (self.root / "docs/IMPLEMENTATION_PLAN.md").write_text("GOAL-1: fixture implements REQ-1\n")
+        (self.root / "test.txt").write_text("planned test fixture\n")
+        (self.root / "evidence.txt").write_text("observed fixture evidence\n")
+        (self.root / "harness/active-task.json").write_text(json.dumps({
+            "status": "ACTIVE", "goal_id": "GOAL-1", "theory_ids": ["REQ-1"],
+            "tests": ["test.txt"], "evidence": ["evidence.txt"]}))
+        (self.root / "harness/common/checks.json").write_text(json.dumps({"checks": [{
+            "name": "observable fixture check", "argv": [sys.executable, "-c",
+                "from pathlib import Path; Path('check-ran.txt').write_text('executed')"]}]}))
+        result = subprocess.run([NODE, str(self.root / ".continue/hooks/stop-verify.cjs")],
+            cwd=self.root, input=json.dumps({"hook_event_name": "Stop", "session_id": self.session,
+                                            "stop_hook_active": True}),
+            capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), {})
+        self.assertEqual((self.root / "check-ran.txt").read_text(), "executed")
 
     def test_missing_native_event_never_claims_an_advisor(self):
         self.proposal.write_text("STATUS: APPROVED\nDraft\n")

@@ -51,6 +51,9 @@ STATE_PATHS = (
     "harness/setup-state.json", "harness/setup-live-evidence.json",
     "harness/setup-postlock-evidence.json", "harness/setup-intake.json", "harness/recovery-backups/",
     "harness/criteria-proposal.md", "harness/criteria-guard.json",
+    "harness/criteria-guard.copilot.json", "harness/criteria-guard.continue.json",
+    "harness/criteria-guard.json.new", "harness/criteria-guard.copilot.json.new",
+    "harness/criteria-guard.continue.json.new",
 )
 
 IGNORE_START = b"# BEGIN bootstrap local agent setup"

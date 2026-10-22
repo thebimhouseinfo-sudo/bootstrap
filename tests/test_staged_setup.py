@@ -412,7 +412,7 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("INTERACTIVE_INTAKE_UNAVAILABLE", no_tty.stdout)
         self.assertFalse((self.root / "harness/setup-intake.json").exists())
         module = runpy.run_path(str(path))
-        answers = iter(["1", "1", "1", "2", "2", "2", "upgrade/v5"])
+        answers = iter(["1", "1", "1", "1", "2", "2", "2", "upgrade/v5"])
         output = []
         result = module["collect"]("codex", input_fn=lambda prompt: next(answers),
                                     output_fn=output.append)
@@ -436,7 +436,7 @@ class StagedSetupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             ref = pathlib.Path(tmp) / "preinstall-intake.json"
             src = runpy.run_path(str(REPO / "project-template/harness/common/setup_intake.py"))
-            answers = iter(["1", "1", "1", "3", "2", "1"])
+            answers = iter(["1", "1", "1", "1", "3", "2", "1"])
             selected = src["collect"]("codex", input_fn=lambda prompt: next(answers),
                                      output_fn=lambda message: None)
             ref.write_text(json.dumps(selected), encoding="utf-8")

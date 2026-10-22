@@ -88,7 +88,7 @@ class CopilotNativeTests(unittest.TestCase):
         self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
         self.assertEqual(self.target.read_text(), "STATUS: APPROVED\nProduct: Greenfield fixture\n")
         self.assertEqual(self.cmd().returncode, 2)  # consumed
-        self.assertFalse((self.root / "harness/criteria-guard.json").exists())
+        self.assertFalse((self.root / "harness/criteria-guard.copilot.json").exists())
 
     def test_existing_criteria_delta_requires_fresh_advice_and_unchanged_hash(self):
         self.target.write_text("STATUS: APPROVED\nCurrent: A\n")

@@ -8,10 +8,12 @@ const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..','..');
 const proposal = path.join(root,'harness','criteria-proposal.md');
 const target = path.join(root,'docs','CRITERIA.md');
-const receipt = path.join(root,'harness','criteria-guard.json');
+const runtime = 'copilot';
+const receipt = path.join(root,'harness','criteria-guard.copilot.json');
 const hash = b => crypto.createHash('sha256').update(b).digest('hex');
 const fileHash = p => fs.existsSync(p) ? hash(fs.readFileSync(p)) : null;
-const state = (()=>{try{return JSON.parse(fs.readFileSync(receipt,'utf8'));}catch{return {};}})();
+const state = (()=>{try{const value = JSON.parse(fs.readFileSync(receipt,'utf8'));
+  return value && value.runtime === runtime ? value : {};}catch{return {};}})();
 const mode = process.argv[2] || 'apply';
 if (mode === 'status') {
   if (state.phase === 'ADVISED') {
