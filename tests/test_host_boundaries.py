@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prevent false native-hook readiness claims for generic Copilot and Codex Cloud."""
+"""Native Copilot files are packaged; never claim live interception without a host test."""
 import json
 import pathlib
 import subprocess
@@ -29,7 +29,11 @@ class HostBoundaryTests(unittest.TestCase):
                 self.assertIn(marker, preview.stdout)
             applied = call(INSTALL, *flags, "--apply")
             self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-            self.assertFalse((target / ".github/hooks").exists())
+            self.assertTrue((target / ".github/hooks/bootstrap-criteria.json").is_file())
+            self.assertTrue((target / ".github/hooks/criteria_guard.py").is_file())
+            self.assertTrue((target / ".github/agents/planner.agent.md").is_file())
+            self.assertTrue((target / ".github/agents/advisor.agent.md").is_file())
+            self.assertIn("COPILOT_NATIVE_FILES", applied.stdout)
             self.assertTrue((target / ".generic/platforms/copilot.md").is_file())
             status = json.loads((target / "harness/setup-state.json").read_text())
             self.assertEqual(status["phase"], "BOOTSTRAPPING")
