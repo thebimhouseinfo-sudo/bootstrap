@@ -64,7 +64,7 @@ class HostBoundaryTests(unittest.TestCase):
             result = call(target / "harness/common/setup_lifecycle.py", "host-test",
                           "--surface", "codex-cloud")
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-            self.assertIn("requires primary runtime codex", result.stdout)
+            self.assertIn("require primary runtime codex", result.stdout)
 
 
 if __name__ == "__main__":
