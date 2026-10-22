@@ -57,6 +57,7 @@ class GenericNativePortTests(unittest.TestCase):
         data = {"runtime": "generic", "host_version": "CI fixture—not a real host",
                 "fresh_session": True, "roles_loaded": True, "checks_executed": True,
                 "target_app": "opencode",
+                "port_attempted": True, "host_api_evidence": "Synthetic fixture observed host schema",
                 "native_hook_available": True, "hook_dispatched": True,
                 "allow_observed": True, "deny_observed": True,
                 "native_adapter_paths": [".opencode/bootstrap-hooks.py"],
@@ -84,6 +85,15 @@ class GenericNativePortTests(unittest.TestCase):
         changed = call(self.tool, "status")
         self.assertEqual(changed.returncode, 2, changed.stdout)
         self.assertIn("DRIFT", changed.stdout)
+
+    def test_port_step_cannot_be_skipped_at_activation(self):
+        self.configure()
+        hook = self.root / ".opencode/bootstrap-hooks.py"
+        hook.parent.mkdir()
+        hook.write_text("# fixture")
+        result = fixture_transition(self.tool, "activate", self.evidence(port_attempted=False))
+        self.assertEqual(result.returncode, 2, result.stdout)
+        self.assertIn("must attempt host-native port", result.stdout)
 
     def test_native_claim_must_match_actual_installed_host(self):
         self.configure()
