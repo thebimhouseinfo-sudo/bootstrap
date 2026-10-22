@@ -558,6 +558,9 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
     if runtime == "generic":
         print("  Target app/client:", target_app)
         print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
+        print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
+        print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
+        print("  REQUIRED NEXT    : port and verify host-native adapter/hooks before claiming enforcement")
     if runtime == "continue":
         print("  Continue model   : must configure actual provider/models")
         print("  Shared core      : same .agents roles/skills and Python helpers as Antigravity")
@@ -685,6 +688,9 @@ def main():
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
         print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
+        print("NATIVE_HOOKS_NOT_INSTALLED: generic Standard provides NO native preToolUse/PreToolUse guard.")
+        print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
+        print("Do not claim hook-enforced READY or autonomous Criteria approval for this generic installation.")
     for name in tracked:
         print("TRACKED_LOCAL_STATE:" if mode == "tracked" else "TRACKED_LOCAL_SETUP:", name)
     if tracked:
