@@ -21,6 +21,8 @@ jobs:
         run: python project-template/harness/common/test_verify.py
       - name: Tier/runtime installer and adapter regression
         run: python tests/test_installer.py
+      - name: Multi-host installer integration regression
+        run: python tests/test_multi_harness.py
       - name: Active development branch and frozen-main regression
         run: python tests/test_branch_authority.py
       - name: Codex Python hook and snapshot integration regression
