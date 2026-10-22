@@ -327,6 +327,7 @@ def host_test(surface="local"):
     print('Required JSON fields: {"runtime": "' + str(runtime) + '",')
     print(' "host_version": "observed-version", "fresh_session": true,')
     if runtime == "generic":
+        print(' "port_attempted": true, "host_api_evidence": "doc/version or observed API",')
         print(' "target_app": "' + str(state.get("target_app") or "actual-host") + '",')
         print(' "roles_loaded": true, "checks_executed": true,')
         print(' "native_hook_available": true, "native_adapter_paths": ["host/hook-file"],')
@@ -421,6 +422,12 @@ def activate(evidence):
             not isinstance(item.get("host_version"), str) or not item["host_version"].strip()):
         print("BLOCK: observed host evidence missing or mismatched")
         return 2
+    if runtime == "generic":
+        if (item.get("port_attempted") is not True
+                or not isinstance(item.get("host_api_evidence"), str)
+                or not item["host_api_evidence"].strip()):
+            print("BLOCK: generic setup must attempt host-native port and cite actual host API evidence")
+            return 2
     generic_native = runtime == "generic" and item.get("native_hook_available") is True
     if (generic_native and state.get("target_app") is not None
             and item.get("target_app") != state.get("target_app")):
