@@ -79,7 +79,7 @@ function userPrompt(event) {
 function main() {
   const event = JSON.parse(fs.readFileSync(0, 'utf8'));
   if (!event || typeof event !== 'object') throw Error('Expected hook event object');
-  const type = event.hook_event_name || event.hookEventName ||
+  const type = process.argv[2] || event.hook_event_name || event.hookEventName ||
     (event.toolName || event.tool_name ? 'preToolUse' : event.agentName ? 'subagentStop' : 'unknown');
   switch(type) {
     case 'sessionStart': case 'SessionStart':
