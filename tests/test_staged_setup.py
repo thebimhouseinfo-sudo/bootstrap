@@ -349,7 +349,7 @@ class StagedSetupTests(unittest.TestCase):
     def test_user_guides_have_two_compact_onboarding_prompts(self):
         vi = (REPO / "README.md").read_text(encoding="utf-8")
         en = (REPO / "docs/user-guide.en.md").read_text(encoding="utf-8")
-        a, b = vi.split("## 1. Dự án mới")[1].split("## 2. Dự án đã có code")
+        a, b = vi.split("## 1. Greenfield")[1].split("## 2. Brownfield")
         prompt_a = a.splitlines()[2]
         prompt_b = b.splitlines()[2]
         self.assertLess(len(prompt_a), 450)
@@ -358,7 +358,7 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("<ĐƯỜNG_DẪN_DỰ_ÁN>", prompt_b)
         self.assertIn("raw.githubusercontent.com", prompt_a)
         self.assertIn("raw.githubusercontent.com", prompt_b)
-        english_a, english_b = en.split("## 1. New project")[1].split("## 2. Existing project")
+        english_a, english_b = en.split("## 1. Greenfield")[1].split("## 2. Brownfield")
         self.assertLess(len(english_a.splitlines()[2]), 380)
         self.assertLess(len(english_b.splitlines()[2]), 380)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_a)
@@ -411,11 +411,12 @@ class StagedSetupTests(unittest.TestCase):
         self.assertIn("INTERACTIVE_INTAKE_UNAVAILABLE", no_tty.stdout)
         self.assertFalse((self.root / "harness/setup-intake.json").exists())
         module = runpy.run_path(str(path))
-        answers = iter(["2", "2", "2", "upgrade/v5"])
+        answers = iter(["1", "1", "1", "2", "2", "2", "upgrade/v5"])
         output = []
         result = module["collect"]("codex", input_fn=lambda prompt: next(answers),
                                     output_fn=output.append)
         self.assertEqual(result["channel"], "cli_menu")
+        self.assertEqual(result["runtimes"], ["codex"])
         self.assertEqual([r["value"] for r in result["responses"]],
                          ["Standard", "tracked", "upgrade/v5"])
         self.assertTrue(any("1) Lite" in row for row in output))
@@ -434,7 +435,7 @@ class StagedSetupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             ref = pathlib.Path(tmp) / "preinstall-intake.json"
             src = runpy.run_path(str(REPO / "project-template/harness/common/setup_intake.py"))
-            answers = iter(["3", "2", "1"])
+            answers = iter(["1", "1", "1", "3", "2", "1"])
             selected = src["collect"]("codex", input_fn=lambda prompt: next(answers),
                                      output_fn=lambda message: None)
             ref.write_text(json.dumps(selected), encoding="utf-8")
@@ -451,6 +452,7 @@ class StagedSetupTests(unittest.TestCase):
             self.assertEqual(state["tier"], "Full")
             saved = json.loads((self.root / "harness/setup-intake.json").read_text(encoding="utf-8"))
             self.assertEqual(saved, selected)
+            self.assertEqual(saved["runtimes"], ["codex"])
             audit = call(sys.executable, self.root / "harness/common/setup_lifecycle.py",
                          "audit", cwd=self.root)
             self.assertIn("SETUP_INTAKE: RECORDED", audit.stdout)
