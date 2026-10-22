@@ -25,7 +25,7 @@ class MultiHarnessTests(unittest.TestCase):
             self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
             installed = invoke(*args, "--apply")
             self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
-            self.assertTrue((root / ".codex/agents/planner.md").is_file())
+            self.assertTrue((root / ".codex/agents/planner.toml").is_file())
             self.assertTrue((root / ".claude/agents/planner.md").is_file())
             for skill in ("challenge-feasibility", "write-criteria"):
                 self.assertTrue((root / ".agents/skills" / skill / "SKILL.md").is_file())
@@ -48,6 +48,31 @@ class MultiHarnessTests(unittest.TestCase):
             forbidden = invoke("--target", root, "--tier", "Standard",
                                "--runtime", "claude", "--runtime", "codex", "--apply")
             self.assertNotEqual(forbidden.returncode, 0)
+
+    def test_brownfield_preserves_existing_product_and_local_config(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "src").mkdir()
+            (root / "src/main.py").write_text("print('original')\\n", encoding="utf-8")
+            (root / "README.md").write_text("Product-specific README\\n", encoding="utf-8")
+            (root / "AGENTS.md").write_text("Human-owned agent rules\\n", encoding="utf-8")
+            (root / "docs").mkdir()
+            (root / "docs/CRITERIA.md").write_text("Original human theory\\n", encoding="utf-8")
+            arguments = ["--target", root, "--tier", "Standard",
+                         "--runtime", "codex", "--runtime", "claude",
+                         "--staged"]
+            before = {p: (root / p).read_bytes() for p in
+                      ["src/main.py", "README.md", "AGENTS.md", "docs/CRITERIA.md"]}
+            preview = invoke(*arguments)
+            self.assertNotEqual(preview.returncode, 0)  # Human-owned AGENTS.md conflicts
+            self.assertIn("CONFLICT", preview.stdout)
+            applied = invoke(*arguments, "--apply")
+            self.assertIn("AGENTS.bootstrap.md", applied.stdout)
+            for p, content in before.items():
+                self.assertEqual((root / p).read_bytes(), content, p)
+            self.assertEqual((root / "AGENTS.bootstrap.md").is_file(), True)
+            self.assertTrue((root / ".claude/agents/planner.md").exists())
+            self.assertTrue((root / ".codex/agents/planner.toml").exists())
 
     def test_generic_cannot_mix_with_native(self):
         with tempfile.TemporaryDirectory() as tmp:
