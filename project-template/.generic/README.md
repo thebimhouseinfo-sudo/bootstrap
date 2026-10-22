@@ -2,6 +2,8 @@
 
 This folder is a **copy-and-adapt starter**, not a native registered extension for any IDE. It saves setup quota by shipping the **same full agent role contracts** found in `.agents/roles/` as standalone `.generic/agents/<role>.md` files. The installer filters roles according to Lite / Standard / Full.
 
+**IMPORTANT — no native hooks:** This installer copies **zero** host-native hooks for generic, including VS Code Copilot. `Standard` is a role/tier selection, not a runtime enforcement level. Any Criteria pre-write Advisor/Human gate remains `GUIDED_ONLY` until a trusted native adapter and independently verifiable authorization exist. See `platforms/copilot.md` for Copilot-specific integration requirements.
+
 Use this only when your actual coding host does not have a ready runtime package. **Codex and Antigravity generic templates are already copy-ready; Claude Code is preconfigured but host-untested; Continue is nearly ready with model/provider selection.** Do not regenerate their contracts merely for compatibility.
 
 For a new host:
