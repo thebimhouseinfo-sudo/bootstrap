@@ -11,6 +11,7 @@
 
 ## Host routing examples
 
+- **Copilot / VS Code:** `platforms/copilot.md` — select the Copilot harness, use documented `.github/hooks/*.json` for native hooks, check host policy, and negative-test against Criteria writes. `--target-app copilot` alone does not install those files. The current pre-write checkpoint is instruction-guided, **not hook-enforced**.
 - **Cline:** `platforms/cline.md` — Cline-specific rules/instructions; verify native discovery before porting roles.
 - **Qwen Code:** `platforms/qwen-code.md` — project-level `.qwen/agents/` role registration (verified documentation), with explicit permissions.
 - **DeepSeek:** `platforms/deepseek.md` — DeepSeek may be a **model/provider used inside another coding client**, not a unique native coding runtime. Ask which client is running; port to that client, then configure its supported provider/model.
