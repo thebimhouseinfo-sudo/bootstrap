@@ -66,7 +66,7 @@ class CopilotNativeTests(unittest.TestCase):
         return result
 
     def test_first_draft_only_written_after_actual_subagent_and_later_human_prompt(self):
-        self.assertIn("Status", self.target.read_text() + "Status")  # template may be draft
+        self.assertTrue(self.target.exists())  # Placeholder is not Human-approved Criteria
         original = self.target.read_bytes()
         self.stage.write_text("STATUS: APPROVED\nProduct: Greenfield fixture\n")
         self.check_denied()
@@ -137,7 +137,7 @@ class CopilotNativeTests(unittest.TestCase):
         advisor=(self.root / ".github/agents/technical-advisor.agent.md").read_text()
         self.assertIn("When no Criteria exists", planner)
         self.assertIn("When Criteria exists", planner)
-        self.assertIn("only after Human asks", advisor.lower().replace("only when planner has received a human request","only after Human asks"))
+        self.assertIn("Act ONLY when Planner has received a Human request", advisor)
         self.assertIn("name: technical-advisor", advisor)
 
 
