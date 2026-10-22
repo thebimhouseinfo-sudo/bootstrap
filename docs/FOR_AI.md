@@ -14,6 +14,8 @@ This Bootstrap is designed for an **installed coding agent** with project filesy
 
 The raw `FOR_AI.md` URL is a lightweight **entrypoint** so the agent can read instructions before cloning; it is not the installation source. First check whether the host has command execution, network access, Git and permission to read/write the target folder. If the host requires command authorization, ask for it. If a sandbox blocks network or project filesystem access, explain the specific blocker and request the necessary host permission. If the current client fundamentally has no shell/filesystem tools (e.g. a web-only chat), **do not claim setup was performed**, and recommend using a supported coding agent in the actual project workspace. Human-only terminal confirmation for `activate`/`finalize` remains mandatory regardless of the agent's shell permissions.
 
+**Nhiều coding host trong một dự án:** chọn một host chính để quản lý vòng đời staged/hook-lock, rồi chọn thêm các host như Codex và Claude Code. Installer hỗ trợ lặp `--runtime` (ví dụ `--runtime codex --runtime claude`); thứ tự có ý nghĩa: host đầu tiên là host chính và phải giữ nguyên khi nâng cấp. Tệp dùng chung chỉ được cài một lần; mỗi host có adapter riêng. Cài đặt không đồng nghĩa native hooks của tất cả host đều PASS — cần kiểm thử thực tế riêng trên từng host trước khi tuyên bố tương đương. Không tự chuyển primary host hoặc bỏ qua human approval.
+
 ## Mandatory setup intake UX: IDE dialog or CLI numbered menu
 
 **Emit exactly ONE ordinary chat notification before the installer/tool permission request; it informs the user of the next interaction and contains NO questions.**
@@ -232,3 +234,9 @@ Bootstrap includes `harness/common/branch_authority.py` in every Git-enabled tie
 ### Generic adapter setup flow
 
 Collect unresolved choices through the **IDE's native dialog or CLI's interactive numbered menu** (with the bundled TTY wizard when needed). `python install.py --ask-first` is a developer-only reference, not the survey. With the Human's answers, preview `python install.py --target PATH --tier Standard --runtime generic --target-app qwen-code` and use `--apply` only after approval. `.generic/` supplies portable role contracts and host porting instructions; it does **not** automatically register untested native agents. Continue receives the same shared `.agents/roles`, `.agents/skills`, and `harness/common` content as Antigravity, but uses `.continue/` for its native agent/model configurations; Antigravity `.agents/hooks.json` is not copied into Continue.
+
+## Planner skills (mandatory)
+
+The Planner must invoke `.agents/skills/challenge-feasibility/SKILL.md` to challenge new capabilities with evidence and classify feasible / unknown / infeasible before making commitments. It uses `.agents/skills/write-criteria/SKILL.md` to write the *human-readable product theory*, never a disguised architecture or technical task plan. These skills do not alter the restricted Advisor activation gate.
+
+When the CLI wizard records `runtimes`, pass the same ordered repeated `--runtime` flags to the installer. Do not silently pick one host after the human selected multiple. Host-native menus must record the same ordered list. For existing installs, keep the primary host first. Shared source and state remain single-project; each native hook adapter needs independent real-host verification.
