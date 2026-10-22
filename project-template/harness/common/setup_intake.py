@@ -38,13 +38,21 @@ def branch_name(value):
                 ".." not in value and "//" not in value and "@{" not in value)
 
 
-def collect(runtime, input_fn=input, output_fn=print):
+def collect(runtime, input_fn=input, output_fn=print, runtimes=None):
     output_fn("BOOTSTRAP SETUP — CLI QUESTIONNAIRE")
     output_fn("You have already dealt with command permissions. The following numbered")
     output_fn("selections configure the project; 1/2/3 do NOT grant tool permissions.")
     responses = []
     def record(question_id, value):
         responses.append({"id": question_id, "value": value, "source": "cli_menu"})
+    selected_runtimes = list(dict.fromkeys(runtimes or [runtime]))
+    if len(selected_runtimes) == 1 and runtime != "generic":
+        output_fn("Additional coding hosts can share this project (native adapters remain independently verified).")
+        for candidate, caption in [("codex", "Codex"), ("claude", "Claude Code"),
+                                   ("antigravity", "Antigravity"), ("continue", "Continue")]:
+            if candidate != runtime and choice("Also install " + caption + " harness?", [
+                ("no", "No"), ("yes", "Yes")], input_fn, output_fn) == "yes":
+                selected_runtimes.append(candidate)
     record("tier", choice("Which harness tier?", [
         ("Lite", "Lite — reduced role set, no full Planner/Tester workflow"),
         ("Standard", "Standard — Planner and Tester (recommended)"),
@@ -73,6 +81,7 @@ def collect(runtime, input_fn=input, output_fn=print):
         "schema_version": 1,
         "channel": "cli_menu",
         "runtime": runtime,
+        "runtimes": selected_runtimes,
         "host_event_ref": None,
         "captured_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "responses": responses,
@@ -95,7 +104,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--preinstall", action="store_true",
                         help="Collect CLI choices before the staged install (recommended)")
-    parser.add_argument("--runtime", choices=("codex", "claude", "antigravity",
+    parser.add_argument("--runtime", action="append", choices=("codex", "claude", "antigravity",
                                               "continue", "generic"))
     parser.add_argument("--output", help="Private temporary intake record (preinstall only)")
     args = parser.parse_args(argv)
@@ -118,7 +127,10 @@ def main(argv=None):
             output = pathlib.Path(args.output).expanduser().absolute()
             if output.is_symlink() or output.exists() or not output.parent.is_dir() or output.parent.is_symlink():
                 raise ValueError("preinstall output must be a new private file in an existing regular directory")
-            data = collect(args.runtime)
+            selected = list(dict.fromkeys(args.runtime))
+            if "generic" in selected and len(selected) > 1:
+                raise ValueError("generic cannot be combined with other hosts")
+            data = collect(selected[0], runtimes=selected)
             with output.open("x", encoding="utf-8") as handle:
                 os.chmod(output, 0o600)
                 json.dump(data, handle, indent=2, ensure_ascii=False)

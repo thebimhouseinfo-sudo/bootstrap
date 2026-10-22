@@ -319,7 +319,7 @@ def rollback_install(dest, added, replaced, ignore_before, ignore_after, state_c
         print("ROLLBACK_MANUAL: .gitignore", exc)
 
 
-def checked_intake_source(path, runtime, tier, mode):
+def checked_intake_source(path, runtimes, tier, mode):
     """Inspect a pre-install IDE/CLI selection record without modifying any target."""
     if not path:
         return None
@@ -333,8 +333,11 @@ def checked_intake_source(path, runtime, tier, mode):
     if not isinstance(value, dict) or value.get("schema_version") != 1:
         raise ValueError("invalid pre-install intake version")
     channel = value.get("channel")
-    if channel not in ("cli_menu", "native_dialog") or value.get("runtime") != runtime:
+    if channel not in ("cli_menu", "native_dialog") or value.get("runtime") != runtimes[0]:
         raise ValueError("intake channel/runtime does not match target coding host")
+    recorded_runtimes = value.get("runtimes", [value.get("runtime")])
+    if recorded_runtimes != runtimes:
+        raise ValueError("intake host selections disagree with --runtime options")
     responses = value.get("responses")
     if not isinstance(responses, list) or not responses:
         raise ValueError("intake answers missing")
@@ -420,6 +423,35 @@ def entries(tier, runtime):
             if runtime == "claude" and rel.parts[:2] == (".agents", "skills"):
                 files.append((src, pathlib.Path(".claude", "skills", *rel.parts[2:])))
     return sorted(files, key=lambda item: item[1].as_posix())
+
+def multi_entries(tier, runtimes):
+    """Deduplicate shared files; fail closed on different source payloads."""
+    unique = {}
+    for runtime in runtimes:
+        for src, rel in entries(tier, runtime):
+            key = rel.as_posix()
+            if key in unique and digest(unique[key]) != digest(src):
+                raise ValueError("cross-runtime file collision: " + key)
+            unique[key] = src
+    return [(src, pathlib.Path(name)) for name, src in sorted(unique.items())]
+
+
+def plan_multi(dest, tier, runtimes, mode, upgrade=False, previous=None):
+    ops = []
+    for src, rel in multi_entries(tier, runtimes):
+        target = dest / rel
+        if rel.as_posix() == ".gitignore":
+            rendered = ignore_contents(dest, src, mode)
+            state = ("SAME" if target.read_bytes() == rendered else "UPDATE") if target.exists() else "ADD"
+        else:
+            state = classify(dest, src, target)
+            if state == "CONFLICT" and upgrade and previous:
+                recorded = previous["files"].get(rel.as_posix())
+                if recorded and target.is_file() and digest(target) == recorded["installed_sha256"]:
+                    state = "UPGRADE"
+        ops.append((state, src, target))
+    return ops
+
 
 def confine(root, target):
     """Reject existing symlink/junction ancestors *before* any mkdir or write."""
@@ -539,7 +571,7 @@ def main():
     ap = argparse.ArgumentParser(description="Safe tier/runtime package install (preview by default).")
     ap.add_argument("--target", help="Existing target project directory")
     ap.add_argument("--tier", choices=TIERS, default="Standard")
-    ap.add_argument("--runtime", choices=RUNTIMES, help="Explicit coding client or portable generic")
+    ap.add_argument("--runtime", choices=RUNTIMES, action="append", help="Coding client; repeat to install several native harnesses")
     ap.add_argument("--target-app", help="With --runtime generic: actual target host name, e.g. cline/qwen-code/deepseek/other")
     ap.add_argument("--ask-first", action="store_true", help="Print developer-only setup question reference; NOT a native dialog")
     ap.add_argument("--apply", action="store_true", help="Apply scoped file installation after Human approval")
@@ -566,7 +598,9 @@ def main():
         ap.error("--target is required; run --ask-first for all setup questions")
     if not args.runtime:
         ap.error("--runtime is required; run --ask-first to select a coding client")
-    if args.runtime == "generic":
+    if "generic" in args.runtime and len(args.runtime) > 1:
+        ap.error("generic must be installed separately with its own verified target adapter")
+    if args.runtime[0] == "generic":
         if not args.target_app or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}", args.target_app):
             ap.error("--runtime generic requires --target-app <client-name> (letters, digits, ._-)")
     elif args.target_app:
@@ -576,7 +610,8 @@ def main():
     if not dest.is_dir() or dest == REPO or REPO in dest.parents or dest in REPO.parents:
         ap.error("target must be an existing project outside the bootstrap checkout")
     tier = args.tier
-    runtime = args.runtime
+    runtimes = list(dict.fromkeys(args.runtime))
+    runtime = runtimes[0]  # Primary host owns staged lifecycle; others need separate host verification.
     mode = args.config_git
     try:
         prev = existing_mode(dest)
@@ -602,7 +637,7 @@ def main():
         try:
             existing = json.loads(staged_state.read_text(encoding="utf-8"))
             if existing.get("runtime") != runtime:
-                print("MIGRATION_REQUIRED: staged harness belongs to another runtime; no automatic adapter migration")
+                print("MIGRATION_REQUIRED: PRIMARY_HOST_IMMUTABLE: staged lifecycle remains attached to its original primary runtime")
                 return 2
             if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
                 print("BLOCK: staged state is already activated; final-lock policy applies")
@@ -619,22 +654,22 @@ def main():
         print("STAGED: hooks defer blocking while BOOTSTRAPPING; final lock requires live tests")
 
     try:
-        intake_source = checked_intake_source(args.intake_file, runtime, tier, mode)
+        intake_source = checked_intake_source(args.intake_file, runtimes, tier, mode)
         intake_target = dest / "harness/setup-intake.json"
         confine(dest, intake_target)
         if intake_source is not None and intake_target.exists() and digest(intake_target) != digest(intake_source):
             raise ValueError("different saved intake trace already exists; review it before applying")
         old_manifest = read_install_manifest(dest)
-        if old_manifest is not None and (
-                old_manifest.get("tier") != tier or old_manifest.get("runtime") != runtime):
-            print("MIGRATION_REQUIRED: installed tier/runtime differs from requested one.")
-            print("Installer never leaves mixed old/new role or native hook adapters.")
-            print("Review a separate migration plan; --upgrade does not switch tiers/runtimes.")
-            return 2
+        if old_manifest is not None:
+            installed = old_manifest.get("runtimes", [old_manifest["runtime"]])
+            if old_manifest.get("tier") != tier or old_manifest["runtime"] != runtime:
+                print("MIGRATION_REQUIRED: tier or primary runtime differs; keep the original primary --runtime first.")
+                return 2
+            runtimes = list(dict.fromkeys(installed + runtimes))
         if args.upgrade and old_manifest is None:
             print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
             return 2
-        ops = plan(dest, tier, runtime, mode, upgrade=args.upgrade, previous=old_manifest)
+        ops = plan_multi(dest, tier, runtimes, mode, upgrade=args.upgrade, previous=old_manifest)
         tracked = tracked_local_setup(dest, mode)
     except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
         print("NOT_CONFIGURED: invalid source, ignore policy or Git index:", exc)
@@ -646,7 +681,7 @@ def main():
     conflicts = [target for state, _, target in ops if state == "CONFLICT"]
     merge = (dest / "AGENTS.md") in conflicts and (dest / "AGENTS.md").is_file()
     summary = {k: sum(x[0] == k for x in ops) for k in ("ADD", "SAME", "UPDATE", "UPGRADE", "CONFLICT")}
-    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, target_app=args.target_app,
+    print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, runtimes=runtimes, target_app=args.target_app,
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
         print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
@@ -735,10 +770,11 @@ def main():
                     records[target.relative_to(dest).as_posix()] = {
                         "source_sha256": digest(source), "installed_sha256": digest(target)}
         template_fingerprint = hashlib.sha256("\\n".join(
-            rel.as_posix() + ":" + digest(src) for src, rel in entries(tier, runtime)
+            rel.as_posix() + ":" + digest(src) for src, rel in multi_entries(tier, runtimes)
         ).encode("utf-8")).hexdigest()
         new_manifest = {"schema_version": 1, "template_fingerprint_sha256": template_fingerprint,
-                        "tier": tier, "runtime": runtime, "config_git": mode, "files": records}
+                        "tier": tier, "runtime": runtime, "runtimes": runtimes,
+                        "config_git": mode, "files": records}
         write_install_manifest(dest, new_manifest, manifest_before)
         manifest_written = manifest_path.read_bytes()
     except (OSError, ValueError, subprocess.TimeoutExpired, KeyError, StopIteration) as exc:

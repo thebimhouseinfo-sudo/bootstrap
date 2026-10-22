@@ -6,19 +6,19 @@ Bootstrap helps **Codex, Claude Code, Antigravity**, and compatible coding agent
 
 **How to use:** open a coding agent with access to the project folder and a command execution tool. Copy **one** prompt below and replace **only the folder path**. You do not need to clone Bootstrap, copy templates or run the installer yourself; the agent handles these steps when authorized.
 
-## 1. New project — no existing code
+## 1. Greenfield — new project
 
-> Set up Bootstrap for my **new project** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Before any tool permission request, warn that setup questions are separate from permissions. Handle setup; ask only for approvals.
+> Set up Bootstrap for my **greenfield project (new, no code yet)** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Before any tool permission request, warn that setup questions are separate from permissions. Handle setup; ask only for approvals.
 
-## 2. Existing project — already has code
+## 2. Brownfield — existing codebase
 
-> Set up Bootstrap for my **existing codebase** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Before any tool permission request, warn that setup questions are separate from permissions. Preserve code; handle setup and approvals.
+> Set up Bootstrap for my **brownfield project (existing codebase)** at `<PROJECT_FOLDER_PATH>`. Read and follow https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Before any tool permission request, warn that setup questions are separate from permissions. Preserve code; handle setup and approvals.
 
 **Permission and setup questions are different:** The AI gives a short advance notice. After command permission, **IDE users get a configuration dialog**, while **CLI users see numbered choices in their terminal**. Read the question before selecting 1/2: these are setup answers, **not further permission approvals**. Answers are saved as trace; setup questions are not collected in ordinary chat.
 
 ## What the coding agent handles
 
-The agent identifies the host runtime, inspects the project, obtains and runs the installer in **staged mode**, coordinates CRITERIA and technical approval, configures Coder/Tester, audits files and runs smoke tests. It then asks for real host verification before final hook activation and handoff. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
+The agent identifies the host runtime, inspects the project and runs the installer in **staged mode**. Greenfield uses `brainstorm-theory` with its scope questions; brownfield uses `write-criteria` to consolidate Human decisions and reconstruct observed CURRENT behavior from code without treating it as automatically approved DESIRED behavior. On Human request to finalize initial Criteria or change existing Criteria, Planner pauses **just before the file write** for Technical Advisor consultation (unless the exact proposal was already advised). Human decides after advice; only Planner edits Criteria. Advisor never approves or vetoes. Then the agent coordinates technical direction, Coder/Tester setup, audit and smoke tests. It then asks for real host verification before final hook activation and handoff. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
 
 **Environment:** Codex CLI/App, Claude Code and compatible coding agents can run shell/terminal commands **when permitted by the host and user**. A sandbox, blocked network, or missing filesystem access must be reported, not silently assumed away. **Web-only Claude sessions are not substitutes for coding agents with access to the target project.**
 
