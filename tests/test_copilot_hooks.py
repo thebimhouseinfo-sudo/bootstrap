@@ -121,6 +121,7 @@ class CopilotNativeTests(unittest.TestCase):
             ("apply_patch", {"patch":"*** Update File: docs/CRITERIA.md\n+x"}),
             ("bash", {"command":"echo x > docs/CRITERIA.md"}),
             ("bash", {"command":"cat docs/CRITERIA.md; echo x > docs/CRITERIA.md"}),
+            ("bash", {"command":"cat docs/CRITERIA.md\necho x > docs/CRITERIA.md"}),
             ("powershell", {"command":"Set-Content docs\\CRITERIA.md text"})
         ]:
             with self.subTest(tool=name):
