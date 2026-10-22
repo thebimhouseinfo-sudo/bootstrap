@@ -37,6 +37,9 @@ class GenericNativePortTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PORT_REQUIRED", result.stdout)
         self.assertTrue((self.root / ".generic/ADAPTER_REQUIREMENTS.md").is_file())
+        manifest = json.loads((self.root / "harness/.bootstrap-manifest.json").read_text())
+        self.assertEqual(manifest["target_app"], "opencode")
+        self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["target_app"], "opencode")
         self.tool = self.root / "harness/common/setup_lifecycle.py"
 
     def configure(self):
@@ -53,6 +56,7 @@ class GenericNativePortTests(unittest.TestCase):
     def evidence(self, **changes):
         data = {"runtime": "generic", "host_version": "CI fixture—not a real host",
                 "fresh_session": True, "roles_loaded": True, "checks_executed": True,
+                "target_app": "opencode",
                 "native_hook_available": True, "hook_dispatched": True,
                 "allow_observed": True, "deny_observed": True,
                 "native_adapter_paths": [".opencode/bootstrap-hooks.py"],
@@ -80,6 +84,15 @@ class GenericNativePortTests(unittest.TestCase):
         changed = call(self.tool, "status")
         self.assertEqual(changed.returncode, 2, changed.stdout)
         self.assertIn("DRIFT", changed.stdout)
+
+    def test_native_claim_must_match_actual_installed_host(self):
+        self.configure()
+        hook = self.root / ".opencode/bootstrap-hooks.py"
+        hook.parent.mkdir()
+        hook.write_text("# fixture\n")
+        result = fixture_transition(self.tool, "activate", self.evidence(target_app="copilot"))
+        self.assertEqual(result.returncode, 2, result.stdout)
+        self.assertIn("target_app differs", result.stdout)
 
     def test_unregistered_or_traversal_paths_rejected(self):
         self.configure()
