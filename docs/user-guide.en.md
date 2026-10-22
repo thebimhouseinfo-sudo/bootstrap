@@ -16,6 +16,10 @@ Bootstrap helps **Codex, Claude Code, Antigravity**, and compatible coding agent
 
 **Permission and setup questions are different:** The AI gives a short advance notice. After command permission, **IDE users get a configuration dialog**, while **CLI users see numbered choices in their terminal**. Read the question before selecting 1/2: these are setup answers, **not further permission approvals**. Answers are saved as trace; setup questions are not collected in ordinary chat.
 
+**Copilot in VS Code:** `--runtime generic --target-app copilot` installs portable role/skill sources **without any native hooks**. `Standard` does not enable an Advisor/Criteria write guard. A native Copilot port and real negative tests are required; until then report `GUIDED_ONLY`.
+
+**Codex Cloud:** when a separate fresh session or Human-operated terminal cannot be opened, run disposable checks in the **current task** and report `SCRIPT_TESTED / HOOK_RUNTIME_UNVERIFIED`, not a fabricated host-ready state. See [For AI](FOR_AI.md).
+
 ## What the coding agent handles
 
 The agent identifies the host runtime, inspects the project and runs the installer in **staged mode**. Greenfield uses `brainstorm-theory` with its scope questions; brownfield uses `write-criteria` to consolidate Human decisions and reconstruct observed CURRENT behavior from code without treating it as automatically approved DESIRED behavior. On Human request to finalize initial Criteria or change existing Criteria, Planner pauses **just before the file write** for Technical Advisor consultation (unless the exact proposal was already advised). Human decides after advice; only Planner edits Criteria. Advisor never approves or vetoes. Then the agent coordinates technical direction, Coder/Tester setup, audit and smoke tests. It then asks for real host verification before final hook activation and handoff. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
