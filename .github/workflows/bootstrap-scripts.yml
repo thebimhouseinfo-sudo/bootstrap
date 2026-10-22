@@ -23,6 +23,8 @@ jobs:
         run: python tests/test_installer.py
       - name: Multi-host installer integration regression
         run: python tests/test_multi_harness.py
+      - name: Continue CLI native Criteria hooks (script simulation)
+        run: python tests/test_continue_hooks.py
       - name: Copilot native Criteria gate regression
         run: python tests/test_copilot_hooks.py
       - name: Generic agent-generated native adapter regression
