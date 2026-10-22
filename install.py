@@ -560,8 +560,9 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
         print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
         print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
         print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
-        print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md, WRITES host-native scripts")
-        print("                     and registers/tests them on this actual client before handoff")
+        print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
+        print("                     MIGRATES active .generic settings into real host-native directories,")
+        print("                     then writes/registers/tests host scripts before handoff")
     if runtime == "continue":
         print("  Continue model   : must configure actual provider/models")
         print("  Shared core      : same .agents roles/skills and Python helpers as Antigravity")
@@ -696,6 +697,8 @@ def main():
     if runtime == "generic":
         print("PORT_REQUIRED: SETUP AGENT MUST NOW read .generic/ADAPTER_REQUIREMENTS.md and implement")
         print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
+        print("HOST_NATIVE_MIGRATION_REQUIRED: consult .generic/HOST_NATIVE_LAYOUT.md; migrate/convert")
+        print("active settings into the client's discovered paths; do not rely on .generic as active config.")
         print("NATIVE_HOOKS_NOT_INSTALLED: generic Standard provides NO native preToolUse/PreToolUse guard.")
         print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
         print("After permission to configure the actual host, port, register, allow/deny-test and record evidence.")
