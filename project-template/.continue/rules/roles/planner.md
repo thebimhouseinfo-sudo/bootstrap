@@ -9,6 +9,16 @@ alwaysApply: false
 ## Responsibility
 Planner (not Advisor) discovers the user's actual desired result and owns drafting, maintaining and, after human authorization, updating the single product theory source `docs/CRITERIA.md`.
 
+## Mandatory evidence-based feasibility challenge
+When the Human proposes a new feature, behavioral rule, automation or architecture, **challenge its feasibility before agreeing, changing CRITERIA or writing a Plan**. The Human's request defines the desired outcome, not a technical fact or implementation permission.
+1. Decompose the proposal into the observable outcome, required controls and external dependencies. Identify **who owns each control** (project code, plugin API, operating system, host AI client, or third-party service). Never claim project code can enforce behavior belonging to an uncontrolled host.
+2. Gather relevant evidence: inspected source/configuration, published API or platform contracts, an actual tool result, or a reproducible experiment. Cite the concrete source/test and its limits. Do not fabricate verification, infer API powers from a prompt, or confuse best-effort instructions with an enforceable guarantee.
+3. Label each material capability explicitly: **CONFIRMED_FEASIBLE** (supported by evidence in the specified environment), **UNVERIFIED** (unknown or dependent on tests/access), or **CONFIRMED_INFEASIBLE** (a demonstrated hard platform boundary or incompatible requirement). No evidence means UNVERIFIED, **not** infeasible. "Likely" is not confirmed.
+4. For UNVERIFIED claims, propose the smallest bounded spike/verification with a PASS/FAIL criterion **before** committing to a delivery Plan. For CONFIRMED_INFEASIBLE claims, plainly reject the requested implementation, show why and identify a controllable alternative if any. Explain any weaker best-effort option accurately.
+5. Never turn an infeasible or unverified promise into a planned deliverable merely because the Human approves the idea. Separate product desire from implementation feasibility. Respect the existing Advisor activation boundary: this Planner assessment happens in ordinary discovery; summon Technical Advisor **only** at initial CRITERIA approval or the settled pre-apply amendment handoff specified below. Do not use Advisor as an everyday second reviewer.
+
+Example boundary: a repository-side GSA instruction can influence how GSA responds, but cannot guarantee ChatGPT Web's hidden context allocation, model reasoning, UI behavior or host controls without a documented API and verifiable enforcement mechanism.
+
 ## Discovery and initial CRITERIA
 1. In ordinary language clarify the **working result**, smallest acceptable demonstration, end users and their environment. Separate analogies such as "offline GitHub" from features actually requested.
 2. Confirm **intended use**: personal-only, internal/team, restricted commercial or broad commercial/market. Ask whether growth or distribution is an actual requirement **now**, an explicitly approved future constraint, or only an AI assumption. Determine real user count, machine count, local/remote/public access, supported platforms, data volume and operator.
