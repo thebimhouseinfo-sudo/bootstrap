@@ -16,6 +16,8 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 **Phân biệt cấp quyền và câu hỏi setup:** Trước khi chạy installer, AI sẽ gửi một tin nhắn báo trước. Sau khi bạn cho phép lệnh cần thiết, **IDE hiển thị dialog lựa chọn**, còn **CLI hiển thị các dòng câu hỏi và lựa chọn đánh số ngay trong terminal**. Hãy đọc kỹ trước khi chọn 1/2: đây là lựa chọn cấu hình, **không phải một yêu cầu cấp quyền mới**. Câu trả lời được lưu để truy vết; không chuyển bảng câu hỏi sang chat.
 
+**Nhiều coding host trong một dự án:** chọn một host chính để quản lý vòng đời staged/hook-lock, rồi chọn thêm các host như Codex và Claude Code. Installer hỗ trợ lặp `--runtime` (ví dụ `--runtime codex --runtime claude`); thứ tự có ý nghĩa: host đầu tiên là host chính và phải giữ nguyên khi nâng cấp. Tệp dùng chung chỉ được cài một lần; mỗi host có adapter riêng. Cài đặt không đồng nghĩa native hooks của tất cả host đều PASS — cần kiểm thử thực tế riêng trên từng host trước khi tuyên bố tương đương. Không tự chuyển primary host hoặc bỏ qua human approval.
+
 ## AI sẽ tự làm gì?
 
 Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**, đưa CRITERIA và phương hướng kỹ thuật cho Human duyệt, cấu hình Coder/Tester, audit và chạy smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
