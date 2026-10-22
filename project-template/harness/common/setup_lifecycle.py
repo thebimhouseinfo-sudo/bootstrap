@@ -463,6 +463,10 @@ def activate(evidence):
                     or not f.resolve().is_relative_to(ROOT.resolve())):
                 print("BLOCK: missing or unsafe native adapter path:", name)
                 return 2
+            if rel.parts[0] == ".generic":
+                print("BLOCK: portable .generic reference files are NOT host-native adapter paths:", name)
+                print("Read .generic/HOST_NATIVE_LAYOUT.md and migrate/convert active config first")
+                return 2
             native_paths.append(rel.as_posix())
     updated = dict(state, phase="READY_WITH_LIMITATIONS" if limited else "READY",
                    evidence_path=str(path.relative_to(ROOT)),
