@@ -1,12 +1,11 @@
 # Enforcement inventory — actual implementation and missing boundaries
 
 | Mechanism | State before real host smoke |
-| Copilot `.github/hooks/criteria.json` + `criteria-gate.cjs` / `criteria-apply.cjs` | SCRIPT_TESTED in CI; native Copilot dispatch UNVERIFIED, direct paths only |
 |---|---|
 | Codex `.codex/hooks.json` + `harness/codex/hook.py` for SessionStart/PreToolUse/Stop | SCRIPT_TESTED; native trust UNVERIFIED |
 | Direct apply_patch pre-edit snapshot, hash-check restoration | SCRIPT_TESTED on supported direct paths only |
 | Verification + single-task trace/evidence link check | SCRIPT_TESTED; not human gate approval |
-| Protected CRITERIA write warnings (Codex) | GUIDED_ONLY; Copilot has additional procedural direct-tool denial, not authenticated Human authorization |
+| Protected CRITERIA write warnings | GUIDED_ONLY, not a real authorization guard |
 | Bash/MCP/hosted write interception | NOT_CONFIGURED |
 | Authenticated gate ledger, human-only approvals | NOT_CONFIGURED |
 | Subagent context isolation / independent sandbox | GUIDED_ONLY unless host-enforced and tested |
