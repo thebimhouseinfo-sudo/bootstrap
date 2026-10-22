@@ -123,6 +123,27 @@ class ContinueHooksTest(unittest.TestCase):
         self.criteria.write_text("STATUS: APPROVED\nEdited concurrently\n")
         self.assertEqual(self.apply_command().returncode, 2)
 
+    def test_stop_only_checks_an_active_task_and_blocks_failed_validation(self):
+        settings = json.loads((self.root / ".continue/settings.json").read_text())
+        self.assertEqual(settings["hooks"]["Stop"][0]["hooks"][0]["type"], "command")
+        stop = self.root / ".continue/hooks/stop-verify.cjs"
+        def stop_event(active=False):
+            return subprocess.run([NODE, str(stop)], cwd=self.root,
+                input=json.dumps({"hook_event_name": "Stop", "session_id": self.session,
+                                  "cwd": str(self.root), "stop_hook_active": active}),
+                capture_output=True, text=True, timeout=15)
+        # A default NOT_CONFIGURED task never triggers verification or a retry.
+        self.assertEqual(json.loads(stop_event().stdout), {})
+        (self.root / "harness/setup-state.json").unlink()
+        self.assertEqual(json.loads(stop_event().stdout), {})
+        (self.root / "harness/active-task.json").write_text(json.dumps(
+            {"status":"ACTIVE", "goal_id":"GOAL-1", "theory_ids": [],
+             "tests":[], "evidence":[]}))
+        self.assertEqual(json.loads(stop_event(active=True).stdout), {})
+        check = stop_event()
+        self.assertEqual(check.returncode, 0, check.stderr)
+        self.assertEqual(json.loads(check.stdout)["decision"], "block")
+
     def test_missing_native_event_never_claims_an_advisor(self):
         self.proposal.write_text("STATUS: APPROVED\nDraft\n")
         self.prompt("CONFIRM CRITERIA FFFFFFFF")
