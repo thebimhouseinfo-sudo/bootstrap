@@ -30,6 +30,8 @@ class CopilotNativeTests(unittest.TestCase):
         self.target = self.root / "docs/CRITERIA.md"
         self.session = "copilot-session-1"
         self.assertTrue(self.hook.is_file())
+        self.assertTrue((self.root / ".github/copilot-instructions.md").is_file())
+        self.assertTrue((self.root / ".github/instructions/criteria.instructions.md").is_file())
 
     def event(self, name, payload):
         return subprocess.run([NODE, str(self.hook), name],
