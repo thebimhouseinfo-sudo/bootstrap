@@ -1,6 +1,6 @@
 # Continue native configuration and hook setup (CLI vs IDE)
 
-**There are two different Continue runtimes.** The `cn` terminal CLI (TUI) and the Continue IDE extension do **not** share a verified native tool-hook runtime. For the CLI, upstream code merged Claude Code-compatible hooks in March 2026, reading `.continue/settings.json` from the project, and `PreToolUse`, `SessionStart`, `SubagentStop`, `UserPromptSubmit` event payloads. For the **IDE extension**, there is no verified native preToolUse interception of the editor's built-in write tools. Do not report hooks loaded merely because `.continue/settings.json` exists.
+**There are two different Continue runtimes.** The `cn` terminal CLI (TUI) and the Continue IDE extension do **not** share a verified native tool-hook runtime. For the CLI, upstream code merged Claude Code-compatible hooks in March 2026, reading `.continue/settings.json` from the project, and `PreToolUse`, `SessionStart`, `SubagentStop`, `UserPromptSubmit`, `Stop` event payloads. For the **IDE extension**, there is no verified native preToolUse interception of the editor's built-in write tools. Do not report hooks loaded merely because `.continue/settings.json` exists.
 
 ## Files installed
 
@@ -8,7 +8,7 @@
 - `.continue/rules/00-bootstrap.md` and `01-criteria-gate.md`: always-on **instruction** rules. Rules are used in Continue Chat/Agent/Edit but cannot deny tool execution themselves.
 - `.continue/settings.json`: CLI-native Claude-compatible hook registration. The CLI loads project scope settings; may also load `.claude/settings.json`. Avoid double registration when installing multiple harnesses together.
 - `.continue/hooks/criteria-gate.cjs`: reads Continue CLI `hook_event_name`, `session_id`, `tool_name`, `tool_input`, `agent_type`, `last_assistant_message`; emits hookSpecificOutput and exits 2 to refuse unsafe direct writes.
-- `.continue/hooks/criteria-apply.cjs`: one-time apply only after exact proposal was advised and a **later** Human prompt was observed for the same session and SHA. Hook state and proposed Criteria stay in `harness/` and are local-only.
+- `.continue/hooks/stop-verify.cjs`: on an ACTIVE task with stop_verify enabled, validates task evidence and approved checks at Stop; a failure gives bounded blocking feedback. Otherwise does not retry.\n- `.continue/hooks/criteria-apply.cjs`: one-time apply only after exact proposal was advised and a **later** Human prompt was observed for the same session and SHA. Hook state and proposed Criteria stay in `harness/` and are local-only.
 
 ## Real-host verification the installer cannot do automatically
 
