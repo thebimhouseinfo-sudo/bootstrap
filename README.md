@@ -6,13 +6,13 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 **Cách dùng:** mở coding agent có quyền truy cập thư mục dự án và công cụ thực thi lệnh. Chọn **một** prompt dưới đây, chỉ thay đường dẫn thư mục. Không cần tự clone Bootstrap, copy template hay chạy installer; agent sẽ làm các việc đó sau khi được cấp quyền cần thiết.
 
-## 1. Dự án mới — chưa có code
+## 1. Greenfield — dự án mới
 
-> Thiết lập Bootstrap cho **dự án mới** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Tự setup và chỉ hỏi khi cần duyệt.
+> Thiết lập Bootstrap cho **dự án greenfield (mới, chưa có code)** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Tự setup và chỉ hỏi khi cần duyệt.
 
-## 2. Dự án đã có code
+## 2. Brownfield — dự án đã có code
 
-> Thiết lập Bootstrap cho **dự án đã có code** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Bảo toàn code và tự setup; chỉ hỏi khi cần duyệt.
+> Thiết lập Bootstrap cho **dự án brownfield (đã có code)** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Bảo toàn code và tự setup; chỉ hỏi khi cần duyệt.
 
 **Phân biệt cấp quyền và câu hỏi setup:** Trước khi chạy installer, AI sẽ gửi một tin nhắn báo trước. Sau khi bạn cho phép lệnh cần thiết, **IDE hiển thị dialog lựa chọn**, còn **CLI hiển thị các dòng câu hỏi và lựa chọn đánh số ngay trong terminal**. Hãy đọc kỹ trước khi chọn 1/2: đây là lựa chọn cấu hình, **không phải một yêu cầu cấp quyền mới**. Câu trả lời được lưu để truy vết; không chuyển bảng câu hỏi sang chat.
 
@@ -20,7 +20,7 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 ## AI sẽ tự làm gì?
 
-Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**, đưa CRITERIA và phương hướng kỹ thuật cho Human duyệt, cấu hình Coder/Tester, audit và chạy smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
+Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**. Với greenfield, Planner dùng `brainstorm-theory` để khám phá nhu cầu và giữ nguyên các câu hỏi scope; với brownfield, dùng `write-criteria` để tổng hợp quyết định Human và tái dựng CURRENT từ code (không tự xem code là DESIRED). Khi Human yêu cầu **chốt Criteria lần đầu hoặc sửa Criteria hiện có**, ngay trước khi ghi file Planner phải gọi Technical Advisor tư vấn nếu chưa có tư vấn cho đúng nội dung; Human quyết định **sau tư vấn**, Planner mới ghi. Advisor không phê duyệt hay phủ quyết. Sau đó AI xin duyệt hướng kỹ thuật, cấu hình Coder/Tester, audit và smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
 
 **Quyền truy cập:** Codex CLI/App, Claude Code và các coding agent tương thích có thể sử dụng shell/terminal **khi runtime và người dùng cấp quyền**. Nếu bị sandbox, không có mạng hoặc thiếu quyền đọc/ghi dự án, agent phải báo chính xác thao tác cần cho phép; không được giả định đã cài thành công. **Claude Web chỉ đọc trang web không thay thế coding agent có quyền truy cập dự án.**
 
