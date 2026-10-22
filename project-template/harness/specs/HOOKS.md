@@ -1,4 +1,6 @@
-# Codex-first native hooks and portability contract
+# Native hooks and portability contract
+
+**Generic target host implementation is mandatory during setup when technically supported:** `.generic/ADAPTER_REQUIREMENTS.md` defines what the installing agent must research, write and test for each actual IDE/CLI. Do not confuse the absence of a prebuilt generic adapter with an optional port, nor claim equivalence from copied Python source. A verified native hook may only claim the exact operations actually intercepted.
 
 **Installed for Codex:** `.codex/hooks.json` declares `SessionStart`, `PreToolUse` (exact `apply_patch`), and `Stop`; each calls `harness/codex/hook.py` using the installed Python interpreter (project-root lookup works from nested directories). Hook JSON input/output follows official Codex hook schemas: https://learn.chatgpt.com/docs/hooks
 
