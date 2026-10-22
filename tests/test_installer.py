@@ -255,7 +255,7 @@ class InstallTests(unittest.TestCase):
                        "do not read or review Plan", "no PASS/FAIL", "OPTIONAL"):
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
         self.assertNotIn("ALWAYS present exactly three", advisor)
-        self.assertIn("Human and Planner", advisor)
+        self.assertIn("Human must decide after the advice", advisor)
         self.assertIn("no PASS/FAIL verdict", advisor)
         self.assertIn("OVERENGINEERING", reviewer)
         self.assertIn("UNDERSCOPING", reviewer)
