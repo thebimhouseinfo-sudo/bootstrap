@@ -23,6 +23,8 @@ jobs:
         run: python tests/test_installer.py
       - name: Multi-host installer integration regression
         run: python tests/test_multi_harness.py
+      - name: Generic agent-generated native adapter regression
+        run: python tests/test_generic_native_port.py
       - name: Host capability boundaries (Copilot and Codex Cloud)
         run: python tests/test_host_boundaries.py
       - name: Active development branch and frozen-main regression

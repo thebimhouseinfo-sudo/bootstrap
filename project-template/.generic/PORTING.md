@@ -1,13 +1,15 @@
-# Porting the generic source to another coding agent
+# Agent-executed native port: mandatory generic setup stage
+
+**This is an action contract for the installing agent**, not instructions for the Human to hand-code their host adapter. The generic installer copies the requirements first; the same setup run must attempt to build, register, test and document the actual host-specific scripts before claiming completion. Begin with [ADAPTER_REQUIREMENTS.md](ADAPTER_REQUIREMENTS.md) and [HOST_NATIVE_LAYOUT.md](HOST_NATIVE_LAYOUT.md). The setup agent **must migrate `.generic` role/skill/settings material to the client's native project configuration directory**, and prove host discovery; `.generic` itself is not active configuration.
 
 ## Minimal adaptation contract
 
 - **Inputs:** selected Lite/Standard/Full tier, exact target client/extension and version, provider/model, OS/shell, available tool/permission model, Git active branch, existing project facts, human's approval path.
 - **Scope:** do not rewrite `.generic/agents/<role>.md` or `.agents/skills/` simply to fit a syntax change. Copy approved role text into the **real supported host registration mechanism**; link to project `AGENTS.md` where supported. Host syntax is not shared across apps.
 - **Model/provider:** user selects actual available model, no invented fallback, account ID, endpoint or credential; never write API keys into tracked templates.
-- **Host actions:** determine actual agent discovery and skill loading; inspect hooks, permission request UX and tools. A file with a native-looking filename is not proof the host loaded it.
+- **Host actions:** determine actual agent discovery and skill loading; inspect hooks, permission request UX and tools. **Implement and register** those native adapters under verified host-supported paths. A file with a native-looking filename is not proof the host loaded it.
 - **Safety:** no claimed enforced read-only/approvals/sandbox without a host negative test. Reuse optional Python helpers only where integration is verified.
-- **Verification:** run `harness/common/inventory.py --tier TIER --runtime generic` for packaged source inventory; this does NOT verify converted native adapters. Run host tests for role discovery, allowed work, blocked protected actions, model validity and build/test checks, record evidence and caveats. Do not claim full autonomous gate engine.
+- **Verification:** run `harness/common/inventory.py --tier TIER --runtime generic` for packaged source inventory; this does NOT verify converted native adapters. Then run native host tests for role discovery, allowed work, blocked protected actions, model validity and build/test checks. Record generated adapter paths and real allow/deny evidence in setup-live-evidence; their hashes are checked at activation. Do not claim a full autonomous gate engine or authenticated Human decisions merely from hooks.
 
 ## Host routing examples
 

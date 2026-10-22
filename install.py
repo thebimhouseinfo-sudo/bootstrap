@@ -560,7 +560,9 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
         print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
         print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
         print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
-        print("  REQUIRED NEXT    : port and verify host-native adapter/hooks before claiming enforcement")
+        print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
+        print("                     MIGRATES active .generic settings into real host-native directories,")
+        print("                     then writes/registers/tests host scripts before handoff")
     if runtime == "continue":
         print("  Continue model   : must configure actual provider/models")
         print("  Shared core      : same .agents roles/skills and Python helpers as Antigravity")
@@ -642,6 +644,9 @@ def main():
             if existing.get("runtime") != runtime:
                 print("MIGRATION_REQUIRED: PRIMARY_HOST_IMMUTABLE: staged lifecycle remains attached to its original primary runtime")
                 return 2
+            if runtime == "generic" and existing.get("target_app") not in (None, args.target_app):
+                print("MIGRATION_REQUIRED: staged generic host differs; never silently replace native adapter target")
+                return 2
             if existing.get("phase") in ("READY", "READY_WITH_LIMITATIONS", "HANDOFF_COMPLETE"):
                 print("BLOCK: staged state is already activated; final-lock policy applies")
                 return 2
@@ -668,6 +673,9 @@ def main():
             if old_manifest.get("tier") != tier or old_manifest["runtime"] != runtime:
                 print("MIGRATION_REQUIRED: tier or primary runtime differs; keep the original primary --runtime first.")
                 return 2
+            if runtime == "generic" and old_manifest.get("target_app") not in (None, args.target_app):
+                print("MIGRATION_REQUIRED: installed generic adapter target differs; requires reviewed host migration")
+                return 2
             runtimes = list(dict.fromkeys(installed + runtimes))
         if args.upgrade and old_manifest is None:
             print("BLOCK: --upgrade needs a prior bootstrap file manifest; manual reconciliation required")
@@ -687,10 +695,14 @@ def main():
     print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, runtimes=runtimes, target_app=args.target_app,
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
-        print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
+        print("PORT_REQUIRED: SETUP AGENT MUST NOW read .generic/ADAPTER_REQUIREMENTS.md and implement")
+        print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
+        print("HOST_NATIVE_MIGRATION_REQUIRED: consult .generic/HOST_NATIVE_LAYOUT.md; migrate/convert")
+        print("active settings into the client's discovered paths; do not rely on .generic as active config.")
         print("NATIVE_HOOKS_NOT_INSTALLED: generic Standard provides NO native preToolUse/PreToolUse guard.")
         print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
-        print("Do not claim hook-enforced READY or autonomous Criteria approval for this generic installation.")
+        print("After permission to configure the actual host, port, register, allow/deny-test and record evidence.")
+        print("If the host cannot support a capability, report that limitation; NEVER claim untested enforcement.")
     for name in tracked:
         print("TRACKED_LOCAL_STATE:" if mode == "tracked" else "TRACKED_LOCAL_SETUP:", name)
     if tracked:
@@ -744,7 +756,7 @@ def main():
             confine(dest, staged_state)
             with staged_state.open("x", encoding="utf-8") as out:
                 json.dump({"schema_version": 1, "phase": "BOOTSTRAPPING",
-                           "runtime": runtime, "tier": tier}, out, indent=2)
+                           "runtime": runtime, "tier": tier, "target_app": args.target_app}, out, indent=2)
                 out.write("\n")
             state_created = staged_state.read_bytes()
             print("STAGED_STATE: BOOTSTRAPPING")
@@ -780,7 +792,7 @@ def main():
         ).encode("utf-8")).hexdigest()
         new_manifest = {"schema_version": 1, "template_fingerprint_sha256": template_fingerprint,
                         "tier": tier, "runtime": runtime, "runtimes": runtimes,
-                        "config_git": mode, "files": records}
+                        "target_app": args.target_app, "config_git": mode, "files": records}
         write_install_manifest(dest, new_manifest, manifest_before)
         manifest_written = manifest_path.read_bytes()
     except (OSError, ValueError, subprocess.TimeoutExpired, KeyError, StopIteration) as exc:
