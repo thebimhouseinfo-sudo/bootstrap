@@ -2,7 +2,7 @@
   "schema_version": 1,
   "release_kind": "BASELINE_AGENT_TEMPLATE_AND_SCRIPTS",
   "release_claim": "INSTALLABLE_BASELINE_NOT_AUTOMATED_HARNESS",
-  "description": "Codex-first Python scripts and project-local hook definitions; Claude Code native adapter added (harness/claude/hook.py). Runtime trust, signed gates and agent orchestration remain separately unverified/unimplemented.",
+  "description": "Portable agent contracts with host-specific Copilot, Codex, Claude, Antigravity and Continue adapters. Copilot Criteria hook is script-tested but host dispatch and authenticated Human approval are not established.",
   "capabilities": {
     "installer": "SCRIPT_TESTED",
     "role_configs": "READY_CONTENT",
@@ -28,15 +28,18 @@
     "claude_hook_bridge": "SCRIPT_TESTED",
     "stop_hook": "SCRIPT_TESTED",
     "branch_authority": "SCRIPT_TESTED",
-    "git_remote_protection": "NOT_CONFIGURED"
+    "git_remote_protection": "NOT_CONFIGURED",
+    "copilot_hook_bridge": "SCRIPT_TESTED"
   },
   "runtime_smoke": {
     "antigravity": "UNVERIFIED",
     "codex": "UNVERIFIED",
     "claude": "UNVERIFIED",
     "continue": "UNVERIFIED",
-    "generic": "UNVERIFIED"
+    "generic": "UNVERIFIED",
+    "copilot": "UNVERIFIED"
   },
   "claude_adapter_note": "harness/claude/hook.py installed; real Claude Code host dispatch and exit-code semantics must be smoke-tested before marking RUNTIME_VERIFIED.",
-  "note": "Generic adapter files are portable guidance, not a host-native registration. Copy-ready Codex/Antigravity templates still require project-specific settings; host enforcement and signed gates are separately unverified."
+  "note": "Generic adapter files are portable guidance, not a host-native registration. Copy-ready Codex/Antigravity templates still require project-specific settings; host enforcement and signed gates are separately unverified.",
+  "copilot_adapter_note": "Copilot .github/agents and .github/hooks native files are shipped; Node hook CI tests do not prove real VS Code Copilot dispatch or universal write interception."
 }
