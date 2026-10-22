@@ -10,7 +10,7 @@ Read the exact host's documentation and version first. Examples to verify agains
 |---|---|---|
 | OpenCode | `.opencode/agents/`, `.opencode/skills/`; project `opencode.json` | Register hooks/plugins via its **actual** extension API; do not invent `.opencode/hooks.json` |
 | Qwen Code | `.qwen/agents/` | Find the documented settings/hooks/skills paths and file formats for that Qwen version |
-| VS Code Copilot harness | `.github/agents/`, `.github/hooks/*.json`, `.github/skills/` or supported `.agents/skills/` | Use Copilot hook schema, not Codex/Claude schema |
+| VS Code Copilot harness | **Packaged** `.github/agents/`, `.github/hooks/*.json`, `.github/copilot-instructions.md` | Installed automatically for `--target-app copilot`; verify native discovery and observed hook deny/ask |
 | Claude Code harness | `.claude/agents/`, `.claude/skills/`, `.claude/settings.json` | Only when the selected runtime is Claude Code, not a Claude *model* inside Copilot |
 | Unlisted IDE/CLI (including a client using DeepSeek) | **Discover and verify its native project settings location** | Do not infer a folder from the model or invent a `.<app>` convention |
 
