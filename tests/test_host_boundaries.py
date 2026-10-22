@@ -24,8 +24,7 @@ class HostBoundaryTests(unittest.TestCase):
                      "generic", "--target-app", "copilot", "--staged"]
             preview = call(INSTALL, *flags)
             self.assertEqual(preview.returncode, 0, preview.stdout + preview.stderr)
-            for marker in ("native adapter NOT INSTALLED", "HOOKS", "GUIDED_ONLY",
-                           "NATIVE_HOOKS_NOT_INSTALLED", "CRITERIA_WRITE_GUARD_NOT_CONFIGURED"):
+            for marker in ("Copilot-native agents and preToolUse hook PACKAGED", "HOOKS", "UNVERIFIED"):
                 self.assertIn(marker, preview.stdout)
             applied = call(INSTALL, *flags, "--apply")
             self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
