@@ -39,6 +39,12 @@ Install with the selected tier/configuration, e.g. `python install.py --target P
 
 **After install:** open the workspace in Google Antigravity IDE. Roles, skills, and hooks are loaded natively. Run `python harness/common/status.py --tier Standard --runtime antigravity` to inspect inventory and readiness; configure `harness/common/checks.json` with verified project build/test commands.
 
+## Generic Copilot and Codex Cloud — explicit limitations
+
+**Copilot in VS Code:** `--runtime generic --target-app copilot` copies portable roles only. **No native Copilot hook is included**; if the Hooks panel displays zero hooks that is consistent with the generic package. Copilot harness hook locations and output contracts differ from Codex/Claude; see `.generic/platforms/copilot.md`. Do not imply that an Advisor instruction protects `docs/CRITERIA.md` from an autonomous edit; the current pre-write gate is guided only. Require concrete native adapter installation and both allowed/denied real-host checks before claiming enforcement.
+
+**Codex Cloud:** When a new session or Human-controlled independent terminal cannot be opened, use `python harness/common/setup_lifecycle.py host-test --surface codex-cloud` in the current task. Its disposable audit/smoke checks are `SCRIPT_TESTED` only. Report missing fresh-session/native hook and Human confirmation as `UNVERIFIED`; do not fabricate `READY`/`HANDOFF_COMPLETE` or ask the agent to type the Human confirmation. Human can review the changes and limitations outside the cloud task.
+
 ## Codex setup
 Install with `--runtime codex`. Inspect `/hooks` inside Codex and trust the exact definitions if approved. Configure actual project commands in `harness/common/checks.json` and an explicitly approved `harness/active-task.json`; no fabricated goal ID. Stop checks activate for configured tasks only.
 
