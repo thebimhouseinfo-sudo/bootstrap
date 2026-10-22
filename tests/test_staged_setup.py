@@ -168,7 +168,8 @@ class StagedSetupTests(unittest.TestCase):
         tool = self.root / "harness/common/setup_lifecycle.py"
         evidence = self.root / "harness/setup-live-evidence.json"
         evidence.write_text(json.dumps({
-            "runtime": "continue", "host_version": "CI fixture",
+            "runtime": "continue", "continue_surface": "ide-extension",
+            "host_version": "CI fixture",
             "fresh_session": True, "roles_loaded": True, "checks_executed": True,
             "native_hook_available": False, "notes": "Synthetic observations only"}), encoding="utf-8")
         active = fixture_action(tool, "activate", evidence, self.root)

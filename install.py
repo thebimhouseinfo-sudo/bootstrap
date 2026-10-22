@@ -432,8 +432,9 @@ def entries(tier, runtime):
         rel = src.relative_to(SOURCE)
         if is_release_source(rel) and eligible(rel, tier, runtime, roles):
             files.append((src, rel))
-            if runtime == "claude" and rel.parts[:2] == (".agents", "skills"):
-                files.append((src, pathlib.Path(".claude", "skills", *rel.parts[2:])))
+            if runtime in ("claude", "continue") and rel.parts[:2] == (".agents", "skills"):
+                native = ".claude" if runtime == "claude" else ".continue"
+                files.append((src, pathlib.Path(native, "skills", *rel.parts[2:])))
     return sorted(files, key=lambda item: item[1].as_posix())
 
 def multi_entries(tier, runtimes):

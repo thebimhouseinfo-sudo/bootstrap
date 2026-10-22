@@ -2,6 +2,7 @@
 
 | Mechanism | State before real host smoke |
 |---|---|
+| Continue CLI `.continue/settings.json` and `.continue/hooks/*.cjs` | SCRIPT_TESTED with fixtures; CLI native dispatch UNVERIFIED, IDE built-in tools NOT_INTERCEPTED |
 | Copilot `.github/hooks/criteria.json` + `criteria-gate.cjs` / `criteria-apply.cjs` | SCRIPT_TESTED in CI; native Copilot dispatch UNVERIFIED, direct paths only |
 | Codex `.codex/hooks.json` + `harness/codex/hook.py` for SessionStart/PreToolUse/Stop | SCRIPT_TESTED; native trust UNVERIFIED |
 | Direct apply_patch pre-edit snapshot, hash-check restoration | SCRIPT_TESTED on supported direct paths only |

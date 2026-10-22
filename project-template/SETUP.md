@@ -39,6 +39,10 @@ Install with the selected tier/configuration, e.g. `python install.py --target P
 
 **After install:** open the workspace in Google Antigravity IDE. Roles, skills, and hooks are loaded natively. Run `python harness/common/status.py --tier Standard --runtime antigravity` to inspect inventory and readiness; configure `harness/common/checks.json` with verified project build/test commands.
 
+## Continue CLI native hooks vs Continue IDE rules
+
+For `--runtime continue`, setup installs `.continue/settings.json`, `.continue/hooks/*.cjs`, `.continue/rules/01-criteria-gate.md` and role-specific YAML files. **Only Continue CLI TUI** has documented Claude-compatible tool hooks; Continue IDE does not have proven interception of built-in editor writes. Models remain user/provider-configured (`models: []` are deliberate placeholders), and Advisor must not activate during routine brainstorming. Read `.continue/HOOKS_SETUP.md` and run real-host ALLOW and DENY checks. Without those results, report hooks UNVERIFIED, not READY.
+
 ## Copilot-native and Codex Cloud
 
 **Copilot native install:** use `python install.py --target PROJECT --tier Standard --runtime copilot --staged --apply` after the standard preview and permission. This installs `.github/agents` and `.github/hooks` with a Copilot-specific Node.js pre-write Criteria guard. Start an actual Copilot Session Target, select Planner, and follow `.github/COPILOT_SETUP.md`. Do not summon Advisor during brainstorming. Only after Human requests writing a displayed complete draft or settled delta, invoke Advisor; obtain a *new* post-advice Human confirmation, then use the one-shot apply script. The hook cannot impersonate Human or intercept every indirect write path.

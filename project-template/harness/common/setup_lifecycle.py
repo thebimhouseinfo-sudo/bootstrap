@@ -253,6 +253,8 @@ def locked_files(runtime, native_paths=()):
         "codex": [".codex/hooks.json", "harness/codex/hook.py"],
         "claude": [".claude/settings.json", "harness/claude/hook.py"],
         "antigravity": [".agents/hooks.json", "harness/common/setup_hook.py"],
+        "continue": [".continue/settings.json", ".continue/hooks/criteria-gate.cjs",
+                     ".continue/hooks/criteria-apply.cjs"],
         "copilot": [".github/hooks/criteria.json", ".github/hooks/criteria-gate.cjs",
                     ".github/hooks/criteria-apply.cjs"],
     }.get(runtime, [])
@@ -325,8 +327,14 @@ def host_test(surface="local"):
         print("as documented by that host, then test actual allowed/denied tool paths.")
         print("The generic installer copied only source; porting is part of setup, NOT optional.")
         print("If a requirement is unsupported, record evidence and report GUIDED_ONLY.")
+    elif runtime == "continue":
+        print("CONTINUE: determine CLI TUI vs IDE extension before claiming hooks.")
+        print("CLI only: .continue/settings.json uses Claude-compatible PreToolUse,")
+        print("SessionStart, SubagentStop and UserPromptSubmit. Verify native dispatch")
+        print("in a real cn TUI; run .continue/HOOKS_SETUP.md positive and negative tests.")
+        print("IDE extension: the CLI hook is not an editor tool hook; GUIDED_ONLY.")
     else:
-        print("CONTINUE: test host roles and implement native hook integration if supported.")
+        print("BLOCK: unsupported host selection")
     print("Staged project hooks intentionally defer blocking until lock. For negative")
     print("pre-lock tests, inspect a DISPOSABLE fixture with the staged marker absent;")
     print("do not remove/change setup-state.json in the actual project.")
@@ -345,8 +353,11 @@ def host_test(surface="local"):
         print(' "hook_dispatched": true, "allow_observed": true, "deny_observed": true,')
         print(' "notes": "real host evidence; use native_hook_available=false if unsupported"}')
     elif runtime == "continue":
+        print(' "continue_surface": "cli-tui or ide-extension",')
+        print(' "native_hook_available": true if CLI TUI truly dispatched allow/deny hooks,')
         print(' "roles_loaded": true, "checks_executed": true,')
-        print(' "native_hook_available": false, "notes": "actual observed results"}')
+        print(' "hook_dispatched": true, "allow_observed": true, "deny_observed": true,')
+        print(' "notes": "real observations; use false for unsupported IDE"}')
     else:
         print(' "hook_dispatched": true, "allow_observed": true,')
         print(' "deny_observed": true, "notes": "actual event evidence"}')
@@ -444,10 +455,19 @@ def activate(evidence):
             and item.get("target_app") != state.get("target_app")):
         print("BLOCK: observed native adapter target_app differs from installed generic host")
         return 2
-    limited = runtime == "continue" or (runtime == "generic" and not generic_native)
+    continue_cli = (runtime == "continue" and item.get("continue_surface") == "cli-tui"
+                    and item.get("native_hook_available") is True)
+    if runtime == "continue" and item.get("continue_surface") not in ("cli-tui", "ide-extension"):
+        print("BLOCK: Continue evidence must identify cli-tui or ide-extension")
+        return 2
+    if runtime == "continue" and item.get("continue_surface") == "ide-extension" and item.get("native_hook_available") is not False:
+        print("BLOCK: Continue IDE cannot claim verified CLI-native hooks")
+        return 2
+    limited = ((runtime == "continue" and not continue_cli)
+               or (runtime == "generic" and not generic_native))
     required_observations = (("fresh_session", "roles_loaded", "checks_executed")
         if limited else ("fresh_session", "hook_dispatched", "allow_observed", "deny_observed"))
-    if generic_native:
+    if generic_native or continue_cli:
         required_observations += ("roles_loaded", "checks_executed")
     if any(item.get(name) is not True for name in required_observations):
         print("BLOCK: missing verified observations:", ", ".join(required_observations))
@@ -459,6 +479,12 @@ def activate(evidence):
         print("BLOCK: provide concrete observation notes")
         return 2
     native_paths = []
+    if continue_cli:
+        native_paths = [".continue/settings.json", ".continue/hooks/criteria-gate.cjs",
+                        ".continue/hooks/criteria-apply.cjs"]
+        if any(not (ROOT / name).is_file() for name in native_paths):
+            print("BLOCK: Continue CLI native hook files missing")
+            return 2
     if generic_native:
         paths = item.get("native_adapter_paths")
         if (not isinstance(paths, list) or not paths
