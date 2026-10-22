@@ -574,7 +574,10 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
             print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
             print("  HOOKS            : NONE included for this generic host before the agent ports them")
             print("  CRITERIA GATE    : GUIDED_ONLY until host-native protection is implemented/verified")
-        print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
+        if target_app == "copilot":
+            print("  REQUIRED NEXT    : verify native Copilot agent discovery and hook dispatch")
+        else:
+            print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md and HOST_NATIVE_LAYOUT.md")
         if target_app == "copilot":
             print("  COPILOT NATIVE   : packaged .github/agents + .github/hooks/preToolUse Criteria gate")
             print("  TEST REQUIRED    : verify Copilot harness discovery, DENY and ASK live dispatch")
@@ -712,17 +715,18 @@ def main():
     print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, runtimes=runtimes, target_app=args.target_app,
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
-        print("PORT_REQUIRED: SETUP AGENT MUST NOW read .generic/ADAPTER_REQUIREMENTS.md and implement")
-        print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
-        print("HOST_NATIVE_MIGRATION_REQUIRED: consult .generic/HOST_NATIVE_LAYOUT.md; migrate/convert")
-        print("active settings into the client's discovered paths; do not rely on .generic as active config.")
         if args.target_app == "copilot":
             print("COPILOT_NATIVE_FILES: packaged .github agents/hooks installed or conflict-reported; real host check required.")
+            print("COPILOT_CRITERIA_GATE: direct named edits DENY without receipt, ASK with receipt; host behavior UNVERIFIED.")
+            print("SETUP_NEXT: verify native Planner/Advisor discovery, hook DENY/ASK and bypass limitations.")
         else:
+            print("PORT_REQUIRED: SETUP AGENT MUST NOW read .generic/ADAPTER_REQUIREMENTS.md and implement")
+            print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
+            print("HOST_NATIVE_MIGRATION_REQUIRED: consult .generic/HOST_NATIVE_LAYOUT.md; migrate/convert")
+            print("active settings into the client's discovered paths; do not rely on .generic as active config.")
             print("NATIVE_HOOKS_NOT_INSTALLED: generic requires generated native hooks for actual target.")
-        print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
-        print("After permission to configure the actual host, port, register, allow/deny-test and record evidence.")
-        print("If the host cannot support a capability, report that limitation; NEVER claim untested enforcement.")
+            print("After permission, port, register, allow/deny-test and record evidence.")
+        print("Never claim an authenticated Human/Advisor decision or universal protected writes.")
     for name in tracked:
         print("TRACKED_LOCAL_STATE:" if mode == "tracked" else "TRACKED_LOCAL_SETUP:", name)
     if tracked:
