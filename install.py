@@ -560,7 +560,8 @@ def print_pre_ask_block(dest, tier, runtime, target_app, mode):
         print("  Porting status   : portable roles + guide; native adapter NOT INSTALLED")
         print("  HOOKS            : NONE installed for generic (including Copilot); Standard tier does not change this")
         print("  CRITERIA GATE    : GUIDED_ONLY; no technical guard or authenticated Advisor/Human evidence")
-        print("  REQUIRED NEXT    : port and verify host-native adapter/hooks before claiming enforcement")
+        print("  REQUIRED NEXT    : SETUP AGENT reads .generic/ADAPTER_REQUIREMENTS.md, WRITES host-native scripts")
+        print("                     and registers/tests them on this actual client before handoff")
     if runtime == "continue":
         print("  Continue model   : must configure actual provider/models")
         print("  Shared core      : same .agents roles/skills and Python helpers as Antigravity")
@@ -687,10 +688,12 @@ def main():
     print("SUMMARY:", json.dumps(dict(tier=tier, runtime=runtime, runtimes=runtimes, target_app=args.target_app,
                                       config_git=mode, **summary), sort_keys=True))
     if runtime == "generic":
-        print("PORT_REQUIRED: copy .generic/agents roles into the verified native host format after separate approval")
+        print("PORT_REQUIRED: SETUP AGENT MUST NOW read .generic/ADAPTER_REQUIREMENTS.md and implement")
+        print("the host-specific agent, skill and hook scripts; generic file copy is NOT setup completion.")
         print("NATIVE_HOOKS_NOT_INSTALLED: generic Standard provides NO native preToolUse/PreToolUse guard.")
         print("CRITERIA_WRITE_GUARD_NOT_CONFIGURED: Planner/Advisor instructions cannot restrict host file writes.")
-        print("Do not claim hook-enforced READY or autonomous Criteria approval for this generic installation.")
+        print("After permission to configure the actual host, port, register, allow/deny-test and record evidence.")
+        print("If the host cannot support a capability, report that limitation; NEVER claim untested enforcement.")
     for name in tracked:
         print("TRACKED_LOCAL_STATE:" if mode == "tracked" else "TRACKED_LOCAL_SETUP:", name)
     if tracked:
