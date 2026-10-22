@@ -71,6 +71,7 @@ def main(args=None):
         needed += [".continue/config.yaml", ".continue/rules/00-bootstrap.md",
                    ".continue/rules/01-criteria-gate.md", ".continue/settings.json",
                    ".continue/hooks/criteria-gate.cjs", ".continue/hooks/criteria-apply.cjs",
+                   ".continue/hooks/stop-verify.cjs",
                    ".continue/HOOKS_SETUP.md", ".continue/README.md"]
     needed += [".claude/agents/" + role + ".md" for role in sorted(roles)] if options.runtime == "claude" else []
     needed += [".continue/agents/" + role + "/config.yaml" for role in sorted(roles)] if options.runtime == "continue" else []
