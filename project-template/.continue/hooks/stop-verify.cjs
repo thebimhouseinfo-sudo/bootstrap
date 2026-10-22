@@ -21,7 +21,7 @@ function main() {
   if (input.stop_hook_active || task.status !== 'ACTIVE' || policy.stop_verify !== true)
     return emit({});
   const python = process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
-  const work = cp.spawnSync(python, [path.join(root, 'harness/common/task.py'), 'validate'],
+  const work = cp.spawnSync(python, [path.join(root, 'harness/common/task.py')],
      {cwd:root, encoding:'utf8', timeout:120000});
   // Continue versions may not support blocking a Stop; return accurate evidence.
   if (work.error || work.status !== 0) {
