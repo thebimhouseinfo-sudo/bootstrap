@@ -49,7 +49,7 @@ def collect(runtime, input_fn=input, output_fn=print, runtimes=None):
     if len(selected_runtimes) == 1 and runtime != "generic":
         output_fn("Additional coding hosts can share this project (native adapters remain independently verified).")
         for candidate, caption in [("codex", "Codex"), ("claude", "Claude Code"),
-                                   ("antigravity", "Antigravity"), ("continue", "Continue")]:
+                                   ("antigravity", "Antigravity"), ("continue", "Continue"), ("copilot", "VS Code Copilot")]:
             if candidate != runtime and choice("Also install " + caption + " harness?", [
                 ("no", "No"), ("yes", "Yes")], input_fn, output_fn) == "yes":
                 selected_runtimes.append(candidate)
@@ -105,7 +105,7 @@ def main(argv=None):
     parser.add_argument("--preinstall", action="store_true",
                         help="Collect CLI choices before the staged install (recommended)")
     parser.add_argument("--runtime", action="append", choices=("codex", "claude", "antigravity",
-                                              "continue", "generic"))
+                                              "continue", "copilot", "generic"))
     parser.add_argument("--output", help="Private temporary intake record (preinstall only)")
     args = parser.parse_args(argv)
     if args.preinstall != bool(args.output):
@@ -142,7 +142,7 @@ def main(argv=None):
             if not isinstance(state, dict) or state.get("phase") != "BOOTSTRAPPING":
                 raise ValueError("questionnaire is for staged BOOTSTRAPPING projects only")
             runtime = state.get("runtime")
-            if runtime not in ("codex", "claude", "antigravity", "continue", "generic"):
+            if runtime not in ("codex", "claude", "antigravity", "continue", "copilot", "generic"):
                 raise ValueError("setup state has unknown runtime")
             data = collect(runtime)
             effective = {row["id"]: row["value"] for row in data["responses"]}
