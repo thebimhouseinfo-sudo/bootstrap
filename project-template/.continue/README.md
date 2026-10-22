@@ -2,7 +2,7 @@
 
 The Bootstrap `--runtime continue` package now ships **Continue-native role configurations, rules, skills source, and CLI hooks**. The active host determines which guarantees apply. Read `HOOKS_SETUP.md` before declaring native enforcement.
 
-`cn` **CLI in interactive TUI mode**: project-local `.continue/settings.json` registers Claude-compatible CLI events `PreToolUse`, `SessionStart`, `SubagentStop`, `UserPromptSubmit`. Native scripts in `.continue/hooks/` inspect actual CLI stdin event JSON and block recognized direct Criteria edits prior to any modification. A one-shot apply requires a real Advisor stop event and a later Human confirmation. Subagent orchestration is **not** automatically provided; where real events are unavailable the unlock correctly remains blocked.
+`cn` **CLI in interactive TUI mode**: project-local `.continue/settings.json` registers Claude-compatible CLI events `PreToolUse`, `SessionStart`, `SubagentStop`, `UserPromptSubmit`, `Stop`. Native scripts in `.continue/hooks/` inspect actual CLI stdin event JSON and block recognized direct Criteria edits prior to any modification. A one-shot apply requires a real Advisor stop event and a later Human confirmation. Subagent orchestration is **not** automatically provided; where real events are unavailable the unlock correctly remains blocked.
 
 **Continue extension in VS Code/JetBrains:** `.continue/rules/` works as project instructions and model/agent configs can be selected, but there is **no verified IDE-native interception** of its built-in editor write tools. The CLI hooks in `.continue/settings.json` must not be described as IDE hooks. Configure tool policies in the extension and verify the actual behavior; any protected write remains `GUIDED_ONLY` without live evidence.
 
