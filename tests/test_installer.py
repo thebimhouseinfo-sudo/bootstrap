@@ -246,11 +246,11 @@ class InstallTests(unittest.TestCase):
         reviewer = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
         critic = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
         for phrase in ("Planner (not Advisor)", "personal-only", "commercial",
-                       "before requesting **initial approval**", "settled",
-                       "read-only proposed delta", "before application"):
+                       "lightweight pre-write advisor gate", "after seeing that advice",
+                       "read-only proposed delta", "before the file write"):
             self.assertIn(phrase.lower(), planner.lower(), phrase)
         for phrase in ("entire proposed CRITERIA", "existing approved CRITERIA",
-                       "settle the proposed delta", "before CRITERIA is edited or merged",
+                       "pre-write checkpoint", "before any CRITERIA file write",
                        "not a review gate", "when feasibility or impact",
                        "do not read or review Plan", "no PASS/FAIL", "OPTIONAL"):
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
@@ -270,6 +270,17 @@ class InstallTests(unittest.TestCase):
         self.assertIn("whole draft", approval)
         self.assertIn("before any edit or merge", approval)
         self.assertIn("settle the exact theory delta", approval)
+
+    def test_prewrite_advisor_decision_contract(self):
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8").lower()
+        advisor = (SOURCE / ".agents/roles/advisor.md").read_text(encoding="utf-8").lower()
+        criteria = (SOURCE / ".agents/skills/write-criteria/SKILL.md").read_text(encoding="utf-8").lower()
+        for phrase in ("human's request to finalize/commit", "stop before the file write",
+                       "after seeing that advice", "post-advice instruction"):
+            self.assertIn(phrase, planner)
+        self.assertIn("pre-write checkpoint", advisor)
+        self.assertIn("human made a decision after the advice", criteria)
+        self.assertIn("no approval, veto", planner)
 
     def test_role_adapter_instructions_match_generic_contract(self):
         try:
