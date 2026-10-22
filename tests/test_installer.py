@@ -197,8 +197,8 @@ class InstallTests(unittest.TestCase):
             self.assertIn(phrase.lower(), advisor.lower(), phrase)
         self.assertNotIn("ALWAYS present exactly three", advisor)
         self.assertIn("are OPTIONAL comparison levels", advisor)
-        self.assertIn("Human and Planner first discuss", advisor)
-        self.assertIn("before CRITERIA is edited or merged", advisor)
+        self.assertIn("Human must decide after the advice", advisor)
+        self.assertIn("before any CRITERIA file write", advisor)
         self.assertIn("entire proposed CRITERIA", advisor)
 
         try:
