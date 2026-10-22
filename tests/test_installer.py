@@ -249,7 +249,7 @@ class InstallTests(unittest.TestCase):
                        "lightweight pre-write advisor gate", "after seeing that advice",
                        "read-only proposed delta", "before the file write"):
             self.assertIn(phrase.lower(), planner.lower(), phrase)
-        for phrase in ("entire proposed CRITERIA", "existing approved CRITERIA",
+        for phrase in ("entire proposed CRITERIA", "existing CRITERIA plus",
                        "pre-write checkpoint", "before any CRITERIA file write",
                        "not a review gate", "when feasibility or impact",
                        "do not read or review Plan", "no PASS/FAIL", "OPTIONAL"):
