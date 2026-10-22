@@ -18,6 +18,10 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 **Nhiều coding host trong một dự án:** chọn một host chính để quản lý vòng đời staged/hook-lock, rồi chọn thêm các host như Codex và Claude Code. Installer hỗ trợ lặp `--runtime` (ví dụ `--runtime codex --runtime claude`); thứ tự có ý nghĩa: host đầu tiên là host chính và phải giữ nguyên khi nâng cấp. Tệp dùng chung chỉ được cài một lần; mỗi host có adapter riêng. Cài đặt không đồng nghĩa native hooks của tất cả host đều PASS — cần kiểm thử thực tế riêng trên từng host trước khi tuyên bố tương đương. Không tự chuyển primary host hoặc bỏ qua human approval.
 
+**Lưu ý với Copilot trên VS Code:** `--runtime generic --target-app copilot` chỉ cài role/skill mẫu, **không cài native hook**. Tier `Standard` không tự tạo hook chặn sửa Criteria. Agent phải thực sự port sang Copilot và test hook trước khi báo đã có gate; nếu chưa thì ghi rõ `GUIDED_ONLY`. Đừng cho rằng Advisor đã được gọi chỉ vì file instructions có đề cập đến nó.
+
+**Codex Cloud:** nếu không thể mở phiên mới hay chạy Human-terminal độc lập, kiểm thử ở workspace tạm trong **task đang mở** và báo `SCRIPT_TESTED / HOOK_RUNTIME_UNVERIFIED`; không khai `READY` hay giả lập lượt xác nhận của Human. Xem hướng dẫn [For AI](docs/FOR_AI.md).
+
 ## AI sẽ tự làm gì?
 
 Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**. Với greenfield, Planner dùng `brainstorm-theory` để khám phá nhu cầu và giữ nguyên các câu hỏi scope; với brownfield, dùng `write-criteria` để tổng hợp quyết định Human và tái dựng CURRENT từ code (không tự xem code là DESIRED). Khi Human yêu cầu **chốt Criteria lần đầu hoặc sửa Criteria hiện có**, ngay trước khi ghi file Planner phải gọi Technical Advisor tư vấn nếu chưa có tư vấn cho đúng nội dung; Human quyết định **sau tư vấn**, Planner mới ghi. Advisor không phê duyệt hay phủ quyết. Sau đó AI xin duyệt hướng kỹ thuật, cấu hình Coder/Tester, audit và smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
