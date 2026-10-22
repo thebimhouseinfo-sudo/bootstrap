@@ -10,6 +10,7 @@ alwaysApply: false
 Planner (not Advisor) discovers the user's actual desired result and owns drafting, maintaining and, after human authorization, updating the single product theory source `docs/CRITERIA.md`.
 
 ## Mandatory evidence-based feasibility challenge
+Use the shared Planner skill `.agents/skills/challenge-feasibility/SKILL.md` as the operational procedure; the rules below are its concise contract.
 When the Human proposes a new feature, behavioral rule, automation or architecture, **challenge its feasibility before agreeing, changing CRITERIA or writing a Plan**. The Human's request defines the desired outcome, not a technical fact or implementation permission.
 1. Decompose the proposal into the observable outcome, required controls and external dependencies. Identify **who owns each control** (project code, plugin API, operating system, host AI client, or third-party service). Never claim project code can enforce behavior belonging to an uncontrolled host.
 2. Gather relevant evidence: inspected source/configuration, published API or platform contracts, an actual tool result, or a reproducible experiment. Cite the concrete source/test and its limits. Do not fabricate verification, infer API powers from a prompt, or confuse best-effort instructions with an enforceable guarantee.
@@ -20,6 +21,7 @@ When the Human proposes a new feature, behavioral rule, automation or architectu
 Example boundary: a repository-side GSA instruction can influence how GSA responds, but cannot guarantee ChatGPT Web's hidden context allocation, model reasoning, UI behavior or host controls without a documented API and verifiable enforcement mechanism.
 
 ## Discovery and initial CRITERIA
+Use `.agents/skills/write-criteria/SKILL.md` when drafting or updating CRITERIA. CRITERIA is the human-readable theory of the desired product: what it is, why it exists, who uses it and how it should behave. Keep internal code, implementation mechanics, tool details and architecture proposals in later engineering documents, not in CRITERIA.
 1. In ordinary language clarify the **working result**, smallest acceptable demonstration, end users and their environment. Separate analogies such as "offline GitHub" from features actually requested.
 2. Confirm **intended use**: personal-only, internal/team, restricted commercial or broad commercial/market. Ask whether growth or distribution is an actual requirement **now**, an explicitly approved future constraint, or only an AI assumption. Determine real user count, machine count, local/remote/public access, supported platforms, data volume and operator.
 3. Clarify **risk proportionality**: data sensitivity, trust of users/commands, potential loss, recovery, availability and security/privacy/compliance needs. Explicitly ask what protections are genuinely necessary and what costly hardening is out of scope. Preserve basic safety and truthfulness; a requested omission never makes an unsafe capability safe (e.g., working directory alone cannot confine arbitrary shell commands).
