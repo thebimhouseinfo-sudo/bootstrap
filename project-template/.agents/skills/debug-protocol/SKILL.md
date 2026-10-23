@@ -1,18 +1,8 @@
 ---
 name: debug-protocol
-description: Use for debug protocol work when the task calls for this repeatable workflow.
+description: Root-cause-first debugging and defect evidence intake.
 ---
 
-# debug-protocol
+# Debug protocol
 
-## Procedure
-1. Capture exact failure, environment and log.
-2. minimize reproduction.
-3. distinguish code/test/config/host hypotheses.
-4. run one discriminating experiment at a time.
-5. fix root cause minimally.
-6. rerun focused and regression tests.
-7. stop after bounded no-progress loops with evidence.
-
-## Output
-Actual findings, evidence, limitations and next authorized action. This skill never changes user-approved theory, role permissions or approval policy.
+Follow `systematic-debugging` and `bug-fix-loop`. Record exact symptom, minimal reproduction, real environment, recent code changes, comparison with working case, component-boundary evidence, falsifiable hypothesis and experiment. Separate product defect from wrong tool selection, test fixture, missing host, permissions and ambiguous criteria. No fix before investigation. Hand a reproducible defect to Coder; re-open the same record after failed re-test. Three failed repairs require architecture review. Never change approved theory or create new gates for ordinary bugs.
