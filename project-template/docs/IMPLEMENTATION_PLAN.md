@@ -22,6 +22,7 @@ Planner reads and links full current accepted Decision sources before writing Go
 - **Current state / gap:** <verified evidence; existing projects>
 - **Implementation:** <specific bounded technical approach from approved ARCHITECTURE>
 - **Dependencies:** <goal IDs required first>
+- **Revised-scope impact (only when approved Plan changes):** <replaced Phase or whole Plan; completed work eligible for evidence-based reuse; all unfinished old Milestones/Jobs/Tasks RETIRED after actual settlement; new IDs and unchanged work identified; no automatic Git deletion>
 - **Acceptance:** <observable product behavior and relevant negative cases>
 - **Verification:** <test approach, expected real-host evidence and regression coverage>
 - **Limitations / risk / non-goals:** <approved tradeoffs>

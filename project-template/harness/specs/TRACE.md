@@ -5,3 +5,5 @@
 **Not yet implemented**: full graph CRITERIA ID → Plan GOAL → milestone → task → files/tests/evidence, `docs/TRACE.md` generation, automatic STALE propagation, signed gate expiry and affected-goal dependency update. Those must remain NOT_CONFIGURED.
 
 When implementing, do not edit generated `docs/TRACE.md` by hand; scope stale propagation to truly affected approved IDs and mark unsourced goals OPEN, not silently approved.
+
+**RETIRED note:** An explicitly RETIRED selected active-task record is now rejected by task.py with an obsolete-scope diagnostic. This does NOT implement automatic Plan/Phase/Milestone/Job/Run scope propagation or cancellation. Only an authoritative runtime can confirm connected Job/Run retirement and closure; unknown in-flight effects remain UNVERIFIED.
