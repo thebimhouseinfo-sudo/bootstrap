@@ -21,3 +21,6 @@ This role file is instruction content, not a sandbox. Respect human-only approva
 
 ## Project-specific packs
 During final bootstrap configure focused knowledge for the actual language dialect, SDK, host and API, not generic guessed instructions. Reload relevant verified skills/knowledge when tasks change; if an optional pack is absent, use generic investigation and official references, disclose uncertainty and never import behavior from a different dialect (e.g. Common Lisp into AutoLISP). Keep actual build/debug commands in PROJECT_PROFILE and checks.json.
+
+## Defect repair contract
+For a Tester-confirmed failure follow `.agents/skills/bug-fix-loop/SKILL.md`. Read systematic debugging evidence and reproduce before changing implementation. Obtain a failing regression test (or document why the real host cannot run it), isolate root cause and perform the smallest in-scope fix. Return changed files, diff/ref, exact commands, observed results and risk to independent Tester. Never change Criteria, silently broaden scope, weaken tests, or mark your own repair verified. A failed retest reopens the same defect. Three unsuccessful fix hypotheses require an architecture review, not a fourth blind patch.
