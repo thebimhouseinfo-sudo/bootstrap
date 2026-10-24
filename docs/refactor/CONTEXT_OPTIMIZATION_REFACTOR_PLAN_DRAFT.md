@@ -3,6 +3,7 @@
 **Status:** DRAFT — awaiting Planner/Reviewer review and Human approval  
 **Repository:** `thebimhouseinfo-sudo/bootstrap`  
 **Document authority:** Single canonical upgrade plan, updated in place. Draft v6.4 retains Context/Lead/Worker/Decision/Pre-Code, Phase/Plan RETIRED, Tester simulation, three-cycle debugging and DEV-vs-OPERATION artifact knowledge. It now explicitly preserves user-level CadGPT Job continuity through edits, external export/storage and import; no content-hash/version/technical-ID precondition for ordinary authorized re-use. A heading alone is NOT preservation of its solution.
+**Execution order:** Section 8 is authoritative for sequencing: M1–M7 functional first; B1–B5 local Worker installer/context/model later. Previous Lead/Worker design is preserved but deferred, not canceled.
 **Scope:** context efficiency; optional Discussion Job and Secretary decision preservation; reference-linked expert decisions; Coder solution clarification and descriptive Pre-Code proposals; cross-Task Reviewer and disproportionate complexity escalation; **scope-wide RETIRED for replaced Plan/Phase/Milestone/Job/Task and exclusive source branch**; **Coder knowledge about DEV internal files vs OPERATION user-produced artifacts and consultation before inventing file identity/version/LOAD rules**; **Tester user-entrypoint simulation through multi-flow interleaving/adversarial behavior**; **maximum three Coder-fix/independent Tester-retest cycles then advanced root-cause skill**; Lead/Worker profiles; host-native enforcement, worktrees, multi-model benchmark and regression.
 **Criteria:** Existing approved project Criteria remain unchanged. **This document is not approval to implement, merge implementation code, or deploy.**
 
@@ -1164,6 +1165,8 @@ This does **not** mean any two unrelated Jobs with the same name are identical, 
 
 Current repository `harness/specs/TIER_MANIFEST.json` contains **Lite / Standard / Full** as *installation/feature tiers* with existing requirements. These must **not** be renamed to Lead/Worker or silently repurposed.
 
+**Scheduling clarification:** The Lead/Worker setup described here is DEFERRED to Phase B (B1–B5). Existing installation must remain operational during functional M1–M7. Do not use this future section as authority to edit install.py for Worker profiles now.
+
 Add profile-aware setup **orthogonally**:
 - Existing installation tier answers *what shared files/capabilities are installed*.
 - Lead/Worker execution profile answers *who owns what responsibility, what context is loaded, and what scope/authority applies*.
@@ -1172,56 +1175,192 @@ Add profile-aware setup **orthogonally**:
 A project may have Codex Lead and QwenCode Worker installed together without two independent sources of project authority. Check the existing multi-host installer for ownership/conflicts; do not assume it already supports QwenCode or scoped Worker provisioning.
 
 
-## 8. Upgrade milestones — one implementation sequence, no new Human gates
+## 8. Detailed Implementation Plan — functional fixes FIRST, Local Worker installation LATER
 
-The following are **delivery work packages**, not additional product lifecycle/approval gates. For an existing/brownfield Bootstrap project, preserve any already valid Criteria, Plan, Milestones and installed skills; do not restart Bootstrap or force re-approval. The readiness check remains: (1) approved Criteria, (2) Plan aligned with Criteria, (3) Milestones aligned with Plan, (4) Coder/Tester skills, knowledge and tools ready. Reuse evidence rather than fabricate new registration/SHA gates.
+**Human sequencing decision, 2026-10-24:** Repair/complete all functional workflows in the CURRENT Bootstrap architecture first. Do NOT redesign installer/profile provisioning, introduce new local Worker setup, write new QwenCode hooks, move native host integration, or pursue optional multi-model implementation before functional verification is complete. Those earlier decisions remain valid but are postponed to Phase B, not canceled.
 
-### M1 — Read-only baseline, source fit and decision-loss audit
+**Scope and authority:** One canonical Plan only. M1–M7 are CURRENT FUNCTIONAL milestones. B1–B5 are DEFERRED installation/Worker/context milestones. The detailed milestones below refine implementation sequencing; all previous operational rules in Sections 0–7 and all accepted CD-01–CD-57, D/R/S/F cases remain binding. This document is still DRAFT, pending existing Planner/Reviewer process and Human decision. No approved Criteria, source code, runtime or actual Job state changes just because this Plan was written.
 
-Inspect real Bootstrap installer/roles/skills/harness, approved-criteria protections, native host adapters and hook events, Lite/Standard/Full tiers, Branch Authority, Worktree behavior, session/handoff, Planner/Reviewer coordination, present Coder sequence, existing decision storage, **existing Coder knowledge about DEV/OPERATION file purpose and user-owned Save/Load outputs**, **Plan/Phase/Milestone/Job/Task/branch retirement coverage**, GSA actual runtime/connector schema capabilities and **Tester user-entrypoint simulation plus existing 3-cycle/systematic-debugging skill coverage**. Characterize greenfield and brownfield needs and missing support for QwenCode. Establish reproducible Codex/QwenCode baseline: context injected/loaded, latency, tool calls, token use, total time, correctness, test/rework and material scope drift.
+### 8.1 Priority, dependencies and non-goals
 
-**PASS:** Real-source gap map and baseline; evidence separates verified operation from instruction-only guidance, identifies decision loss and pre-code gaps, including any current Coder artifact-lifecycle instruction that wrongly exports internal SHA/GUID governance to operational user files. Measurement instrumentation, if needed, receives an appropriately reviewed minimal design before code.
+~~~text
+PHASE A — FUNCTIONAL CORE ON EXISTING HOST/INSTALL
+M1 Existing-source audit, evidence baseline and scope
+ → M2 Secretary/Discussion Job and Planner decision fidelity
+ → M3 Scope-wide RETIRED on reviewed Plan changes
+ → M4 Coder knowledge + focused clarification + descriptive Pre-Code Proposal
+ → M5 Whole-proposal Reviewer optimization and escalation
+ → M6 Tester-owned simulate and three-repair advanced root-cause loop
+ → M7 Whole functional integration, bug regression and STABLE verification
 
-### M2 — Single solution design and Reviewer check
+Only AFTER reviewed M7 PASS and normal implementation authorization:
+PHASE B — LOCAL WORKER AND INSTALLATION
+B1 Source-fit of installer, actual host capability and profile design
+ → B2 Lead/Worker profile-aware installer + native local hooks
+ → B3 Task delegation, worktree, permissions and scoped context
+ → B4 Optional 27B source-skeleton/small-model implementation benchmark
+ → B5 Multi-host integration, regression and release evaluation
+~~~
 
-Finalize optional Discussion Job activation, Secretary decision schema/index/supersession, stable reference links, Planner coverage/conflict/feasibility behavior, **changed-boundary Phase/whole-Plan RETIRE for every unfinished Plan/Milestone/Job/Task and exclusive branch, completed-result reuse, new IDs, safe Run settlement and current closure (6G)**, Coder domain boundary, **DEV-vs-OPERATION user-file ownership/identity decision procedure (6I) and scoped Coder knowledge**, solution-clarification skill, Code Structure Proposal file format and per-Task fields, combined Reviewer protocol, complexity escalation and manual alternative. At the same time finalize **Tester-owned `simulate` skill activation and its Designer→Tracer/T0–T6 methodology (H0A), user-triggered flow traces, and 3-cycle fix/retest → advanced-root-cause skill routing**, Lead/Worker authority, Task Criteria/Goals, delegation schema, profile/role/context dependency matrix, native hook/worktree policy, Universal Core, existing tiers compatibility and non-goals.
+Phase A **excludes** changing Lite/Standard/Full installation tier names, adding a new local-model manager, inventing new Job Pack types, rebuilding branch/worktree isolation, adding generic event tracing services, or claiming native enforcement from instructions alone. A small existing-mechanism packaging adjustment to make an implemented skill usable may be reviewed during A; it must **not become** Worker installer redesign.
 
-**PASS:** One reviewed design; **CD-01–CD-57 checked against E1–E12, G0–G5, H0–H6 and I1–I5 with actual acceptance examples**, no rewriting of domain decisions, no proposed universal manager/registry/sandbox, no additional Human approval or Technical Advisor gate, clear host enforcement limitations.
+### 8.2 Verified source starting point and proposed touch surfaces
 
-### M3 — Decision preservation and Pre-Code workflow implementation
+| Source inspected on main | Current observed gap | Relevant functional milestone |
+| --- | --- | --- |
+| project-template/.agents/roles/planner.md, skills/plan-task and trace-impact | Existing Criteria/Goal planning, but trace-impact marks STALE; no complete Secretary and referenced expert-decision preservation; no scope-wide Plan retirement | M2, M3 |
+| project-template/docs/IMPLEMENTATION_PLAN.md, docs/MILESTONES.md, TASKS.md | Basic Goal, milestone, Task documents; no demonstrated comprehensive Phase/Job/Milestone/Task retirement and new topology path | M2, M3 |
+| project-template/harness/active-task.json, harness/common/task.py | Current active Task uses ACTIVE/NOT_CONFIGURED, validated Goal/Criteria/tests/evidence; no enforced RETIRED selection and no Job/Run lifecycle engine | M3, narrowly |
+| project-template/.agents/roles/coder.md, skills/implement-task | Normal implementation and branch checking exist; no Task-by-Task descriptive Pre-Code source proposal and no explicit User-owned file lifecycle knowledge | M4 |
+| project-template/.agents/roles/reviewer.md, skills/critical-review and goal-review | General overengineering/criteria review exists; no complete source/function/caller cross-Task proposal consolidation | M5 |
+| project-template/.agents/roles/tester.md, skills/test-and-verify, bug-fix-loop, systematic-debugging | Independent test and 3 failed repair stop already documented; supplied simulate skill not integrated and all-child-flow user activation trace not yet defined as required skill behavior | M6 |
+| project-template/.agents role mirrors in .codex/.claude/.continue/.github/.generic | Several host-specific role representations already ship; their effective loading and consistency need verification | M4–M7 only for FUNCTIONAL instructions through existing layouts |
+| install.py, TIER_MANIFEST.json, harness/MULTI_HARNESS.md, setup/hook/installer tests | Existing installer and multi-host support; profiles are not yet separate Lead/Worker installation scopes | Leave unchanged as architecture in A; B1–B5 later |
 
-Implement **only necessary changes** to optional Discussion Job/Secretary record-keeping and Planner decision references. Integrate reviewed **changed Phase/Plan boundary → retire ALL unfinished Milestones/Jobs/Tasks/old branch ownership → create fresh work IDs** through the owning lifecycle (GSA if connected), with READY/IN_PROGRESS fencing, safe Run settlement, completed-evidence salvage, branch protection, dependency/closure checks and connector capability verification. Do not duplicate existing GSA control-plane code in Bootstrap. Add/modify Coder Instruction, the scoped solution-clarification skill, and **focused Coder artifact-lifecycle knowledge (Section 6I)**: internal DEV source SHA/CAS vs OPERATION user file naming, Save/Export/LOAD, user consultation only when necessary and no forced registry/promote. Align implement-task and Reviewer instructions/adapters across supported hosts; use existing knowledge/skill loaders and do not create a separate file governance service. Enable **descriptive** per-Task Code Structure Proposal and **whole-relevant-proposal** Reviewer consolidation, CHANGES_REQUIRED repair and HUMAN_ESCALATION. Reuse document/task stores and existing reviewer dispatch as far as feasible; do not create a second planning engine or source registry. **Register/use the existing user-provided `simulate` skill as a Tester-owned, on-demand skill for app-user simulation; adapt H0A–H6 to expand multi-flow tracing and host fidelity, and wire its findings into existing test-and-verify/bug-fix-loop/systematic-debugging. No new Simulation Contract/Job Pack, Agent, or lifecycle.**
+These are **verified textual/source gaps**, not claims of executing native-host scenarios or an already approved implementation. Exact symbols/files to be changed belong to the M4 Coder Proposal and M5 Reviewer, not to invention during planning.
 
-**PASS:** (a) Accepted expert decision survives Plan rewrite/handoff with provenance and exceptions (E2–E3, CD-02–CD-04); (a2) Retirement acceptance R-01–R-20 verified on applicable real authority paths, unsupported paths clearly flagged; simulation/debug acceptance S-01–S-18 verified at appropriate executable/host evidence level; (a3) Coder artifact-lifecycle acceptance F-01–F-20 verified on appropriate native/decision tests, including changed-content same-name LISP reload, without weakening existing DEV SHA/CAS safeguards; (b) clear Task needs no repeated Human interview; (c) no source files modified during pre-code; (d) Reviewer detects needless duplicate gate/contract and requests simplification; (e) disproportionate feasible small function escalates to Human, manual-test choice respected; (f) only accepted reviewed proposal authorizes implementation under existing source-write rules.
+### 8.3 M1 — Baseline, source fit and acceptance coverage
 
-### M4 — Profile-aware setup, native hooks and minimal context
+**Goal:** Establish an accurate view of the current functional paths before coding, avoiding duplication and false blockers.
 
-Implement Lead/Worker profile-aware setup orthogonal to installation tiers, host-specific native rules (especially QwenCode), shared branch/path authority and isolated worktree provisioning. Preserve Codex Lead and Coder capability. Configure full role-scoped instructions + in-scope metadata, targeted activation and compact handoffs; do not promise control over platform-injected schemas or chat history. Verify existing multi-host installation, permission event semantics, bypass limitations, direct shell/MCP edit surfaces and conflicts.
+- **M1-T1 Read canonical sources:** Read approved Project Criteria, this entire Plan, applicable domain Decision source references and currently active Goals/Tasks. Preserve original full rules and examples, not headings. Mark what is ACCEPTED versus unresolved.
+- **M1-T2 Audit role and skill call paths:** Check exactly which Planner/Coder/Reviewer/Tester instructions, skills and host mirrors are actually read, and whether behaviors can be enforced or are GUIDED_ONLY. Identify real caller and write authority rather than propose new services.
+- **M1-T3 Audit retirement ownership:** Locate standalone Task selection, GSA authoritative Job/Run lifecycle (when connected), actual Plan revision tools/client schema, branch authority and safe active-Run handling. Record unsupported paths as UNVERIFIED, not impossible.
+- **M1-T4 Baseline test evidence:** Run current non-destructive repository harness/unit/install/host-adapter regressions in suitable disposable fixtures. Record exact command, revision, environment, PASS/FAIL, expected behavior and existing open defects. Do not use a mock as CAD E2E PASS.
+- **M1-T5 Coverage mapping:** Build in the current Plan/review evidence area a trace from CD-01–CD-57, R-01–R-20, S-01–S-18, F-01–F-20 to owner files, actual tests and status. Distinguish absent from merely untested.
 
-**PASS:** Concurrent Codex/QwenCode profiles without corrupting shared config; verified scope protections and explicit gaps; Worker sees only relevant skills/instructions; Code Structure Proposal and decision links available to correct Reviewer/Coder.
+**Candidate read areas:** .agents roles/skills; docs/IMPLEMENTATION_PLAN.md, MILESTONES.md, TASKS.md; harness/common/task.py and branch_authority.py; tests/test_harness_runtime.py, test_staged_setup.py, test_multi_harness.py and other existing relevant tests. No schema or installer redesign for measuring.
 
-### M5 — End-to-end delegated Coder/Tester/Reviewer operation
+**M1 PASS:** Real source/role gap map, baseline commands and coverage, minimum necessary code-change surface, Criteria/Advisor/branch protections preserved. This milestone is read-only unless a narrowly reviewed measurement probe is truly required.
 
-Lead prepares task contract/branch/worktree; Worker Coders receive accepted task and reviewed design, implement within allowed source scope; Worker Tester/Reviewer verify, then Lead cross-workstream review/integration checks. Exercise concurrent disjoint Tasks, Reviewer cross-Task consolidation before coding, discrepancy escalation, **actual user-action simulation S1–S4 with single-action, sequential, interleaved/seeded and adversarial flows**, **independent Tester/Coder/Tester cycle cap at 3 then advanced root-cause diagnosis**, FAIL→Coder fix→Tester retest, blocked/stop, **Plan/Phase scoped retirement and closure of all obsolete READY/IN_PROGRESS work including unique old source branch**, compact handoff and continuation of authorized local tasks while cloud quota unavailable. Preserve independent Lead verification and existing approval rules.
+### 8.4 M2 — Optional Discussion Job, Secretary and reference-based Planner
 
-**PASS:** One full delegated greenfield and one brownfield representative Goal with real diffs, review evidence, regression tests and protected integration; accepted domain decisions and shared contracts survive role/session changes. Exercise Coder creating User-facing DWG/LISP/Job outputs without invented SHA identity, **including exporting a CadGPT Job for outside storage, importing unchanged/edited copies and running them without a hidden version/SHA/GUID gate**, and verify actual authorized same-name LISP reload behavior; no user-file ID pollution from DEV/Run IDs. Replay at least one real user-triggered two-child-flow concurrency defect and 3-failed-cycle advanced diagnosis with evidence; no fake native-host PASS.
+**Goal:** Accepted professional solutions survive the transition from Human conversation to Plan, Task, Coder and handoff.
 
-### M6 — Optional multi-model code implementation benchmark
+- **M2-T1 Optional opening:** Explicit Human request opens Discussion Job directly; generic intention to discuss causes **one** optional offer only; declining leaves normal chat uninterrupted. Discussion Job is not a coding Job, lifecycle stage or mandatory approval.
+- **M2-T2 Secretary recording:** On actual Human-accepted decision, preserve precise operational steps, user examples, domain reason, input/output, exceptions, rejected approaches, dependencies, unresolved points and source/provenance. Do not mark assistant speculation ACCEPTED. Confirm real write/readback before saying saved.
+- **M2-T3 Revisions and history:** Use existing project documentation/GitHub authority for stable decision references and index where applicable. Corrected Decision references its predecessor and preserves historical original; no new universal SHA ledger or autonomous Secretary daemon.
+- **M2-T4 Planner integration:** Planner links Goal/Task/Milestone to **full accepted decision references**, checks COVERED/CONFLICT/FEASIBILITY and documents concrete unresolved conflicts. Do not compress an eight-step accepted HVAC/Job mechanism into one vague title. No technical advisor unless existing Human-triggered Criteria write rule applies.
+- **M2-T5 Handoff and negative tests:** After a new session/revised Plan, Coder can retrieve unchanged accepted exception/rejection rationale; unaccepted or superseded Decision is never silently used as current authority. A tool write failure does not create fake provenance.
 
-Only **after Pre-Code Reviewer PASS**, prototype capable ~27B model constructing an **actual source skeleton** for a suitable multi-module Goal, smaller local model filling narrow approved modules and running tests, then integration/Reviewer. Compare to one capable model implementing directly. Test syntax/build, interface compatibility, native host suitability, model-switch costs, regression and rework. **Do not confuse actual code skeleton with pre-code descriptive document.**
+**Candidate implementation:** Existing Planner role, plan-task and related skills, approved documentation/Task storage; only a small Secretary recording skill/instruction if source audit proves missing. Do not create a persistent agent service, discussion database or duplicate Criteria.
 
-**PASS:** Representative evidence of lower total completion time with acceptable quality, otherwise leave disabled/optional; no extra gate on basic Coder execution.
+**Acceptance:** D-PRESERVE-1/2, D-PLAN-1, CD-01–CD-05. One end-to-end complicated expert decision is stored and later used with no lost step. Valid Criteria remains untouched.
 
-### M7 — Full regression, efficacy and release decision
+### 8.5 M3 — Plan edit causes scope-wide RETIRED and fresh work
 
-Regression cover greenfield and brownfield bootstrap, Criteria/Advisor trigger and human authority, Plan/Milestones, **scope-wide Plan/Phase/Milestone/Job/Task/branch retirement including completed-output reuse, fresh replacement IDs, safe Run/source reconciliation, dependency/closure, branch history, and actual GSA schema compatibility (R-01–R-20); Tester-owned `simulate` skill integration (NOT a Contract/Job Pack) with user-entrypoint behavioral simulation and 3-cycle deep debugging escalation (S-01–S-18); **DEV-internal vs OPERATION-user file/Job-code lifecycle decision fidelity, DWG/DWF/DWT, same CadGPT Job edited without SHA/GUID re-identity, and changed-SHA same-name Lisp reload (F-01–F-20)**, Decision Ledger including supersession, refusal of unsanctioned theory change, Reviewer preservation of professional solutions, Coder solution clarification, source-free pre-code proposals, cross-Task deduplication, disproportionate-risk escalation/manual option, genuine AutoCAD Lisp host limitations as an example, Worker role/skill boundaries, branch/worktree/path hooks, parallel projects, cloud exhaustion, resume/handoff, Tester→Coder retest, installation tiers and independent checks.
+**Goal:** An approved revised Phase/Plan cannot leave old READY/RUNNING Tasks and Jobs active, duplicated or blocking closure.
 
-Compare **end-to-end Goal cost** with baseline (cloud tokens and request sizes, local latency and total time, rework iterations, bugs/regressions, missed user decisions and complexity introduced). Never claim a universal percentage gain without data. Do not push a release/deployment until the ordinary reviewed authorization and real host evidence are complete.
+- **M3-T1 Scope boundary:** After existing reviewed/authorized revision, determine replaced Phase(s) or whole Plan ONCE. Do NOT classify each unfinished Task KEEP/REPLACE/REVALIDATE inside replaced scope. A still-draft discussion cannot retire live work.
+- **M3-T2 Completed work exception:** Review existing COMPLETED results only for applicability; keep original PASS/history immutable. New Plan explicitly links usable results and creates new tasks for incompatible results.
+- **M3-T3 Bulk obsolete work:** Mark **all unfinished** Milestones, Jobs and Tasks inside replaced scope RETIRED and logically retire the old Phase/Plan revision. Cover READY, IN_PROGRESS, WAITING/BLOCKED, DRAFT and pending code proposals. Remove old work from dispatch/closure; do not fake PASS.
+- **M3-T4 In-flight safety:** Fence future Run/step/source writes in obsolete scope, inspect real active tool/Run/CAD/Git effects, settle at safe boundary, persist/readback terminal state. If outcome UNKNOWN, keep fenced needing reconciliation, never claim an asynchronous kill or repeat uncertain mutations.
+- **M3-T5 New topology:** Create fresh Phase revision, Milestone, Job and Task identities with actual accepted dependencies and fresh proposal/review references. No mandatory one-to-one successor for every retired Job; retry same revision does not mint duplicates.
+- **M3-T6 Branch semantics:** Exclusive work branch logically RETIRED without deleting Git ref or losing commits; shared/default/release branch stays valid. Old Task no longer has source-write authority. No automatic rollback or orphaned closure blocker.
+- **M3-T7 Runtime integration:** When GSA owns Job/Run, use/extend its actual authorized transition and client schema only as needed; standalone Bootstrap updates Task/Plan metadata and a narrow Task selection guard if supported. No second GSA control plane, no generic cancel daemon.
 
-**PASS:** CD-01–CD-57, R-01–R-20, S-01–S-18 and F-01–F-20 covered by actual test/evidence without semantics-only drift; no governance/decision drift; no unreviewed code-scope escalation; normal short Tasks remain friction-light; measurable benefits or explicitly documented neutral/negative results; deployment only by separate authorized action.
+**Likely source areas:** Planner and trace-impact skill, Task/Milestone/Plan templates, task.py and related existing task-selection check. GSA runtime is an **external ownership dependency**, not a Bootstrap file. Its missing scope-wide operation must be verified and, if necessary, separately changed under actual GSA repository authority.
 
-Every milestone uses the already defined evidence and Reviewer/Tester/repair loop. **No new Advisor, Criteria re-approval, artificial lifecycle stage, mandatory Discussion Job, mandatory mock CAD test, or Human code approval is introduced.**
+**Acceptance:** R-01–R-20: one changed Phase containing COMPLETED/READY/IN_PROGRESS retires every unfinished item, preserves completed output, fences real Run, leaves unchanged Phase operating, correctly closes old scope and creates one new work topology. Client limitations remain clearly UNVERIFIED when untestable.
 
+### 8.6 M4 — Coder knowledge, solution clarification and descriptive Pre-Code Proposal
+
+**Goal:** Coder knows what to implement, asks only for missing material professional/operational facts and describes proposed files/functions/callers **before** writing code.
+
+- **M4-T1 Coder domain boundary:** Coder is Software Engineer, not Domain Expert. Read full relevant Decisions, Goal/Task and real source/callers. Ask Human only when missing domain rule, actual host behavior, user workflow or consequential overwrite/naming decision. Do not ask which class/file/framework to use, or repeat already settled user answers.
+- **M4-T2 File lifecycle knowledge:** Make Section 6I available to Lead/current Coders through existing focused knowledge/skill mechanism. DEV files may use Git SHA/CAS; Word DOCX, AutoCAD DWG, CadGPT Temp/Custom Job/JOB.md/LISP and user export/import files obey User workflow, without invented SHA/GUID identity. Application-generated AutoCAD BAK/DWL/DWL2 and internal caches use host/app lifecycle, with BAK recovery protected. Do not create a universal file manager.
+- **M4-T3 Concrete Task response:** For every actual related Task, write in ONE descriptive proposal/Task attachment: Task ID, accepted Decision references, inspected existing files/callers, future CREATE/MODIFY/REUSE/REMOVE file paths, planned functions/classes/gates/contracts, signature-level inputs/outputs, call graph, dependencies, tests, host constraints and exclusions.
+- **M4-T4 Brownfield/Greenfield fit:** Brownfield reuses verified current source first; Greenfield describes future intended files but creates none in this phase. No source stubs, empty compilable files or test modules, and no separate Technical Implementation Plan or Component Registry.
+- **M4-T5 Coder→Reviewer:** Send complete relevant proposed Task file interactions to Reviewer; revise source-level design only after findings. Actual source write begins after reviewed design PASS via existing branch authority.
+
+**Candidate files:** .agents/roles/coder.md, skills/implement-task, one focused solution-clarification skill, scoped Coder knowledge for file lifecycle, relevant host instruction mirrors. Proposal storage reuses existing project docs/task area; exact file naming decided in reviewed design.
+
+**Acceptance:** D-CODER, D-PRECODE, D-BROWN and F-01–F-20: adequate user decision means no new Human questions, every file/function/caller proposal is concrete, no application source changed during Pre-Code, CadGPT same-name changed LISP/Job cannot be rejected merely because SHA differs.
+
+### 8.7 M5 — Whole-related-proposal Reviewer and complexity escalation
+
+**Goal:** Optimize proposed Task code structure across the relevant group before implementation, without silently replacing domain decisions.
+
+- **M5-T1 Whole scope:** Reviewer reads all related Task proposals together, approved Plan and full professional Decisions, current source and callers. A Task-isolated reviewer cannot claim cross-Task PASS without the other interacting proposals.
+- **M5-T2 Cross-Task consolidation:** Find duplicated file responsibilities, gates, request contracts, unconsumed interfaces, inconsistent callers, cyclic dependency, host binding impacts, registry/services already available. Prefer least sufficient reuse; do not create a giant generic framework just to merge files.
+- **M5-T3 Explicit proportionality:** Apply Small Function → Big Solution → Larger System Impact. Detect examples: test one Lisp → extra DWG/binding recovery manager; create user Job → SHA registry plus draft/promote stages. Technical possibility does NOT justify excessive system risk.
+- **M5-T4 Findings and loop:** PASS, CHANGES_REQUIRED with precise evidence, or HUMAN_ESCALATION for missing domain/scope/risk decision. Coder repairs descriptive Task proposal, Reviewer re-checks combined impacted design. No source code during this loop.
+- **M5-T5 Human alternatives:** If Reviewer cannot establish a safe proportionate technical answer, explain original user function, larger mechanism, risks and practical choices. Human may perform a step manually (e.g. receive Lisp to LOAD/test), reduce automation, accept defined risk or drop feature. Manual outcome is legitimate; no invented tester infrastructure.
+- **M5-T6 Reviewed output:** Only after PASS, derive one consolidated file/function/interface responsibility list from the corrected proposal; do not ask Coder to maintain another inventory/registry. Material later architecture expansion returns through Reviewer, minor code detail does not.
+
+**Candidate files:** .agents/roles/reviewer.md, skills/critical-review and goal-review, existing review report template, host role mirrors only where actually loaded.
+
+**Acceptance:** D-REVIEW-1/2/3 and D-RISK-1/2/3; demonstrable proposal with duplicated gates is consolidated before code; Human-chosen manual Lisp test remains UNVERIFIED until actually observed.
+
+### 8.8 M6 — Tester-owned SIMULATE and bounded root-cause debug
+
+**Goal:** Tester verifies what a real user triggers, including the real downstream flow tree, rather than only whether internal functions pass.
+
+- **M6-T1 Skill integration:** Use supplied full simulate.skill (SKILL.md plus 5 references) as a **Tester skill activated on demand**, NOT a Simulation Job Pack, Contract, new state or agent. Keep Designer blind to code, frozen expectation from Criteria/README/App Brief/visible app, then Tracer reading source after scenario design, T0–T6 and mock fidelity/verdict.
+- **M6-T2 Real user scenarios:** From UI button/chat command/public connector, simulate a single legitimate action, input/state variations, sequences, delayed and repeated actions, deterministic interleavings, conflicting two chats, disconnects and realistic adversarial users. Tester scales coverage to risk; no unsafe destructive chaos on production DWG.
+- **M6-T3 Causal fan-out:** One user action may create **two independent or competing flows**. Capture trigger, dispatcher, every flow/request/Run ID, parent, queue, exclusive CAD ownership, await/wait-for, callbacks, state/save changes and completion. Explicitly ask why each child exists and whether both should exist.
+- **M6-T4 Actual host fidelity:** External mock pass/fail/late/duplicate/partial-result profiles trace user follow-ups, but mock success is not native AutoCAD PASS. State EXECUTED/INSTRUMENTED/STATIC, MOCK vs REAL-HOST and UNVERIFIED gaps honestly.
+- **M6-T5 Three-cycle bound:** For one defect, Coder fix + independent Tester replay of original user event and affected regressions at most **three complete cycles**. Do not reset by new Job name or close on Coder GREEN/CI alone. Earlier serious architecture evidence can stop faster.
+- **M6-T6 Advanced debug:** After third failed retest, STOP blind repair and invoke actual available advanced systematic-debugging or focused deeper root-cause skill/mode. Reconstruct public entrypoint→all child call graphs, waits/resources, first divergent event and competing hypotheses; run discriminating experiments and report root cause confidence. If a new architecture is required, return to Code Structure Proposal + Reviewer.
+- **M6-T7 Evidence and reports:** Reuse existing Tester report/bug-fix-loop records: persona, original input, seed/order, expected/actual, full flow and host evidence, verdict/GAP, numbered fix attempts and remaining unknowns. No new permanent simulation database.
+
+**Candidate files:** .agents/roles/tester.md, skills/test-and-verify, bug-fix-loop, systematic-debugging, the focused simulate skill and reference assets. Put within current supported skill paths; **do not re-architect the installer** to activate it.
+
+**Acceptance:** S-01–S-18, H0–H6: real user input causing duplicate child flow is traced to its cause, and an unresolved defect after three independent retests triggers deeper causal analysis before more source repair.
+
+### 8.9 M7 — Functional end-to-end stabilization on EXISTING host architecture
+
+**Goal:** All repaired mechanisms cooperate and pass representative normal, edge and recovery workflows without Local Worker installer changes.
+
+- **M7-T1 Full accepted decision chain:** Human settles a multi-step decision → optional Secretary stores full rationale/exception → Planner links instead of rewriting → Coder produces only descriptive source proposal → Reviewer cross-Task reviews → authorized implementation → independent Tester verifies actual user journey. Test continuation after a new chat.
+- **M7-T2 Scope retirement journey:** With a representative revised Phase and READY/RUNNING old Tasks, safely retire all unfinished, preserve completed output and Git history, issue fresh identities/dependencies, then complete/close current objective with no old zombie blockers.
+- **M7-T3 CadGPT regression exemplars:** In a legitimate host/project, verify edited user LISP same name LOAD, User-authored Temp/Custom Job create/update/export/import/run without SHA/GUID identity gate, and real BAK/DWL/DWL2 handling. These are **behavior examples**, not permission to refactor CadGPT Criteria or invent product source management.
+- **M7-T4 Tester user-input concurrency:** One actual input invokes multiple underlying paths, or an interleaved second user action arrives while CAD capability is exclusive. Verify correct serialization, no phantom second Job, no leaked waiting state, and accurate DONE/FAIL.
+- **M7-T5 Current project regressions:** Re-run repository tests for current role/skill instructions, branch authority, task selection, ordinary bootstrap, Codex/Claude/Continue/Copilot native adapters as applicable, install behavior and Criteria/Advisor trigger. Do not claim unrun QwenCode hooks PASS.
+- **M7-T6 Full coverage/effectiveness:** Compare results to M1 baseline; audit CD-01–CD-57, R-01–R-20, S-01–S-18, F-01–F-20 and original exclusions. Track total functional rework, bugs, unnecessary abstractions and material native UNVERIFIED. A name-only summary is not coverage evidence.
+- **M7-T7 Functional acceptance:** Independent Reviewer confirms behavior and regressions. Unavailable real CAD/GSA/native-host cases remain visibly BLOCKED/UNVERIFIED with owners rather than silently waived. No automatic merge/deploy; normal Human authority remains.
+
+**M7 PASS:** One representative greenfield Goal, one brownfield Goal, actual user-trigger simulation with multi-flow trace, safe Phase retirement, complete Decision fidelity, concrete reviewed Pre-Code and realistic native evidence. No new technical Advisor gate, installer worker profile, mandatory job registry or per-user file SHA. The functional phase is **STABLE** only on actual supported evidence; do not call it stable because tests merely compile.
+
+### 8.10 Phase B — LOCAL WORKER / INSTALLER / CONTEXT (DEFERRED)
+
+**Do not generate READY Jobs or code for B1–B5 before functional M7 PASS and the existing subsequent implementation authorization.** Earlier Lead/Worker, context-optimization, model and host-native requirements remain preserved in Sections 1–7.
+
+| Later milestone | Work after functional stability | Verification when activated |
+| --- | --- | --- |
+| **B1 — Real installer/host fit** | Reinspect install.py, TIER_MANIFEST.json, staged installer, current native host adapters, version-specific local QwenCode/Continue hooks and primary host ownership. Design profiles orthogonal to Lite/Standard/Full; no imaginary native hooks | Actual source/host evidence, explicit hook limitations and minimal profile design |
+| **B2 — Profile-aware installation** | Add Lead/Worker configuration and native local Worker hook/permission integration through existing installer, preserving current install behavior, user-modified configs, activated lock and source authority | New/update/brownfield install tests, real host load and allow/deny evidence, no duplicate global authority |
+| **B3 — Delegation and scoped context** | Lead prepares Task Criteria/Goals, reviewed proposal, isolated worktree and writable scope; Worker has scoped Coder/Tester/Reviewer; targeted metadata/full-on-activation, compact handoff; no pretending worktree is sandbox | Real authorized parallel disjoint tasks, branch/path protections, no unrelated role/skill preload or integration bypass |
+| **B4 — Optional model collaboration benchmark** | Compare direct capable model coding versus actual ~27B IMPLEMENTATION skeleton plus smaller model module-fill **after Pre-Code Reviewer PASS**; measure full completion and rework, not raw tokens | Adopt only with proven end-to-end quality/time gain; never compulsory model scheme |
+| **B5 — Host/integration regression** | Test Codex, selected local Worker hosts, session handoffs, cloud quota exhaustion/local continuation, native hooks and multi-host installations | Independent host evidence, preserved existing installation tiers and ordinary release approvals |
+
+**Hard deferral:** Do not change local model selection, Lead/Worker packaging, new Worktree manager, QwenCode native hooks or installer architecture while implementing M1–M7. If skill packaging requires a minor non-architectural update via existing mechanism, justify it strictly as functional delivery, otherwise demonstrate function directly on the current host and leave installer work for B.
+
+### 8.11 Ownership and no-extra-gates contract
+
+- Planner owns the existing approved Criteria relationship, complete Decision references, Plan, impact boundary and reviewed milestone dependencies. Advisor remains limited to the existing Human-triggered Criteria-write point.
+- Secretary records accepted decisions but never decides/changes theory. Discussion Job optional; no automatic creation.
+- Coder owns authorized implementation and descriptive per-Task code proposals; not product-domain solutions, new code files before review or user artifact versioning policy.
+- Reviewer owns cross-Task design optimization, disproportional impact and independent source/acceptance review; it does not write code or demand Human technical sign-off on routine choices.
+- Tester independently invokes simulate skill when appropriate, runs source/host verification, maintains defect retry count and root-cause evidence without editing product code.
+- GSA (when present) owns Job/Run/retirement transitions; Bootstrap does not create a rival runtime. Standalone template only enforces what its actual task/harness supports.
+- Branch/Criteria safety and current host-native contracts stay intact. Manual User test is a legitimate option when chosen, with honest pending-verification status.
+
+### 8.12 Phase A completion checklist and stop condition
+
+**Required before B1 begins:**
+1. CD-01–CD-57 accepted decision semantics and Sections E/G/H/I have full implementation/test traceability, not just headings.
+2. At least one decision with detailed professional logic survives a Planner rewrite and Coder handoff without loss.
+3. Coder has a concrete per-Task file/function/caller proposal, no application source file created before Reviewer PASS.
+4. Reviewer demonstrates combining interacting Task proposals and detecting one disproportionate Small Function → Big Solution → Larger System Impact case.
+5. Scope-wide Phase retirement safely handles READY/IN_PROGRESS, incomplete Milestones, an exclusive old branch and current Job closure without duplicate work.
+6. Tester skill simulates actual user entrypoint and shows all spawned subflows, realistic interleaving, observed result and REAL-HOST limitations accurately.
+7. After three failed full fix/retest cycles, the same defect stops ordinary patching and obtains deeper causal analysis, not a fourth blind fix.
+8. DEV Git/SHA remains legitimate internal control; User-owned Job/LISP/DWG/DOCX lifecycle and AutoCAD-generated BAK/DWL/DWL2 support-file lifecycle are handled separately with no invented registry.
+9. Current ordinary Bootstrap installer, tiers, Criteria/Advisor/branch protections and existing supported host behavior do not regress.
+10. Actual native-dependent checks not available are not declared PASS. Review all material BLOCKED/UNVERIFIED and get ordinary independent acceptance and release authorization.
+
+**Do not mistake the milestones for a new lifecycle engine.** All milestone PASS claims require actual observed evidence and existing Reviewer/Human authority. No new Planner stage, mandatory Tech Advisor, simulation Job, runtime file registry, or automatic merge/deploy.
 ## 9. Non-negotiable invariants and risks
 
 1. Approved Project Criteria, Human authority, existing Technical Advisor trigger, branch permissions and approval gates remain intact.
@@ -1248,6 +1387,6 @@ Every milestone uses the already defined evidence and Reviewer/Tester/repair loo
 
 ## 10. Immediate next step and stop condition
 
-Review **this single draft** against the current source, Decision references and operational constraints, then perform M1 audit. Do not begin implementation work merely because this document was saved. Existing Criteria/Plan/Milestones and already-verified Bootstrap readiness remain authoritative; use the normal Reviewer and Human authorization path for actual changes.
+Review **the detailed functional M1–M7 plan in Section 8** against actual source, accepted Decisions and existing authority; then execute the ordinary Reviewer and Human Plan-acceptance flow before implementation. Start with read-only M1 baseline, then M2–M6 functional repairs and M7 integrated testing. **Do not activate B1–B5 or Worker installer changes until M7 is independently PASS and separately authorized.** Writing this document is not authorization to code, merge or deploy. Existing Criteria/Plan/Milestones and already-verified Bootstrap readiness remain authoritative; use the normal Reviewer and Human authorization path for actual changes.
 
 **Recorded decisions consolidated in this draft (see full E1–E12, decision coverage CD-01–CD-57, scoped retirement G0–G5, Tester-owned simulation/debug H0–H6 including H0A, and Coder DEV/OPERATION artifact lifecycle I1–I5; NEVER substitute this paragraph for them):** One unified plan; optional Discussion Job + Secretary with precise accepted-decision records and supersession; reference-based Planner with decision fidelity; **scope-wide Plan/Phase/Milestone/Job/Task/exclusive-branch retirement on revised approved solution and new work IDs**; **Tester activation from real user actions with graduated interleaving/adversarial scenarios, flow causality and 3-cycle repair limit then advanced root-cause skill**; **Coder distinguishes DEV-internal code from CadGPT Temp/Custom Jobs and other user-created OPERATION code/artifacts; a User's Job remains the intended same Job through edit, outside export/storage and import regardless of SHA/GUID/version; only real host/permission/format issues may prevent running; no forced promotion, and ask Human only for unspecified consequential output lifecycle**; Coder as Software Engineer (not Domain Expert) plus focused solution-clarification only for missing consequential logic; per-Task descriptive Pre-Code Code Structure Proposal without source writes; Reviewer whole-proposal consolidation and PASS/rework/escalation; explicit **Small Function → Big Solution → Larger System Impact** review; Human option of manual work/verification; greenfield/brownfield source-fit; Lead/Worker profiles and authority; verified native controls per host; scoped Task Criteria/Goals; Lead-prepared worktrees; Worker Coder/Tester/Reviewer; minimal role-scoped context; optional post-review actual 27B-skeleton/small-model implementation; cloud/local parallel continuity. These are design decisions recorded in a **DRAFT plan**, not an implementation completion claim.
