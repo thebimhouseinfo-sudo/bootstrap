@@ -3,7 +3,7 @@
 **Status:** DRAFT — awaiting Planner/Reviewer review and Human approval  
 **Repository:** `thebimhouseinfo-sudo/bootstrap`  
 **Document authority:** Single canonical upgrade plan, updated in place. This v5 retains all v3/v4 context and Lead/Worker scope, with full operational specification and decision traceability instead of name-only summaries with the accepted discussion, decision-fidelity, Coder/Reviewer and anti-overengineering design directions. Do not create competing context, discussion, coding or harness plans.  
-**Scope:** context efficiency; optional Discussion Job and Secretary decision preservation; decision-referenced planning; Coder domain boundary; pre-code per-Task code-structure proposals and cross-Task Reviewer optimization; complexity escalation; Lead/Worker execution profiles; host-native enforcement; delegated workspaces; multi-model worker execution; testing and benchmarking.  
+**Scope:** context efficiency; reviewed Plan change Task/Job retirement and safe closure; optional Discussion Job and Secretary decision preservation; decision-referenced planning; Coder domain boundary; pre-code per-Task code-structure proposals and cross-Task Reviewer optimization; complexity escalation; Lead/Worker execution profiles; host-native enforcement; delegated workspaces; multi-model worker execution; testing and benchmarking.  
 **Criteria:** Existing approved project Criteria remain unchanged. **This document is not approval to implement, merge implementation code, or deploy.**
 
 
@@ -93,7 +93,7 @@ on_blocked: report_to_lead
 ```
 All values above are illustrative, not a deployed format or real command.
 
-Lifecycle: `PREPARED → ASSIGNED → IMPLEMENTING → SELF_TESTED → SUBMITTED → LEAD_REVIEW → ACCEPTED / REWORK / REASSIGNED`, with `BLOCKED` for genuine inability to continue. **Pre-Code Coder Proposal → Reviewer design review occurs within preparation before IMPLEMENTING; it does not add a separate approval authority or project lifecycle state.** A Worker **never self-assigns ACCEPTED**, merges to protected branches, or invents Human/Reviewer approval.
+Lifecycle: `PREPARED → ASSIGNED → IMPLEMENTING → SELF_TESTED → SUBMITTED → LEAD_REVIEW → ACCEPTED / REWORK / REASSIGNED`, with `BLOCKED` for genuine inability to continue. This is a **delegation execution sequence, NOT the authoritative Task/Job lifecycle**: reviewed Plan changes must reconcile RETIRED/SUPERSEDED obsolete READY and IN_PROGRESS work through Section 6G before new dispatch. **Pre-Code Coder Proposal → Reviewer design review occurs within preparation before IMPLEMENTING; it does not add a separate approval authority or project lifecycle state.** A Worker **never self-assigns ACCEPTED**, merges to protected branches, or invents Human/Reviewer approval.
 
 Lead reviews actual diff and runs independent tests when required. FAIL produces specific findings → Worker repair → retest → review. Repeated or serious failure may cause tighter task subdivision, better instructions, model escalation, or reassignment. Lessons Learned must distinguish capability limits from vague instructions, missing tests, dependency issues, and environment failures.
 
@@ -211,7 +211,7 @@ Reviewer checks:
 4. **Proportionality and verification:** feasible implementation, smallest adequate complexity, specific evidence/test strategy, and whether new infrastructure solves an actual requirement.
 5. **Technical review decisions:** PASS; CHANGES_REQUIRED with precise findings to Coder; or HUMAN_ESCALATION for unresolvable domain/scope/proportionality issues. Coder revises affected Task proposals and Reviewer reviews the affected combined design again.
 
-**Only after Reviewer PASS** does the consolidated proposal become the **single implementation reference/list of proposed files, interfaces and responsibilities**. Derive this list from the reviewed proposal; **do not require Coder to write a separate catalog or implement a new registry**. Real application source creation/modification starts after this step, under existing write authority. Material later design changes return to Reviewer; routine local coding details do not. Normal Tester → Coder repair → retest and post-code independent review remain intact.
+**Only after Reviewer PASS** does the consolidated proposal become the **single implementation reference/list of proposed files, interfaces and responsibilities**. If a later reviewed Plan revision retires relevant Tasks, old proposal PASS cannot authorize implementation; apply Section 6G and re-review. Derive this list from the reviewed proposal; **do not require Coder to write a separate catalog or implement a new registry**. Real application source creation/modification starts after this step, under existing write authority. Material later design changes return to Reviewer; routine local coding details do not. Normal Tester → Coder repair → retest and post-code independent review remain intact.
 
 **Authority:** This is an internal Coder–Reviewer technical preparation/review within the existing workflow, **not a new Human approval/Technical Advisor gate**. Human is involved only for a materially missing professional/operational decision, approved-scope change, or risk/complexity escalation.
 
@@ -680,6 +680,93 @@ All these are **design acceptance tests for this upgrade**, not claims that the 
 
 
 
+
+## 6G. Plan revisions and RETIRED — READY / IN_PROGRESS work must not become zombie Tasks
+
+### G0. Verified starting point and limits (2026-10-24)
+
+**Bootstrap itself:** project-template/TASKS.md currently names Active, Next, Done, STALE, Blocked; harness/active-task.json is NOT_CONFIGURED or ACTIVE and harness/common/task.py validates ACTIVE only. There is **no verified Bootstrap standalone RETIRED Task/Job lifecycle**. STALE is a repair/revalidation condition; it is NOT a terminal record of abandoned approved work.
+
+**GSA as orchestration host:** the GPT-supper-agent repository defines Job/Task RETIRED, and source in supabase/functions/gsa-mcp/index.ts implements reviewed Plan-change RETIRE, immutable intent, exact-current-record SHA, dispatch fence, in-flight Run/cursor reconciliation, terminal transition with reason/provenance, and non-dispatchable retired Tasks. The 2026-10-23 deployment note reports runtime deployment but no real-Job E2E PASS; already-registered plugin schemas may reject RETIRE/RETIRED before reaching it. Do not promise success from a repository enum or no-write smoke test.
+
+**Noteworthy GSA partial-retirement gap:** the inspected Plan change assessor only accepts selected retired_task_ids with REPLACE or whole-Job RETIRE, not KEEP/REVALIDATE. Existing transition marks all unfinished Tasks RETIRED on Job RETIRE or selected Tasks when predecessor Job becomes SUPERSEDED. These paths do **not establish** that a subset of Tasks can be retired while their parent Job remains IN_PROGRESS to finish other valid Tasks. Verify other existing source paths; if missing, implement the smallest gap in the responsible lifecycle authority, not a new Bootstrap-controlled Job engine.
+
+### G1. Concrete failure and desired observable behavior
+
+Human changes an accepted Detailed Implementation Plan mid-execution. Old Task T01 is READY, T02 is IN_PROGRESS and T03 depends on T02. The new reviewed solution makes those Tasks obsolete and replaces the actual needed objective with T04.
+
+Without reconciliation, T01/T03 can still be dispatched, T02 can continue producing wrong or duplicate code, old dependencies can block Job completion, and a replacement Job can coexist with a never-closed predecessor. An outdated pre-code Proposal PASS must not authorize coding against the new Plan.
+
+Correct behavior: compare the new reviewed Plan with current real Job/Task records; KEEP work still needed, REVALIDATE uncertain evidence/dependencies, RETIRE genuinely unnecessary unfinished work with **no successor**, or REPLACE with explicit successor and lineage; handle active Runs before terminal writes. Remove obsolete work from actionable queues **and** from the current parent closure obligations. Preserve real historical source, results and evidence. Do not automatically delete or roll back them.
+
+### G2. Impact decisions and lifecycle meanings — no invented states
+
+- KEEP: remains relevant and compatible with the new approved/reviewed Plan.
+- REVALIDATE: potentially relevant but its contract, test/evidence or dependency needs renewed proof; do not declare it done or retired from uncertainty alone.
+- RETIRE: unfinished Job/Task not required by the revised Plan, **with no replacement work item needed**. Terminal lifecycle RETIRED, reason and Plan-change provenance, not dispatchable and not a pending blocker.
+- REPLACE: there is a real replacement objective/Task/Job. Predecessor SUPERSEDED with explicit successor lineage, new identity only when necessary. Do NOT create another Job merely to retire an old one.
+- HUMAN_DECISION: impact is materially ambiguous or handling active effects has an unresolved operational choice. Ask Human rather than invent a policy.
+
+These are impact classifications, not five lifecycle states. Existing COMPLETED work and its PASS evidence stay historical; do not retroactively mark completed Jobs/Tasks RETIRED. CANCELLED is distinct (explicit stop/interruption); in-flight Run cancellation may be used to settle an obsolete Run with documented Plan-change reason, **not a new Run.RETIRED state**. STALE/NEEDS_REVALIDATION is not terminal RETIRED.
+
+**Trigger:** The Human proposing or discussing a new Plan does not immediately retire anything. Reconcile only after the revised Plan has passed the existing required review/authorization. Do not add another Human/Advisor gate merely to activate retirement.
+
+### G3. READY vs IN_PROGRESS procedure
+
+**READY / DRAFT / PLANNED non-running work:**
+1. Read the authoritative Job/Task record, old Plan link, current revision, dependencies and accepted new reviewed Plan.
+2. Mark the specific obsolete unfinished item terminal RETIRED (or predecessor SUPERSEDED if an actual successor exists) using existing authorized revision-safe writes and readback. Persist Plan-change ID, reason and time; reference successor only when a REPLACE exists.
+3. Prevent new dispatch, remove obsolete acceptance/Task requirements from current Job closure while retaining prior history, and revalidate dependents whose proofs truly changed.
+4. Avoid touching unaffected Tasks/Jobs or creating new replacement records solely to close an old READY item.
+
+**IN_PROGRESS with active Run(s) or potential writes:**
+1. Fence **new dispatch, next-step continuation and unsafe source/cursor operations** for the affected obsolete scope as the reviewed Plan reconciliation begins.
+2. Read actual Run states, source cursor, pending tool effects, Git branch/HEAD/tree, task workspace and evidence. Do not assume local snapshots are current.
+3. Do not claim an asynchronous hard stop; let a running tool reach a safe boundary and settle its observed result. Distinguish settlement of a Run (often CANCELLED with reason) from terminal status of the Job or Task.
+4. If the source write/cursor/tool outcome is PENDING or UNKNOWN, retain the fence and report NEEDS_RECONCILIATION/BLOCKED; **do not mark RETIRED, repeat non-idempotent mutations, fake success or silently discard effects**.
+5. After safe settlement, transition the appropriate Task/Job to RETIRED or SUPERSEDED, preserve committed source and records, then re-read confirmed authoritative state.
+6. No implicit source rollback, no deletion of worktrees or evidence, no automatic rebind/Save/merge, and no transfers of old PASS evidence to a replacement Job.
+
+### G4. Closure, dependencies and prevention of duplicate work
+
+- If every remaining *current reviewed* obligation of an active parent Job has been fulfilled or legitimately retired, the Job must be **closable** using its actual remaining acceptance/evidence rules. A retired obsolete Task requires no fake PASS and must not remain an outstanding required Task forever.
+- If the parent objective itself no longer exists, RETIRE the whole Job once Runs are safely settled; do not leave a zombie IN_PROGRESS Job.
+- If only some Tasks became obsolete, retire **those Tasks**, preserve still-valid Tasks and let the Job continue and later close. Do not assume a whole-Job RETIRE solves this; verify the partial-Task path.
+- When a replacement genuinely exists, SUPERSEDE the predecessor with a unique new successor and unambiguous lineage. Never leave predecessor READY alongside the new work or silently create duplicates on retry.
+- Dependents of retired Tasks are classified RETIRE / REVALIDATE / REPLACE based on the revised Plan. They do not inherit obsolete PASS/evidence, and a retired prerequisite is not automatically satisfied.
+- Plan-change reconciliation must be scoped, restartable and idempotent: same reviewed Plan revision/change intent and exact records must not spawn duplicate Jobs, repeat side-effecting tools or terminalize valid unrelated work.
+- Before dispatch, recheck active Task/Job against reviewed Plan revision and retirement/fence; ACTIVE or READY on an old snapshot does not authorize another Run.
+- Retirement is **not deletion**: keep original identity, terminal outcome, actual source/Run results, reason, timestamp, approved Plan revision and links.
+
+### G5. Integration ownership — reuse GSA, do not grow Bootstrap into another orchestrator
+
+When Bootstrap works **through GSA**, GSA owns durable Job/Task/Run lifecycle, reviewed Plan-change intent, fences and exact revision transitions. Bootstrap Planner, Coder and Reviewer should use real GSA capabilities and keep their Task/Proposal references up to date. Verify GSA connected client schema and actual Run/Task/Job E2E. If a subset-of-Tasks KEEP-Job path is unsupported, raise that narrow defect in GSA rather than inventing a shadow queue or state store.
+
+When Bootstrap runs **standalone**, audit current TASKS.md, active-task.json, task.py, host hooks and verification logic. Implement the smallest justified equivalent for retirement/invalid Task rejection only if this execution mode genuinely needs it. Distinguish guidance-only marking from enforced dispatch. Do not import GSA's entire Memory Repo/Run cursor/fence service by default.
+
+### G6. Retirement test matrix
+
+| Case | Starting state | Expected result |
+| --- | --- | --- |
+| R-01 | Obsolete READY Task, no successor | RETIRED with reason/Plan link, non-dispatchable, does not block Job closure |
+| R-02 | Obsolete READY Job objective, no successor | Whole Job RETIRED, no replacement Job generated |
+| R-03 | Obsolete IN_PROGRESS Task with active Run | New dispatch fenced, Run settled, effects/evidence preserved before terminal retirement |
+| R-04 | IN_PROGRESS unknown/pending tool or source cursor | Remain fenced/unresolved; never report RETIRED or retry uncertain mutation |
+| R-05 | Job has three Tasks; one now unnecessary | Only that unfinished Task RETIRED; other Tasks continue and parent can close |
+| R-06 | New Plan truly replaces a Job | Old SUPERSEDED, new unique replacement with lineage; no duplicate READY predecessor |
+| R-07 | Historical COMPLETED Job/Task | History/PASS unchanged, no retroactive retirement |
+| R-08 | Unaffected concurrent Job/Task | KEEP, no forced stoppage or re-approval |
+| R-09 | Task depends on obsolete retired work | Retire dependent, revalidate, or replace explicitly; no silent PASS inheritance |
+| R-10 | Reconciliation interrupted and retried | Idempotent, no duplicate successor or duplicate writes |
+| R-11 | Reviewed Plan change invalidates an unimplemented Code Structure Proposal | Affected Proposal/Task requires renewed Reviewer design review before coding |
+| R-12 | Connected schema/runtime cannot execute RETIRE | Report exact capability mismatch; no fabricated successful retirement or bypass |
+| R-13 | Old READY Task persisted next to valid newly ready Task | Queue and completion reflect only current reviewed scope; obsolete Task cannot dispatch or block close |
+| R-14 | Run cancellation is necessary for retirement | Run CANCELLED with Plan attribution; Task/Job RETIRED; no invented Run lifecycle |
+
+This finding must not become a new universal daemon, Job registry, lifecycle engine, separate project approval gate or extra Advisor invocation.
+
+---
+
 ## 6F. Conversation decision coverage — content preserved, not just headings
 
 This is a *plan-local trace table* of distinct design decisions settled in the discussion. IDs here are coverage handles for **this draft**, not a claim that Secretary has already written permanent DEC files. Later Secretary may link/migrate them to actual decision records with unbroken provenance. On future revisions, reviewers compare **the right-hand operational rule** with the proposal/runtime, not merely the left-hand name.
@@ -716,8 +803,14 @@ This is a *plan-local trace table* of distinct design decisions settled in the d
 | CD-28 | 27B-created real skeleton/small-model fill is optional and post-design | E11 + Section 6/M6: benchmarks and real tests; never confuse executable skeleton with descriptive proposal |
 | CD-29 | Optimize total completion cost and quality | Section 6D/M1/M7: add pre-code/review cost, implementation, native testing, rework; no universal savings claim |
 | CD-30 | No Criteria change or invented gates | Section 0/6A–6E/8: keep already approved product Criteria, Advisor trigger, branch authority and existing Human decisions |
+| CD-31 | READY and IN_PROGRESS Tasks must be reconciled after reviewed Plan change | G1–G3: retirement not just enum, observe in-flight source/Run and fence obsolete work |
+| CD-32 | RETIRED means no longer needed without successor | G2/G4: distinguish SUPERSEDED, CANCELLED, STALE and COMPLETED; full reason and Plan lineage |
+| CD-33 | Retired obsolete Tasks cannot block Job closure | G4/R-01/R-05/R-13: recompute relevant obligations; no fake PASS or zombie Job |
+| CD-34 | Reuse existing GSA retirement; verify partial Task retirement gaps | G0/G5/R-05/R-12: no second control plane; plugin/client compatibility tested |
+| CD-35 | In-flight work cannot be assumed remotely stopped | G3/R-03/R-04/R-14: fence, settle Run/cursor/tool effects before terminal write |
+| CD-36 | RETIRE is not REPLACE and must not mint duplicates | G2/G4/R-02/R-06/R-10: no unnecessary successor, idempotent Plan reconciliation |
 
-**Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-30 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
+**Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-36 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
 
 
 ## 7. Relationship to existing installation tiers
@@ -738,21 +831,21 @@ The following are **delivery work packages**, not additional product lifecycle/a
 
 ### M1 — Read-only baseline, source fit and decision-loss audit
 
-Inspect real Bootstrap installer/roles/skills/harness, approved-criteria protections, native host adapters and hook events, Lite/Standard/Full tiers, Branch Authority, Worktree behavior, session/handoff, Planner/Reviewer coordination, present Coder sequence, and existing decision storage. Characterize greenfield and brownfield needs and missing support for QwenCode. Establish reproducible Codex/QwenCode baseline: context injected/loaded, latency, tool calls, token use, total time, correctness, test/rework and material scope drift.
+Inspect real Bootstrap installer/roles/skills/harness, approved-criteria protections, native host adapters and hook events, Lite/Standard/Full tiers, Branch Authority, Worktree behavior, session/handoff, Planner/Reviewer coordination, present Coder sequence, existing decision storage, and standalone Bootstrap vs GSA actual RETIRED authority/partial-Task capabilities and connector schemas. Characterize greenfield and brownfield needs and missing support for QwenCode. Establish reproducible Codex/QwenCode baseline: context injected/loaded, latency, tool calls, token use, total time, correctness, test/rework and material scope drift.
 
 **PASS:** Real-source gap map and baseline; evidence separates verified operation from instruction-only guidance, identifies decision loss and pre-code gaps. Measurement instrumentation, if needed, receives an appropriately reviewed minimal design before code.
 
 ### M2 — Single solution design and Reviewer check
 
-Finalize optional Discussion Job activation, Secretary decision schema/index/supersession, stable reference links, Planner coverage/conflict/feasibility behavior, Coder domain boundary and solution-clarification skill, Code Structure Proposal file format and per-Task fields, combined Reviewer protocol, complexity escalation and manual alternative. At the same time finalize Lead/Worker authority, Task Criteria/Goals, delegation schema, profile/role/context dependency matrix, native hook/worktree policy, Universal Core, existing tiers compatibility and non-goals.
+Finalize optional Discussion Job activation, Secretary decision schema/index/supersession, stable reference links, Planner coverage/conflict/feasibility behavior, **Plan revision impact decisions and exact RETIRED/SUPERSEDED/REVALIDATE behavior for READY/IN_PROGRESS Task/Job, parent closure and safe Run reconciliation (6G)**, Coder domain boundary and solution-clarification skill, Code Structure Proposal file format and per-Task fields, combined Reviewer protocol, complexity escalation and manual alternative. At the same time finalize Lead/Worker authority, Task Criteria/Goals, delegation schema, profile/role/context dependency matrix, native hook/worktree policy, Universal Core, existing tiers compatibility and non-goals.
 
-**PASS:** One reviewed design; **CD-01–CD-30 checked against E1–E12 with actual acceptance examples**, no rewriting of domain decisions, no proposed universal manager/registry/sandbox, no additional Human approval or Technical Advisor gate, clear host enforcement limitations.
+**PASS:** One reviewed design; **CD-01–CD-36 checked against E1–E12 and G0–G6 with actual acceptance examples**, no rewriting of domain decisions, no proposed universal manager/registry/sandbox, no additional Human approval or Technical Advisor gate, clear host enforcement limitations.
 
 ### M3 — Decision preservation and Pre-Code workflow implementation
 
-Implement **only necessary changes** to optional Discussion Job/Secretary record-keeping and Planner decision references. Add/modify Coder Instruction and the scoped solution-clarification skill; align implement-task and Reviewer instructions/adapters across supported hosts. Enable **descriptive** per-Task Code Structure Proposal and **whole-relevant-proposal** Reviewer consolidation, CHANGES_REQUIRED repair and HUMAN_ESCALATION. Reuse document/task stores and existing reviewer dispatch as far as feasible; do not create a second planning engine or source registry.
+Implement **only necessary changes** to optional Discussion Job/Secretary record-keeping and Planner decision references. Integrate reviewed Plan-change impact classification, READY/IN_PROGRESS fencing and safe retirement with the actual owning lifecycle (GSA if connected); validate partial-Task retirement under a continuing Job, dependency/closure rules, immutable lineage and connector capability limits. Do not duplicate existing GSA control-plane code in Bootstrap. Add/modify Coder Instruction and the scoped solution-clarification skill; align implement-task and Reviewer instructions/adapters across supported hosts. Enable **descriptive** per-Task Code Structure Proposal and **whole-relevant-proposal** Reviewer consolidation, CHANGES_REQUIRED repair and HUMAN_ESCALATION. Reuse document/task stores and existing reviewer dispatch as far as feasible; do not create a second planning engine or source registry.
 
-**PASS:** (a) Accepted expert decision survives Plan rewrite/handoff with provenance and exceptions (E2–E3, CD-02–CD-04); (b) clear Task needs no repeated Human interview; (c) no source files modified during pre-code; (d) Reviewer detects needless duplicate gate/contract and requests simplification; (e) disproportionate feasible small function escalates to Human, manual-test choice respected; (f) only accepted reviewed proposal authorizes implementation under existing source-write rules.
+**PASS:** (a) Accepted expert decision survives Plan rewrite/handoff with provenance and exceptions (E2–E3, CD-02–CD-04); (a2) Retirement acceptance R-01–R-14 verified on applicable real authority paths, unsupported paths clearly flagged; (b) clear Task needs no repeated Human interview; (c) no source files modified during pre-code; (d) Reviewer detects needless duplicate gate/contract and requests simplification; (e) disproportionate feasible small function escalates to Human, manual-test choice respected; (f) only accepted reviewed proposal authorizes implementation under existing source-write rules.
 
 ### M4 — Profile-aware setup, native hooks and minimal context
 
@@ -762,7 +855,7 @@ Implement Lead/Worker profile-aware setup orthogonal to installation tiers, host
 
 ### M5 — End-to-end delegated Coder/Tester/Reviewer operation
 
-Lead prepares task contract/branch/worktree; Worker Coders receive accepted task and reviewed design, implement within allowed source scope; Worker Tester/Reviewer verify, then Lead cross-workstream review/integration checks. Exercise concurrent disjoint Tasks, Reviewer cross-Task consolidation before coding, discrepancy escalation, FAIL→Coder fix→Tester retest, blocked/stop, compact handoff and continuation of authorized local tasks while cloud quota unavailable. Preserve independent Lead verification and existing approval rules.
+Lead prepares task contract/branch/worktree; Worker Coders receive accepted task and reviewed design, implement within allowed source scope; Worker Tester/Reviewer verify, then Lead cross-workstream review/integration checks. Exercise concurrent disjoint Tasks, Reviewer cross-Task consolidation before coding, discrepancy escalation, FAIL→Coder fix→Tester retest, blocked/stop, **revised-Plan obsolete READY/IN_PROGRESS retirement and closure**, compact handoff and continuation of authorized local tasks while cloud quota unavailable. Preserve independent Lead verification and existing approval rules.
 
 **PASS:** One full delegated greenfield and one brownfield representative Goal with real diffs, review evidence, regression tests and protected integration; accepted domain decisions and shared contracts survive role/session changes.
 
@@ -774,11 +867,11 @@ Only **after Pre-Code Reviewer PASS**, prototype capable ~27B model constructing
 
 ### M7 — Full regression, efficacy and release decision
 
-Regression cover greenfield and brownfield bootstrap, Criteria/Advisor trigger and human authority, Plan/Milestones, Decision Ledger including supersession, refusal of unsanctioned theory change, Reviewer preservation of professional solutions, Coder solution clarification, source-free pre-code proposals, cross-Task deduplication, disproportionate-risk escalation/manual option, genuine AutoCAD Lisp host limitations as an example, Worker role/skill boundaries, branch/worktree/path hooks, parallel projects, cloud exhaustion, resume/handoff, Tester→Coder retest, installation tiers and independent checks.
+Regression cover greenfield and brownfield bootstrap, Criteria/Advisor trigger and human authority, Plan/Milestones, **Plan Change retirement of obsolete READY/IN_PROGRESS Tasks/Jobs, partial continuing-Job Task retirement, source/Run reconciliation, dependency/closure correctness and actual GSA schema compatibility (R-01–R-14)**, Decision Ledger including supersession, refusal of unsanctioned theory change, Reviewer preservation of professional solutions, Coder solution clarification, source-free pre-code proposals, cross-Task deduplication, disproportionate-risk escalation/manual option, genuine AutoCAD Lisp host limitations as an example, Worker role/skill boundaries, branch/worktree/path hooks, parallel projects, cloud exhaustion, resume/handoff, Tester→Coder retest, installation tiers and independent checks.
 
 Compare **end-to-end Goal cost** with baseline (cloud tokens and request sizes, local latency and total time, rework iterations, bugs/regressions, missed user decisions and complexity introduced). Never claim a universal percentage gain without data. Do not push a release/deployment until the ordinary reviewed authorization and real host evidence are complete.
 
-**PASS:** CD-01–CD-30 covered by actual test/evidence without semantics-only drift; no governance/decision drift; no unreviewed code-scope escalation; normal short Tasks remain friction-light; measurable benefits or explicitly documented neutral/negative results; deployment only by separate authorized action.
+**PASS:** CD-01–CD-36 and R-01–R-14 covered by actual test/evidence without semantics-only drift; no governance/decision drift; no unreviewed code-scope escalation; normal short Tasks remain friction-light; measurable benefits or explicitly documented neutral/negative results; deployment only by separate authorized action.
 
 Every milestone uses the already defined evidence and Reviewer/Tester/repair loop. **No new Advisor, Criteria re-approval, artificial lifecycle stage, mandatory Discussion Job, mandatory mock CAD test, or Human code approval is introduced.**
 
@@ -800,9 +893,11 @@ Every milestone uses the already defined evidence and Reviewer/Tester/repair loo
 14. Reviewer consolidates the complete relevant design, produces the reviewed technical reference/list as a derived result (not a new registry) and prevents undue complexity.
 15. **Small Function → Big Solution → Larger System Impact** is an explicit escalation signal even if technically feasible. Human may choose host-native direct execution, UNDO-protected verification, manual testing, scope reduction or dropping the function. Do not promise crash isolation from UNDO.
 16. Greenfield and Brownfield follow the same proposal/review workflow; Brownfield must ground all decisions in existing source and callers. Separate descriptive Pre-Code from optional actual-source skeleton implementation after review.
+17. An approved Plan revision must reconcile READY/IN_PROGRESS obsolete Job/Task scope via RETIRED or SUPERSEDED, with safe Run/source settlement, preserved historical evidence and accurate parent closure.
+18. RETIRED does not need a replacement Job; do not assume obsolete Tasks are complete/PASS, rerun uncertain writes or duplicate existing GSA lifecycle authority.
 
 ## 10. Immediate next step and stop condition
 
 Review **this single draft** against the current source, Decision references and operational constraints, then perform M1 audit. Do not begin implementation work merely because this document was saved. Existing Criteria/Plan/Milestones and already-verified Bootstrap readiness remain authoritative; use the normal Reviewer and Human authorization path for actual changes.
 
-**Recorded decisions consolidated in this draft (see full operational rules E1–E12 and decision coverage CD-01–CD-30; NEVER substitute this paragraph for them):** One unified plan; optional Discussion Job + Secretary with precise accepted-decision records and supersession; reference-based Planner with decision fidelity; Coder as Software Engineer (not Domain Expert) plus focused solution-clarification only for missing consequential logic; per-Task descriptive Pre-Code Code Structure Proposal without source writes; Reviewer whole-proposal consolidation and PASS/rework/escalation; explicit **Small Function → Big Solution → Larger System Impact** review; Human option of manual work/verification; greenfield/brownfield source-fit; Lead/Worker profiles and authority; verified native controls per host; scoped Task Criteria/Goals; Lead-prepared worktrees; Worker Coder/Tester/Reviewer; minimal role-scoped context; optional post-review actual 27B-skeleton/small-model implementation; cloud/local parallel continuity. These are design decisions recorded in a **DRAFT plan**, not an implementation completion claim.
+**Recorded decisions consolidated in this draft (see full operational rules E1–E12 and decision coverage CD-01–CD-36 and retirement G0–G6; NEVER substitute this paragraph for them):** One unified plan; optional Discussion Job + Secretary with precise accepted-decision records and supersession; reference-based Planner with decision fidelity; Coder as Software Engineer (not Domain Expert) plus focused solution-clarification only for missing consequential logic; per-Task descriptive Pre-Code Code Structure Proposal without source writes; Reviewer whole-proposal consolidation and PASS/rework/escalation; explicit **Small Function → Big Solution → Larger System Impact** review; Human option of manual work/verification; greenfield/brownfield source-fit; Lead/Worker profiles and authority; verified native controls per host; scoped Task Criteria/Goals; Lead-prepared worktrees; Worker Coder/Tester/Reviewer; minimal role-scoped context; optional post-review actual 27B-skeleton/small-model implementation; cloud/local parallel continuity. These are design decisions recorded in a **DRAFT plan**, not an implementation completion claim.
