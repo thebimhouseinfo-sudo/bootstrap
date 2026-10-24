@@ -144,6 +144,34 @@ class InstallTests(unittest.TestCase):
                 self.assertIn("Accepted Decision references",
                               (target / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8"))
 
+    def test_coder_precode_and_user_file_lifecycle_knowledge_are_packaged(self):
+        """Static/source packaging contract only; native Coder performance remains unverified."""
+        coder = (SOURCE / ".agents/roles/coder.md").read_text(encoding="utf-8")
+        implementation = (SOURCE / ".agents/skills/implement-task/SKILL.md").read_text(encoding="utf-8")
+        clarification = (SOURCE / ".agents/skills/solution-clarification/SKILL.md").read_text(encoding="utf-8")
+        lifecycle = (SOURCE / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8")
+        self.assertIn("descriptive Pre-Code", coder)
+        self.assertIn("whole related set", coder)
+        self.assertIn("Stage A", implementation)
+        self.assertIn("no empty", coder)
+        self.assertIn("materially missing", clarification)
+        self.assertIn("NOT a mandatory file-classifier", lifecycle)
+        for example in ("Word:", "AutoCAD:", "CadGPT:", "OPERATION", "DEV",
+                        "Temp Job", "DWL/DWL2", "SHA/GUID"):
+            self.assertIn(example, lifecycle)
+        # Skills/knowledge must use the current installer, no local Worker redesign.
+        with tempfile.TemporaryDirectory() as d:
+            target = pathlib.Path(d)
+            result = run(INSTALLER, "--target", target, "--tier", "Standard",
+                         "--runtime", "claude", "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for part in ("solution-clarification", "implement-task"):
+                self.assertTrue((target / ".agents/skills" / part / "SKILL.md").is_file())
+                self.assertTrue((target / ".claude/skills" / part / "SKILL.md").is_file())
+            self.assertEqual(
+                (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
+                lifecycle)
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(
