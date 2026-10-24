@@ -172,6 +172,31 @@ class InstallTests(unittest.TestCase):
                 (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
                 lifecycle)
 
+    def test_reviewer_precode_cross_task_proportionality_contract_is_packaged(self):
+        """Enforces shipped Reviewer guidance; not a native Reviewer verdict."""
+        review = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
+        skill = (SOURCE / ".agents/skills/goal-review/SKILL.md").read_text(encoding="utf-8")
+        template = (SOURCE / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8")
+        for concept in ("ALL related Task", "CHANGES_REQUIRED",
+                        "HUMAN_ESCALATION", "Small Function",
+                        "same proposal", "PENDING_HUMAN_TEST"):
+            self.assertIn(concept, review)
+        self.assertIn("PRE-CODE Code Structure Proposal", skill)
+        self.assertIn("missing consumers", skill)
+        self.assertIn("PRE-CODE design verdict", template)
+        self.assertIn("Derived approved components", template)
+        self.assertIn("CODE/TEST outcome: PASS / FAIL / UNVERIFIED", template)
+        # Critic remains public-artifact-only; not a source or plan reviewer.
+        critic = (SOURCE / ".agents/skills/critical-review/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("do not read private CRITERIA or plan", critic)
+        with tempfile.TemporaryDirectory() as d:
+            target = pathlib.Path(d)
+            result = run(INSTALLER, "--target", target, "--tier",
+                         "Standard", "--runtime", "codex", "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PRE-CODE design verdict",
+                          (target / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8"))
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(
