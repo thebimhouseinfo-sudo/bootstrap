@@ -681,6 +681,52 @@ All these are **design acceptance tests for this upgrade**, not claims that the 
 
 
 
+## 6F. Conversation decision coverage — content preserved, not just headings
+
+This is a *plan-local trace table* of distinct design decisions settled in the discussion. IDs here are coverage handles for **this draft**, not a claim that Secretary has already written permanent DEC files. Later Secretary may link/migrate them to actual decision records with unbroken provenance. On future revisions, reviewers compare **the right-hand operational rule** with the proposal/runtime, not merely the left-hand name.
+
+| Plan-local ID | Actual decision that must survive | Normative specification / falsification |
+| --- | --- | --- |
+| CD-01 | Discussion Job is optional | E2: explicit request opens; generic discussion asks once; no automatic classification/gates |
+| CD-02 | Secretary faithfully records a settled expert solution | E2: exact solution, rationale, exceptions, examples, exclusions, provenance and status; no shortened topic-only record |
+| CD-03 | Decisions survive correction and handoffs | E2/E3: immutable readable history + supersession and active link; no loss on Plan revision |
+| CD-04 | Planner references rather than re-invents accepted domain solutions | E3: Goal/Task/acceptance depends on full DEC link; coverage/conflict/feasibility reviewed |
+| CD-05 | Planner retains ability to research and challenge *before* acceptance | E3: critical feasibility and alternatives remain possible; no blind agreement or silent rewrite |
+| CD-06 | Coder is software engineer, NOT domain expert | E4: no invented professional rule, operational logic or host assumptions |
+| CD-07 | New solution-clarification skill is Goal/Job-Pack scoped | E4: asks only consequential missing operational foundation or professional solution, not function-level trivia |
+| CD-08 | Fully documented Goal means NO repeat questions | E4: Coder proceeds to code-design response if Plan/decisions already sufficient |
+| CD-09 | Coder response is source-technical | E5: future file paths, actual functions/gates/contracts/callers/interface fields, dependencies, test mechanism; not a business story |
+| CD-10 | Coder proposal is tied DIRECTLY to Detailed Implementation Plan/Task List | E5: each Task ID, related requirement/decision, verified source and proposed changes traceable; not independent Technical Plan |
+| CD-11 | Pre-Code creates ONE descriptive proposal, NOT application files | E1/E5: no empty source/stubs or modified existing files before Reviewer PASS |
+| CD-12 | Coder is not required to optimize the whole system | E5/E8: Coder proposes per Task; Reviewer compares across all relevant Task proposals |
+| CD-13 | Reviewer sees the "empty shell" across Tasks | E8: cross-Task file/module/function/caller dependency assessment and missing links before code |
+| CD-14 | Consolidated technical list is an OUTPUT of Reviewer PASS | E8: only corrected reviewed proposed components are listed; no Coder-authored registry before review |
+| CD-15 | Greenfield and Brownfield share a protocol, not identical evidence | E6: Greenfield names proposed files; Brownfield reads real source/callers, preserves current working code |
+| CD-16 | Reuse beats generic new framework where applicable | E7/E8: source-supported REUSE/MODIFY before CREATE; unnecessary drafts, services and duplicate gates challenged |
+| CD-17 | Technical feasibility alone is not sufficient | E9: value/cost/risk proportionality checked even when solution could be coded |
+| CD-18 | **Small Function → Big Solution → Larger System Impact** must be explicit | E9: reviewer traces system cascade, higher bug/regression risk and affected stable subsystems |
+| CD-19 | Reviewer may not know a simpler domain-specific answer | E9: do not invent one; ask Human if no adequate simple safe approach |
+| CD-20 | Human can choose partial/manual work instead of automation | E9: direct test, manual LOAD/verification, reduce scope/defer/drop; no fake PASS |
+| CD-21 | AutoLISP executes in a real AutoCAD host | E10: mock/sandbox cannot be claimed as native geometry or command verification |
+| CD-22 | Opening another DWG in same CAD session is not isolation | E10: same process crash blast radius; binding switch can affect Jobs and spawn new infrastructure |
+| CD-23 | AutoCAD Undo Group is a conditional reversible edit mechanism | E10: helps supported DWG changes, no process crash guarantee or external effects rollback |
+| CD-24 | CadGPT Create Job must not be redesigned with draft-per-update | E7: existing final Job source + real run + publish as distinct discovery action; preserve accepted V5 model |
+| CD-25 | Lead and Worker are execution profiles, not tier/model rank | E11 + Sections 1–3: scoped authority; Codex also Coder; Worker Coder/Tester/Reviewer; reviewed handoffs |
+| CD-26 | Context should load only what is relevant | E11 + Section 5: no global metadata of inactive roles; host-injected limits acknowledged |
+| CD-27 | Cloud/local parallel workflows need real scoped enforcement | E11 + Section 4: verified native hooks, worktrees, no pretend sandbox/permission from text alone |
+| CD-28 | 27B-created real skeleton/small-model fill is optional and post-design | E11 + Section 6/M6: benchmarks and real tests; never confuse executable skeleton with descriptive proposal |
+| CD-29 | Optimize total completion cost and quality | Section 6D/M1/M7: add pre-code/review cost, implementation, native testing, rework; no universal savings claim |
+| CD-30 | No Criteria change or invented gates | Section 0/6A–6E/8: keep already approved product Criteria, Advisor trigger, branch authority and existing Human decisions |
+| CD-31 | READY and IN_PROGRESS Tasks must be reconciled after reviewed Plan change | G1–G3: retirement not just enum, observe in-flight source/Run and fence obsolete work |
+| CD-32 | RETIRED means no longer needed without successor | G2/G4: distinguish SUPERSEDED, CANCELLED, STALE and COMPLETED; full reason and Plan lineage |
+| CD-33 | Retired obsolete Tasks cannot block Job closure | G4/R-01/R-05/R-13: recompute relevant obligations; no fake PASS or zombie Job |
+| CD-34 | Reuse existing GSA retirement; verify partial Task retirement gaps | G0/G5/R-05/R-12: no second control plane; plugin/client compatibility tested |
+| CD-35 | In-flight work cannot be assumed remotely stopped | G3/R-03/R-04/R-14: fence, settle Run/cursor/tool effects before terminal write |
+| CD-36 | RETIRE is not REPLACE and must not mint duplicates | G2/G4/R-02/R-06/R-10: no unnecessary successor, idempotent Plan reconciliation |
+
+**Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-36 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
+
+
 ## 6G. Plan revisions and RETIRED — READY / IN_PROGRESS work must not become zombie Tasks
 
 ### G0. Verified starting point and limits (2026-10-24)
@@ -766,52 +812,6 @@ When Bootstrap runs **standalone**, audit current TASKS.md, active-task.json, ta
 This finding must not become a new universal daemon, Job registry, lifecycle engine, separate project approval gate or extra Advisor invocation.
 
 ---
-
-## 6F. Conversation decision coverage — content preserved, not just headings
-
-This is a *plan-local trace table* of distinct design decisions settled in the discussion. IDs here are coverage handles for **this draft**, not a claim that Secretary has already written permanent DEC files. Later Secretary may link/migrate them to actual decision records with unbroken provenance. On future revisions, reviewers compare **the right-hand operational rule** with the proposal/runtime, not merely the left-hand name.
-
-| Plan-local ID | Actual decision that must survive | Normative specification / falsification |
-| --- | --- | --- |
-| CD-01 | Discussion Job is optional | E2: explicit request opens; generic discussion asks once; no automatic classification/gates |
-| CD-02 | Secretary faithfully records a settled expert solution | E2: exact solution, rationale, exceptions, examples, exclusions, provenance and status; no shortened topic-only record |
-| CD-03 | Decisions survive correction and handoffs | E2/E3: immutable readable history + supersession and active link; no loss on Plan revision |
-| CD-04 | Planner references rather than re-invents accepted domain solutions | E3: Goal/Task/acceptance depends on full DEC link; coverage/conflict/feasibility reviewed |
-| CD-05 | Planner retains ability to research and challenge *before* acceptance | E3: critical feasibility and alternatives remain possible; no blind agreement or silent rewrite |
-| CD-06 | Coder is software engineer, NOT domain expert | E4: no invented professional rule, operational logic or host assumptions |
-| CD-07 | New solution-clarification skill is Goal/Job-Pack scoped | E4: asks only consequential missing operational foundation or professional solution, not function-level trivia |
-| CD-08 | Fully documented Goal means NO repeat questions | E4: Coder proceeds to code-design response if Plan/decisions already sufficient |
-| CD-09 | Coder response is source-technical | E5: future file paths, actual functions/gates/contracts/callers/interface fields, dependencies, test mechanism; not a business story |
-| CD-10 | Coder proposal is tied DIRECTLY to Detailed Implementation Plan/Task List | E5: each Task ID, related requirement/decision, verified source and proposed changes traceable; not independent Technical Plan |
-| CD-11 | Pre-Code creates ONE descriptive proposal, NOT application files | E1/E5: no empty source/stubs or modified existing files before Reviewer PASS |
-| CD-12 | Coder is not required to optimize the whole system | E5/E8: Coder proposes per Task; Reviewer compares across all relevant Task proposals |
-| CD-13 | Reviewer sees the "empty shell" across Tasks | E8: cross-Task file/module/function/caller dependency assessment and missing links before code |
-| CD-14 | Consolidated technical list is an OUTPUT of Reviewer PASS | E8: only corrected reviewed proposed components are listed; no Coder-authored registry before review |
-| CD-15 | Greenfield and Brownfield share a protocol, not identical evidence | E6: Greenfield names proposed files; Brownfield reads real source/callers, preserves current working code |
-| CD-16 | Reuse beats generic new framework where applicable | E7/E8: source-supported REUSE/MODIFY before CREATE; unnecessary drafts, services and duplicate gates challenged |
-| CD-17 | Technical feasibility alone is not sufficient | E9: value/cost/risk proportionality checked even when solution could be coded |
-| CD-18 | **Small Function → Big Solution → Larger System Impact** must be explicit | E9: reviewer traces system cascade, higher bug/regression risk and affected stable subsystems |
-| CD-19 | Reviewer may not know a simpler domain-specific answer | E9: do not invent one; ask Human if no adequate simple safe approach |
-| CD-20 | Human can choose partial/manual work instead of automation | E9: direct test, manual LOAD/verification, reduce scope/defer/drop; no fake PASS |
-| CD-21 | AutoLISP executes in a real AutoCAD host | E10: mock/sandbox cannot be claimed as native geometry or command verification |
-| CD-22 | Opening another DWG in same CAD session is not isolation | E10: same process crash blast radius; binding switch can affect Jobs and spawn new infrastructure |
-| CD-23 | AutoCAD Undo Group is a conditional reversible edit mechanism | E10: helps supported DWG changes, no process crash guarantee or external effects rollback |
-| CD-24 | CadGPT Create Job must not be redesigned with draft-per-update | E7: existing final Job source + real run + publish as distinct discovery action; preserve accepted V5 model |
-| CD-25 | Lead and Worker are execution profiles, not tier/model rank | E11 + Sections 1–3: scoped authority; Codex also Coder; Worker Coder/Tester/Reviewer; reviewed handoffs |
-| CD-26 | Context should load only what is relevant | E11 + Section 5: no global metadata of inactive roles; host-injected limits acknowledged |
-| CD-27 | Cloud/local parallel workflows need real scoped enforcement | E11 + Section 4: verified native hooks, worktrees, no pretend sandbox/permission from text alone |
-| CD-28 | 27B-created real skeleton/small-model fill is optional and post-design | E11 + Section 6/M6: benchmarks and real tests; never confuse executable skeleton with descriptive proposal |
-| CD-29 | Optimize total completion cost and quality | Section 6D/M1/M7: add pre-code/review cost, implementation, native testing, rework; no universal savings claim |
-| CD-30 | No Criteria change or invented gates | Section 0/6A–6E/8: keep already approved product Criteria, Advisor trigger, branch authority and existing Human decisions |
-| CD-31 | READY and IN_PROGRESS Tasks must be reconciled after reviewed Plan change | G1–G3: retirement not just enum, observe in-flight source/Run and fence obsolete work |
-| CD-32 | RETIRED means no longer needed without successor | G2/G4: distinguish SUPERSEDED, CANCELLED, STALE and COMPLETED; full reason and Plan lineage |
-| CD-33 | Retired obsolete Tasks cannot block Job closure | G4/R-01/R-05/R-13: recompute relevant obligations; no fake PASS or zombie Job |
-| CD-34 | Reuse existing GSA retirement; verify partial Task retirement gaps | G0/G5/R-05/R-12: no second control plane; plugin/client compatibility tested |
-| CD-35 | In-flight work cannot be assumed remotely stopped | G3/R-03/R-04/R-14: fence, settle Run/cursor/tool effects before terminal write |
-| CD-36 | RETIRE is not REPLACE and must not mint duplicates | G2/G4/R-02/R-06/R-10: no unnecessary successor, idempotent Plan reconciliation |
-
-**Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-36 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
-
 
 ## 7. Relationship to existing installation tiers
 
