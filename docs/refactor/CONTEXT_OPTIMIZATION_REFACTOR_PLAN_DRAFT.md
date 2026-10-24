@@ -710,7 +710,7 @@ This is a *plan-local trace table* of distinct design decisions settled in the d
 | CD-22 | Opening another DWG in same CAD session is not isolation | E10: same process crash blast radius; binding switch can affect Jobs and spawn new infrastructure |
 | CD-23 | AutoCAD Undo Group is a conditional reversible edit mechanism | E10: helps supported DWG changes, no process crash guarantee or external effects rollback |
 | CD-24 | CadGPT Create Job must not be redesigned with draft-per-update | E7: existing final Job source + real run + publish as distinct discovery action; preserve accepted V5 model |
-| CD-25 | Lead and Worker are execution profiles, not tier/model rank | E11 + S1–S3: scoped authority; Codex also Coder; Worker Coder/Tester/Reviewer; reviewed handoffs |
+| CD-25 | Lead and Worker are execution profiles, not tier/model rank | E11 + Sections 1–3: scoped authority; Codex also Coder; Worker Coder/Tester/Reviewer; reviewed handoffs |
 | CD-26 | Context should load only what is relevant | E11 + Section 5: no global metadata of inactive roles; host-injected limits acknowledged |
 | CD-27 | Cloud/local parallel workflows need real scoped enforcement | E11 + Section 4: verified native hooks, worktrees, no pretend sandbox/permission from text alone |
 | CD-28 | 27B-created real skeleton/small-model fill is optional and post-design | E11 + Section 6/M6: benchmarks and real tests; never confuse executable skeleton with descriptive proposal |
