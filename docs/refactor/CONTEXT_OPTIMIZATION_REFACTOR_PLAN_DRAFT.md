@@ -1,10 +1,42 @@
-# Bootstrap — Unified Bootstrap Upgrade Plan — Context, Decision Fidelity & Pre-Code Design (Draft v4)
+# Bootstrap — Unified Context, Decision Preservation & Pre-Code Engineering Upgrade Plan (Draft v5)
 
 **Status:** DRAFT — awaiting Planner/Reviewer review and Human approval  
 **Repository:** `thebimhouseinfo-sudo/bootstrap`  
-**Document authority:** Single canonical upgrade plan, updated in place. This v4 consolidates v3 with the accepted discussion, decision-fidelity, Coder/Reviewer and anti-overengineering design directions. Do not create competing context, discussion, coding or harness plans.  
+**Document authority:** Single canonical upgrade plan, updated in place. This v5 retains all v3/v4 context and Lead/Worker scope, with full operational specification and decision traceability instead of name-only summaries with the accepted discussion, decision-fidelity, Coder/Reviewer and anti-overengineering design directions. Do not create competing context, discussion, coding or harness plans.  
 **Scope:** context efficiency; optional Discussion Job and Secretary decision preservation; decision-referenced planning; Coder domain boundary; pre-code per-Task code-structure proposals and cross-Task Reviewer optimization; complexity escalation; Lead/Worker execution profiles; host-native enforcement; delegated workspaces; multi-model worker execution; testing and benchmarking.  
 **Criteria:** Existing approved project Criteria remain unchanged. **This document is not approval to implement, merge implementation code, or deploy.**
+
+
+## 0. How this plan prevents decision loss and accidental redesign
+
+This file is not a list of topic names. Its requirements consist of (1) the concrete rules and examples below, (2) explicit role and artifact boundaries, (3) decision-by-decision traceability, and (4) observable acceptance cases. **Future editing must preserve these semantics, including negative cases and Human alternatives.** A revision that keeps a heading but drops its operational meaning is PLAN DRIFT.
+
+### Authority and vocabulary — do not collapse different things
+
+| Term | Meaning, author and boundary |
+| --- | --- |
+| Project Criteria | Human-approved description of WHAT/WHY, existing source of product authority; unchanged by this upgrade |
+| Accepted Expert Decision | A particular Human-settled operational/professional solution with original rationale and exceptions; the full source remains readable |
+| Discussion Job | Optional workspace for discussions and decisions, not a coding Job, permanent agent, or bootstrap gate |
+| Secretary | Focused function/role that accurately records accepted decisions; no independent right to decide for the Human |
+| Detailed Implementation Plan | Planner's delivery decomposition of approved goals into related Tasks, sequencing, dependencies, acceptance and source decision references |
+| **Code Structure Proposal** | **One descriptive file of the Coder's intended source-level work for each assigned Task, written BEFORE any application source changes** |
+| Technical Reviewer findings | Cross-Task, whole-proposal review of proposed file/module/function/contract/caller/dependency design and host fit; decides PASS, CHANGES_REQUIRED or HUMAN_ESCALATION |
+| Reviewed technical component list | **Derived only AFTER Reviewer PASS**, from the corrected proposal; a usable reference to future source changes, NOT a new Registry or Coder deliverable before review |
+| Implemented source | Actual application code, created/changed only after the relevant proposal review and through existing authorized write tools |
+| Optional actual code skeleton (multi-model experiment) | Real source stubs/modules built DURING implementation after design PASS; NOT the Code Structure Proposal and NOT a mandatory step |
+
+**Document status:** These are discussion-settled design rules recorded in an upgrade PLAN that is still DRAFT. Writing this file does not itself implement role/skill/runtime changes or claim formal approval of a new product Criteria.
+
+### Anti-drift editing procedure for future Planner/Secretary/Reviewer work
+
+1. Preserve the original complete source for every accepted expert decision. Do not replace an 8-step expert algorithm with a generic phrase such as "use the approved HVAC logic."
+2. When revising a Plan, inspect referenced accepted decisions, previous Plan decisions and still-active Task dependencies. Record which decisions remain COVERED, are missing, contradict one another or require explicit Human correction.
+3. A shortened human-facing summary is allowed, but it **must never replace the canonical operational specification** or delete exceptions, rejected alternatives and escalation behavior.
+4. A missing reference is an unresolved coverage issue, not permission for Coder to invent a new solution.
+5. Do not create new Criteria, Technical Advisor calls, job stages, approvals, registries or enforcement mechanisms merely to make this documentation process appear rigorous.
+6. Reviewer must flag a proposal or revised Plan as DECISION_FIDELITY_FAIL when it retains topic labels but loses the actual solution, caller semantics, trigger, output or exceptions.
+
 
 ## 1. Problem and desired operating model
 
@@ -35,7 +67,7 @@ Use a **senior/junior delegation analogy** but name the architecture **Lead Harn
 
 ## 3. Delegation contract, workspace and lifecycle
 
-Lead prepares **before Worker launches**:
+Lead prepares **before Worker launches**, using the **already reviewed cross-Task Code Structure Proposal** where implementation is about to begin:
 1. Approved source links/IDs (Project Goal/Criteria/Milestone and decision references).
 2. Task Goals and Task Criteria with explicit acceptance cases, non-goals and failure reporting.
 3. Implementation instructions; interfaces, dependencies and expected file areas.
@@ -61,7 +93,7 @@ on_blocked: report_to_lead
 ```
 All values above are illustrative, not a deployed format or real command.
 
-Lifecycle: `PREPARED → ASSIGNED → IMPLEMENTING → SELF_TESTED → SUBMITTED → LEAD_REVIEW → ACCEPTED / REWORK / REASSIGNED`, with `BLOCKED` for genuine inability to continue. A Worker **never self-assigns ACCEPTED**, merges to protected branches, or invents Human/Reviewer approval.
+Lifecycle: `PREPARED → ASSIGNED → IMPLEMENTING → SELF_TESTED → SUBMITTED → LEAD_REVIEW → ACCEPTED / REWORK / REASSIGNED`, with `BLOCKED` for genuine inability to continue. **Pre-Code Coder Proposal → Reviewer design review occurs within preparation before IMPLEMENTING; it does not add a separate approval authority or project lifecycle state.** A Worker **never self-assigns ACCEPTED**, merges to protected branches, or invents Human/Reviewer approval.
 
 Lead reviews actual diff and runs independent tests when required. FAIL produces specific findings → Worker repair → retest → review. Repeated or serious failure may cause tighter task subdivision, better instructions, model escalation, or reassignment. Lessons Learned must distinguish capability limits from vague instructions, missing tests, dependency issues, and environment failures.
 
@@ -101,7 +133,7 @@ Lead reviews actual diff and runs independent tests when required. FAIL produces
 ## 6. Worker execution strategies
 
 ### Default — Direct task implementation
-Coder implements scoped task, performs self-checks; Worker Tester and Reviewer inspect behavior/diff within task scope; submit to Lead. Suitable for a small fix or well-bounded task.
+After the applicable descriptive Pre-Code Proposal has been reviewed across the relevant Tasks, Coder implements the scoped task, performs self-checks; Worker Tester and Reviewer inspect behavior/diff within task scope; submit to Lead. Suitable for a small fix or well-bounded task.
 
 ### Optional — Architecture-first, contract-driven implementation
 For suitable multi-module/job-pack work:
@@ -222,6 +254,472 @@ Early proposals and Reviewer analysis consume extra initial tokens. Their purpos
 Measure by completed Goal: **total cost = pre-code proposal/review + implementation + testing + rework**, including context, cloud tokens, local wall-clock, native test failures and regression effort. Do not claim universal savings; for tiny isolated changes extra review may outweigh benefits. Benchmark relevant greenfield/brownfield and host-dependent examples. The objective is *lowest justified end-to-end cost and bug risk*, not maximum automation or minimum first-step tokens.
 
 
+
+## 6E. Operational specification — from accepted discussion to reviewed code design
+
+This section is the **detailed behavior contract** for implementation, not a shorthand recap. It explains exactly what each role receives, writes, checks and hands off. Sections 1–6D and 7–10 remain binding.
+
+### E1. End-to-end flow, deliverables and real write boundaries
+
+~~~text
+Human / Domain Expert
+  ├─ normal chat, or optional explicit Discussion Job
+  └─ accepts an operational/professional decision
+       ↓
+Secretary (only when a discussion recording context is active)
+  └─ writes full accepted decision, why, examples, exclusions and supersession links
+       ↓
+Planner
+  ├─ reads approved Criteria + full decisions
+  └─ derives Detailed Implementation Plan, Goals, Tasks, acceptance and references
+       ↓
+Coder — Pre-Code preparation (not source implementation)
+  ├─ reads Plan/Task list, relevant full decisions, verified code/host context
+  ├─ asks Human/Lead ONLY if essential real-world logic or domain solution is missing
+  └─ writes one Code Structure Proposal file:
+       Task T1: would CREATE/MODIFY/REUSE file A; planned caller/functions/contracts...
+       Task T2: would CREATE/MODIFY/REUSE file B; planned caller/functions/contracts...
+       Task T3: ...
+       [NO application source files created or modified]
+       ↓
+Reviewer — whole-relevant-design technical review
+  ├─ reads every affected Task proposal together + actual existing source in brownfield
+  ├─ finds duplicates, unnecessary contracts/gates, caller gaps, host conflicts, coupling
+  ├─ challenges disproportionate small-function → big-system changes
+  ├─ CHANGES_REQUIRED: Coder adjusts proposals and re-submits affected combined scope
+  ├─ HUMAN_ESCALATION: asks Human for missing domain choice or unacceptable risk trade-off
+  └─ PASS: accepts consolidated structure
+       ↓
+Derived implementation reference / component list
+  └─ extracted from reviewed proposals; same artifact or view; no second registry
+       ↓
+Coder — Implementation (authorized application source changes start HERE)
+       ↓
+Actual host tests / Tester / independent code review / repair loop
+       ↓
+Integration through existing branch and Human authority
+~~~
+
+**Files in Pre-Code:** A Markdown/text proposal record is allowed. **No new empty .ts/.py/.lsp/.cs application files, code stubs, created fake implementation, modified product files or written tests** merely to "show the structure." "Empty shell of the app" refers to *descriptive intended structure in the proposal*, not to a checked-in code skeleton. A future approved implementation stage may actually create source files; this is a different time and purpose.
+
+**Granularity:** Coder answers the already assigned Tasks. One proposal file can contain the relevant Task sections; if several Workers submit Task-level sections separately, Reviewer reads the combined relevant set. Do not force the Coder to become project Architect, to author an independent technical implementation plan or to maintain a global Registry.
+
+### E2. Discussion Job and Secretary — exact event and record behavior
+
+**Entry rule:**
+- Human explicitly says "open/create Discussion Job": create/open the discussion workspace, without an extra question or a new advisor/approval gate.
+- Human merely says they want a discussion: ask ONCE whether they want a Discussion Job to record decisions. "No" means continue talking without a Discussion Job; do not keep prompting.
+- A normal question, suggestion, technical brainstorm or Coder task is **not** by itself a Discussion Job trigger. Do not use AI complexity scoring to decide whether to open one.
+
+**During an open Discussion Job:**
+- Discussion may include proposed ideas, disagreement, experimentation and unresolved questions. **Secretary records a DEC only upon a genuine accepted Human decision**, not every assistant sentence.
+- Recording must occur at the decision point, rather than hoping the next Planner can reconstruct it from a long conversation.
+- Exact User terminology, professional data rules, examples, input/output constraints, decision rationale, exceptions, risks and rejected alternatives must be retained. Preserve the **solution**, not merely its topic name.
+- If a decision is corrected, the previous decision stays readable and points to the successor (SUPERSEDED_BY); the index shows active/superseded/unresolved states.
+- Secretary can note unknowns, but must not mark them ACCEPTED, silently settle a disagreement or create missing algorithms.
+- Do not claim a GitHub decision was saved unless the write actually succeeded. If the connector is unavailable, retain the proposed full record in the current interaction and explicitly mark persistence NOT_VERIFIED; do not fabricate a path or SHA.
+- A Discussion Job can end without triggering Criteria modification, Plan update, Coder execution or publication. Human chooses what to do next.
+
+**Illustrative folder, not proof that files exist today:**
+~~~text
+docs/discussions/DISC-001-job-workflow/
+  INDEX.md                    # active DEC IDs, current/superseded state, linked Goals
+  DEC-001.md                  # one complete accepted decision
+  DEC-002.md                  # another complete accepted decision
+~~~
+
+**Minimum content of an accepted decision record:**
+~~~md
+# DEC-001 — Job source ownership and authoring
+Status: ACCEPTED
+Discussion: DISC-001
+Source: <specific Human message / chat / approved document link>
+Accepted by: Human
+Applies to: <affected feature / Goal / Task IDs>
+Decision in Human terms:
+  <full accepted behavior, exact ordered workflow, known inputs and outputs>
+Reason:
+  <why this is useful or simpler in real operation>
+Professional/host constraints:
+  <versions, environment, original data rules, exceptions, risks>
+Examples:
+  <at least the concrete cases the Human gave; preserve their values and meaning>
+Rejected alternative(s):
+  <what was rejected, and why>
+Unresolved:
+  <no silent assumptions>
+Supersedes / Superseded by:
+  <IDs or none>
+~~~
+
+This format is a documentation contract, not a new product data model or permission engine. Do not reproduce every unrelated chat message, only complete accepted decisions and their necessary context.
+
+### E3. Planner — how to write a referenced Detailed Implementation Plan without losing decisions
+
+Planner keeps the approved **WHAT/WHY** from Project Criteria separate from the accepted **HOW/DOMAIN LOGIC** in Expert Decisions. It remains free to research and critically evaluate proposals before Human acceptance.
+
+For a decided Goal, Planner must:
+1. Read the complete applicable Decision records and verify their status and provenance (including later supersession), not a previous short recap.
+2. Identify the outcome, observable acceptance, Tasks, order and shared dependencies.
+3. Link Task/Goal directly to those decisions. Include only the short orientation needed to navigate; do not replace the full algorithm/procedure with a rewritten one.
+4. Check **COVERAGE** (each accepted in-scope decision reached), **CONFLICTS** (two active instructions incompatible), and **FEASIBILITY** (host/tool constraints observed versus assumed).
+5. If a genuine conflict or infeasibility is found, provide evidence and a specific Human-facing decision to make. Do not silently change the solution, automatically trigger Technical Advisor or edit Criteria without existing authorization.
+6. Keep original decision links during every Plan revision. When revising scope, explicitly identify what remains unchanged and what Human settled as revised.
+
+**Example Goal/Task entry (illustrative, not a second plan):**
+~~~md
+Goal G-JOB: Create and run a user-defined CadGPT Job
+Decision references: DEC-JOB-001, DEC-JOB-002
+Acceptance: Given a user workflow, the authorized Job source is recorded,
+  actual steps run with real CAD/file tools, effects verified and saved when
+  appropriate; reusable discovery occurs when explicitly requested.
+
+Task T-JOB-1: Interpret the supplied workflow and map existing capabilities
+Task T-JOB-2: Record the final managed Job source and any required helper
+Task T-JOB-3: Run on the exact bound drawing, verify and retain repair evidence
+Task T-JOB-4: Publish the saved Job for future invocation when requested
+
+[The full host-specific solution, rejected draft/promote lifecycle and
+exceptions live at linked decisions, not in a lossy rewritten paragraph.]
+~~~
+
+A Plan has a **delivery structure**, not an invented full replacement for the accepted domain solution. Planner must not dilute a Human-approved solution just to make the Plan shorter.
+
+### E4. Coder — what "solution clarification" means and when NOT to ask
+
+**Coder is an engineer implementing code, not a Domain Expert or product Planner.**
+
+Before proposing code for a Goal/Job Pack, Coder reads the Goal, related Tasks, existing Plan, the **full** referenced Human decisions, the verified host profile, the relevant source/callers and the applicable focused skill/knowledge.
+
+There are **two material categories** of questions:
+1. **Missing operational logic / foundational constraints** — e.g. whether the app works on live AutoCAD or offline DWGs, AutoCAD version/platform, read/write scope, what the user experiences and what observable result is required.
+2. **Missing professional/domain solution** — e.g. which attributes determine HVAC device classification, how a professional exception works, what measurement is authoritative, or what specific workflow must be preserved.
+
+Ask only if the information is material to choosing a correct overall solution. The question should be about the **real outcome or host operation**, not "which framework, database, algorithm library or interface should I use?" Coder may nominate a reasonable operational choice when there is genuine ambiguity, but must not pass off an invented domain rule as accepted.
+
+**Counterexample:** If the Detailed Implementation Plan and Decision records already specify the CAD binding rule, the Lisp executor, the workflow steps and the professional data mapping, Coder must NOT ask Human again. Coder directly writes its per-Task source-level proposal.
+
+**Coder does not ask** about ordinary file organization, variable names, control flow, test helper implementation, error-handling idioms or minor technical choices. Coder decides these as a competent software engineer and gives Reviewer an evidence-based proposal.
+
+**Exception:** A seemingly small Task that requires extensive extra infrastructure and affects unrelated subsystems should be highlighted in the proposal; Reviewer then challenges and escalates when necessary (E8), rather than Coder writing code first.
+
+The solution-clarification skill supports this **single pre-code analysis**, not repeated forms, a separate user approval ceremony, a Job-stage gate or a forced brainstorming loop. It applies in software-only and domain-heavy projects alike.
+
+### E5. Code Structure Proposal — precise file contract
+
+**Definition:** A Code Structure Proposal is **a real descriptive text/Markdown file** produced by the Coder in the existing task/document workspace. It describes, task by task, **which application source files the Coder would create, modify, reuse, keep or remove, what code each would contain, who would call it, which dependencies it needs and what would prove it works**. Its described files do NOT yet exist if marked CREATE. Its described existing files are not modified.
+
+**Input:** a specific Detailed Implementation Plan/Task List with Goal/Task IDs, accepted decisions, real existing source/host metadata where applicable, and the permitted workspace.
+
+**Audience:** **Reviewer only** (and other implementing agents who need the reviewed design). Human should not be required to review this technical file. Human may receive a short outcome/risk question only in a legitimate escalation.
+
+**Storage:** Prefer a single Task/Goal-owned .md file within the *already permitted documentation/work area*. No new dedicated document database, global architecture registry, source staging directory, separate Planning phase or permanent framework. If host supports Task attachments instead of files, use the host-native equivalent without changing the semantics. **The proposal file itself is not a source code file.**
+
+**Per-Task minimum fields, all meaningful and concrete:**
+- Task ID, Goal link, short actual Task requirement, decision/acceptance references.
+- Existing code evidence: where Coder looked; relevant file names, current callers and functions that truly exist; label unverified guesses **PROPOSED**, not **EXISTING**.
+- For each planned affected file: exact proposed path; action **CREATE | MODIFY | REUSE_AS_IS | KEEP | REMOVE**; role of file; actual expected code elements such as important named function/class/gate/contract/caller/interface/field; responsibility; inputs/outputs; other file(s) that will call/use it.
+- Integration/call flow across the specific Task, including when existing runtime components are invoked.
+- Reuse vs new implementation justification: why an existing capability is insufficient before proposing infrastructure.
+- Verification: observable tests and host/fixture needs, which changes are read-only vs stateful/destructive and which outcomes need native proof.
+- Coupling, assumptions, uncertainties and any unexpectedly large solution or larger-system impact.
+- Small set of **explicit exclusions** so Reviewer sees the simpler route, e.g. "No new draft lifecycle; no new CAD process manager."
+
+**What NOT to write:** long synthetic source code, fake function bodies, empty compilable files, speculative whole-system architecture not required by Tasks, a registry of all project symbols, an invented test framework or an extra "technical plan" unrelated to Detailed Implementation Plan. Local variable names may be proposed when useful for shared interfaces, but are not frozen if they are only implementation details.
+
+**Template — literally the form of the descriptive file:**
+~~~md
+# Code Structure Proposal — Goal G-XXX
+Status: PROPOSED, NOT CODED
+Plan / Task List: <real links, versions>
+Decision references: <actual accepted records / provenance>
+Environment read: <verified profile and relevant host facts>
+Application source changes so far: NONE
+
+## Task T-001 — <task title>
+Requirement/acceptance: <what Planner already defined>
+Professional decisions consulted: <full references, not pasted generic summary>
+Current source inspected:
+- src/existing-a.ts — verified existing function foo(); callers: bar()
+
+Proposed file impact:
+- MODIFY src/existing-a.ts
+  Why: add behavior already required by T-001
+  Planned code: function checkX(request), return allow/deny reason
+  Called by: src/existing-b.ts
+  Contract/data: reuse current request structure; no new permission schema
+- REUSE_AS_IS src/existing-c.ts
+  Why: existing helper already resolves current branch/work authority
+- CREATE src/new-helper.ts (only if existing components cannot be extended)
+  Planned code: small helper for <precise missing behavior>
+  Caller: existing-a.ts
+  Why new rather than reuse: <concrete source evidence>
+
+Call path: existing-b → checkX → existing-c → original operation
+Tests/evidence: <actual success, failure and regression cases>
+Dependencies/risks: <material impacts, especially other Task interfaces>
+No new components needed: <named exclusions>
+Unresolved professional/operational decision: NONE / <specific question>
+
+## Task T-002 — <task title>
+[same fields]
+
+No product source or test code is changed by this proposal.
+~~~
+
+**Important ownership rule:** Coder is **not responsible for generating a second project-wide architecture diagram or merging all proposals**. It completes per-Task engineering responses. Reviewer has the whole-bundle responsibility.
+
+### E6. Greenfield and Brownfield — same artifact, different evidence
+
+**Greenfield:**
+- The Planner's approved Goal/Task list and professional/operational decisions establish intended behaviors and constraints; there may be no existing source.
+- Coder describes **proposed future files** in the proposal file. Example: "CREATE src/tool-handler.ts — register the tool, call input validation, invoke the execution function"; "CREATE tests/tool-handler.test.ts — cover valid/invalid input".
+- Describing a future file does not create it; Reviewer can reorder, merge or remove proposed files before implementation.
+- Do not build a standalone bootstrap framework, full enterprise platform or unnecessary architecture simply because the project is new.
+
+**Brownfield:**
+- Before proposing changes, **inspect the current actual source and callers**. Determine whether a function/contract/gate already exists, whether its semantics match the Task, and what working consumers depend on it.
+- Use **REUSE_AS_IS** or narrow **MODIFY** wherever the existing capability suffices. CREATE only for concrete missing functionality, not because a pattern is common in generic software engineering.
+- A proposed change to a small function may cascade into existing background Job state, bound host identity, API compatibility, deployment or safety contracts; include those dependencies for Reviewer even though Coder need not globally optimize them.
+- NEVER blank or replace existing source to turn it into a proposed skeleton. No unrequested migration, forked workflow, draft tree or duplicate canonical source-of-truth.
+- Source audit distinguishes code behavior from tool selection/routing mistakes; a user-facing bug is not automatically evidence that a new subsystem is needed.
+
+### E7. Fully worked Brownfield example — CadGPT "Create Job"
+
+**Human outcome:** invoke Create Job; Human supplies intended workflow; Builder records it faithfully; execute on actual capabilities/host; inspect whether real steps work; save the Job so it can be run again. This is an illustration of a Coder response, **not authorization to change CadGPT**.
+
+**Existing source surfaces verified during this discussion:**
+- src/cadgpt/tools/control.ts: Create Job control/Builder entry.
+- skills/jobcreate/SKILL.md, skills/jobcreate/job-skills/workflow-planning.md and tool-mapping.md: authoring and capability mapping.
+- src/cadgpt/tools/v5-builder-source.ts: V5 owned source create/update/publish.
+- src/cadgpt/tools/jobs.ts: runtime preparation, real execution, Job save/finish.
+- src/cadgpt/tools/registry.ts: capability discovery.
+- knowledge/jobs/JOB_RULES.md: actual V5 ownership, bound drawing, source-vs-Registry semantics.
+These paths are **existing evidence at the time of reading**, not claims that a native CAD run has already succeeded.
+
+**What the Coder's proposal file should actually say:**
+
+~~~md
+# Code Structure Proposal — CadGPT Create Job
+Status: PROPOSED_NOT_CODED
+Goal/Tasks: user-defined Create Job, workflow record, native run, save for reuse
+Existing CAD runtime result: NOT YET VERIFIED
+
+## T1 — Accept Create Job and record workflow
+REUSE_AS_IS / VERIFY src/cadgpt/tools/control.ts
+  Already exposes Create Job and Builder capability selection.
+  Proposed change: NONE until end-to-end routing test shows a defect.
+MODIFY skills/jobcreate/SKILL.md or workflow-planning.md ONLY IF a verified
+  behavior gap causes loss of User business steps or unnecessary questions.
+  Desired behavior: faithfully preserve input steps; ask only a missing
+  consequential business/operational decision.
+No new CreateJobManager, workflow lifecycle state or user questionnaire.
+
+## T2 — Choose capabilities and write the managed Job source
+REUSE_AS_IS skills/jobcreate/job-skills/tool-mapping.md
+  Locate verified existing tool/Lisp/Job capabilities first.
+REUSE_AS_IS src/cadgpt/tools/v5-builder-source.ts
+  Call existing v5_source_create (or authorized update for existing source).
+  Future user package includes JOB.md; optional lisp/ or tools/ only if needed.
+  Do NOT build JobDraftManager, CheckoutContract, copy-to-final,
+  new Publisher service or per-update draft folder.
+Source creation and Registry publication are different events.
+
+## T3 — Run, inspect and repair the real Job
+REUSE_AS_IS src/cadgpt/tools/jobs.ts
+  Call job_runtime_prepare(source_path) on final managed JOB.md.
+  Follow actual steps with verified tools; native AutoCAD actions use the
+  bound drawing. Check LOAD/run outcomes separately if Lisp is used.
+  Save actual DWG only when modified; actual Save failure is not DONE.
+  A failed run retains repairable evidence; do not blindly replay uncertain
+  non-idempotent changes.
+No mock-only "TEST PASS", automatic rebind or new runtime state engine.
+
+## T4 — Save for future invocation
+REUSE_AS_IS src/cadgpt/tools/v5-builder-source.ts
+  The source already resides in the managed final folder before the test;
+  after actual success and the User's request to retain/reuse the Job,
+  call v5_source_publish for registry discovery.
+  Publication is NOT copying draft files into final source.
+  Job source persistence, DWG Save and Registry publish are distinct.
+  If publish fails, report it; do not falsely report registered.
+No new staging, promote gate, compatibility check or cleanup subsystem.
+
+Cross-Task execution:
+Create Job control → jobcreate workflow mapping → v5_source_create →
+job_runtime_prepare → actual CAD/file executors → verified Save/finish →
+explicit v5_source_publish.
+
+Evidence required:
+- Create Job reaches Builder with the intended Work context
+- JOB.md preserves user's workflow
+- Direct run from final source works without publication prerequisite
+- CAD mutations verified on exact drawing; read-only job avoids needless save
+- Failed run remains diagnostically repairable; no fabricated completion
+- Successful publish makes Job discoverable
+- Existing Job update does not create another draft folder
+~~~
+
+**Reviewer expected evaluation:** "A new draft/checkout/promote tree for each edit is an unrequested lifecycle, extra state/ownership ambiguity and a source of regressions. Existing final-source authoring and publish/discovery should be reused." Reviewer checks source evidence and real runner limitations, not merely whether a generic draft architecture *could* work.
+
+**Important semantic edge:** "Save Job after testing" does **not** imply writing source for the first time after native execution. The V5 source must exist to be run and is written to its final managed owner location first; **publishing it for future discovery** is a distinct later action. Do not silently delete a failed unpublished source if repair is expected. If actual Human intent conflicts with this distinction, ask the consequential question instead of inventing a new source lifecycle.
+
+### E8. Reviewer — cross-Task review, findings, derived inventory and implementation handoff
+
+Reviewer input is **all relevant Task proposals together**, not just one local Task. Reviewer may be a Lead/independent Reviewer with the full relevant view; a Worker Reviewer restricted to one Task cannot falsely claim to have consolidated an unseen multi-Task design.
+
+**Reviewer reads, in this order:**
+1. The Goal, all affected Tasks, their acceptance and direct full accepted decision references.
+2. Each Coder-proposed future file, important symbol, caller, contract, gate, state, dependency and planned test.
+3. Relevant existing source, existing callers, host execution path, hooks/permissions, shared interfaces and integration boundaries (especially brownfield).
+4. Cross-Task overlap: where two proposed things do the same work, where a new contract is not consumed, where an existing hook/helper suffices, and where a change causes a cascade in another subsystem.
+5. Architecture/risk proportionality, testing feasibility and genuine host constraints.
+
+**Reviewer decisions (with specific findings):**
+- **PASS:** whole applicable design is sufficiently simple, feasible and faithful; Reviewer records/derives the final approved file/interface responsibility list from corrected proposals. PASS does not certify future code or test execution.
+- **CHANGES_REQUIRED:** specify Task/file, exact problem, source/decision evidence, impact and the proposed simplification when known. Coder edits the descriptive proposal, **not source**; Reviewer re-evaluates the affected combined design. Avoid an unbounded speculative redesign loop.
+- **HUMAN_ESCALATION:** consequential missing operational/domain input, change of accepted scope, or a technically feasible but disproportionate/high-risk large-system change that cannot be responsibly simplified. Ask Human in ordinary practical language, not to select programming frameworks. After Human chooses, Coder updates the proposal, then Reviewer re-evaluates.
+
+**What cross-Task consolidation actually does:** If T1 proposes ReadGate and T2 proposes WriteGate, Reviewer inspects semantics and may recommend one permission mechanism or existing authority checker. If separation has a real necessity, retain it; do not force arbitrary code reduction. If T1 adds a request contract and no caller accepts it, Reviewer requests deletion or a real call path. If several Tasks need a common helper, Reviewer can coordinate ownership and names **before** code exists.
+
+**Derived technical component list — only after PASS:**
+~~~md
+# Reviewed technical components — Goal G-XXX
+Source: Code Structure Proposal <link and reviewed revision>
+Review: PASS <review evidence>
+- src/authority.ts      MODIFY     owner T1; checkX(); callers tool-handler
+- src/tool-handler.ts   MODIFY     owner T2; invokes checkX()
+- tests/authority.test.ts  CREATE  owner T3; allowed/denied/edge checks
+Explicitly excluded: separate GateRegistry, new approval daemon
+Known host limits: <verified facts, not assumed test results>
+~~~
+
+This can be a section/view of the **same reviewed proposal** or existing task artifact. **No second coder-authored catalog, index database or automatic registry sync is required.** Proposed names are useful lookup targets for later Coders and cross-worktree handoff, not a freeze on local variable spelling.
+
+**Once PASS:** Coder implements within the already authorized branch/worktree and file scope, using accepted reviewed interfaces and direct decisions. Routine private refactors and local variable names do not need fresh Human input. Material new modules, contracts, shared interfaces, changed host behavior or expanded system impact require updated technical review; decisions requiring Human authority go through existing paths. Tester verifies the actual result and post-code Reviewer still checks code/test/decision fidelity. Do not confuse proposal PASS with native runtime PASS.
+
+### E9. Small Function → Big Solution → Larger System Impact: actual decision procedure
+
+**Trigger is a disproportion, not technical impossibility:** one small Task/function appears to require many new services, contracts/gates, binding switches, lifecycle stages, state recovery rules or modifications to healthy unrelated subsystems. Even if it **can be programmed**, it may be an unsafe or wasteful decision.
+
+1. Coder's ordinary per-Task response exposes the proposed file/caller/dependency chain. Coder does not conceal it or implement first.
+2. Reviewer examines **the original small outcome, proposed large mechanism and larger-system consequences**, including possibility of catastrophic bugs, multi-Job interactions, host crash, maintaining more states, new branches/gates and future regression.
+3. When grounded in existing code/host evidence, Reviewer requests a **simpler concrete proposal** from Coder.
+4. **If no proportionate/sufficiently safe alternative has been established, Reviewer MUST escalate to Human BEFORE code**, even if implementation is feasible. Reviewer must not force itself to invent a domain-specific fix or add yet another subsystem to make the original overlarge solution work.
+5. Human may **choose direct execution with understood risk; provide domain/host knowledge; select reversible execution where practical; reduce automation; manually perform/test a step; postpone; or drop the function**. Human does not have to approve gates/contracts or understand internal class names.
+6. Coder updates the same proposal based on that practical decision. Reviewer confirms the new architecture is consistent with Plan, source and host limitations; implementation begins only then.
+
+**Human-facing escalation should be concise, for example:**
+~~~text
+Original request: Test one AutoLISP on CadGPT.
+Proposed solution: open another drawing and change the bound-drawing context.
+Impact: affects other running Jobs and needs binding preservation/recovery logic.
+Risk: extra cross-Job runtime states and regression, without process crash isolation.
+We have not established a proportionate safe approach.
+Would you prefer direct host execution, a reversible test where feasible,
+or to receive the Lisp and run/verify it manually?
+~~~
+
+**Do not treat "manual" as failure.** Human may simply say: "Give me the Lisp; I will LOAD and test." Coder supplies source and exact instructions, marks native outcome **PENDING HUMAN TEST / UNVERIFIED**, and does not build a hidden simulator or claim automated PASS. If a hard approved requirement truly mandates automation, a proposed change to that approved requirement uses the **existing** Human/Criteria authority rather than an unrecorded bypass.
+
+### E10. AutoLISP / AutoCAD — full host-specific causal example
+
+**Professional execution fact:** Lisp runs in AutoCAD, not in a generic language sandbox. An external mock, static parser or simulated CAD object model can help with limited issues, but it cannot prove actual AutoCAD geometry or command-side effects.
+
+**False shortcut 1:** "Test in an AutoCAD sandbox." Unless such an actual isolated, verified host facility exists and fits the requirement, Coder cannot assume or invent it. A sandbox runner plus fake APIs becomes a new subsystem needing its own tests.
+
+**False shortcut 2:** "Open another test DWG in this AutoCAD session." That is **not process isolation**: a fatal Lisp/AutoCAD crash can close all drawings in the same process. In CadGPT, the current Job/other Jobs may be bound to the original drawing; testing on the new drawing can require re-binding, restoring identity and synchronizing state among Jobs. What began as "test one Lisp" becomes a change to the larger binding architecture.
+
+**Proportionate options the Human can accept:**
+- Test directly on the currently authorized/bound host drawing when the operational risk is understood and acceptable; no automatic drawing switch.
+- For operations that are genuinely reversible, capture appropriate pre-test state, use a correctly managed AutoCAD UNDO Group and error/ESC cleanup, inspect actual output, then undo when test restoration is intended.
+- Deliver the Lisp for **Human manual LOAD/RUN/inspection** without building automated test infrastructure; report results from actual human test when received.
+
+**Limits:** UNDO Groups can help restore supported DWG edits; they do **not** isolate crashes, guarantee restoration after the process terminates, roll back external-file effects, undo every side effect or substitute for recovery of unsaved user work. A direct-host option is a Human-accepted operational choice, not a blanket claim of zero risk. A test that changes a drawing must still honor relevant binding/Save rules, including avoiding false Done.
+
+Reviewer need not know a novel CAD expert technique. Its duty is to recognize that the engineering solution is expanding beyond the small request and **ask Human rather than approve a fragile architecture**. The Human may know an inexpensive practical method unavailable to the model.
+
+### E11. Lead/Worker, context and optional actual source skeleton — integration rules
+
+**Lead/Worker profiles are task authority scopes, not model capability rankings or installation tiers.** Codex cloud may be Planner, Reviewer, Tester or Coder. Local QwenCode/Continue can be Workers for delegated tasks and may be reviewed locally where they genuinely see all relevant design; final Lead integration checks remain as configured.
+
+- A Lead can prepare multiple isolated nonconflicting branches/worktrees and assign reviewed Task-level interfaces. Worktree separation controls Git working trees, **not arbitrary OS writes**; host-native permission/hook protection must be tested. No fake sandbox.
+- Worker Coder sees its assigned Plan/Task and accepted decisions. If shared mechanism overlaps another Task/workstream, a Reviewer with the **combined relevant proposals** resolves the interface. Do not require every Worker to reconstruct the whole project.
+- A Worker may continue **already prepared, reviewed and authorized implementation** while cloud access is unavailable. The absence of cloud access does not license changes to Project Criteria, approvals, protected hooks, integration policy or unreviewed cross-workstream architecture.
+- Keep instruction/context loading sparse: small Universal Core; full ACTIVE role, scoped relevant skill metadata; full skill content on activation; NO metadata or full content for unrelated agents, skills, tools, knowledge or harness prompt instructions. Inspect host-injected schemas and retained conversation separately; cannot promise to remove inaccessible platform context.
+- Native QwenCode hooks must be tested as QwenCode hooks. Copied Codex hook config, Markdown "deny" statements and worktrees are NOT equivalent to verified enforcement.
+- A possible **post-review implementation** experiment can ask a 27B model to write actual source skeletons and smaller models to fill narrow modules. This is distinct from the **pre-code descriptive proposal**, which never creates product code. Only use this experiment when end-to-end metrics justify it, not by default.
+
+### E12. Acceptance cases that directly falsify plan drift
+
+| Case | Input condition | Required observation / reason to FAIL |
+| --- | --- | --- |
+| D-PRESERVE-1 | Human settles a detailed domain mechanism with exceptions | Secretary record preserves all critical steps, exceptions and rejection rationale; a mere topic label FAILS |
+| D-PRESERVE-2 | Human revises a decision | Old text remains linked and readable, successor marked active; silent overwrite FAILS |
+| D-PLAN-1 | Planner rewrites Goals/Milestones | Each still-relevant accepted decision is linked and readable; lost link or changed rule FAILS |
+| D-CODER-1 | Goal fully documents operational logic and professional solution | Coder produces technical proposal without asking Human to repeat known facts |
+| D-CODER-2 | Goal lacks materially consequential host/professional input | Coder asks a focused real-world question before selecting the implementation |
+| D-PRECODE-1 | Task proposes 3 new modules | Proposal file describes proposed modules/functions/callers; no application source file exists/changes yet |
+| D-PRECODE-2 | Brownfield Task has suitable existing helper | Coder cites/reuses real helper; new parallel service without justification FAILS |
+| D-REVIEW-1 | Two Tasks propose overlapping gate/contract logic | Reviewer sees **both**, weighs consolidation and documents decision before implementation |
+| D-REVIEW-2 | Reviewer identifies needless subsystem but Coder code not yet written | Reviewer returns precise CHANGES_REQUIRED; Coder revises text, not source |
+| D-REVIEW-3 | Reviewer PASS | Reviewed per-file/interface component list can be read from accepted proposal with no new registry |
+| D-RISK-1 | Small Lisp test proposes drawing rebinding and cross-Job state manager | Reviewer flags SMALL FUNCTION → BIG SOLUTION → LARGER SYSTEM IMPACT despite technical feasibility |
+| D-RISK-2 | Reviewer cannot establish a proportionate solution | HUMAN_ESCALATION BEFORE code, not automatic PASS or architecture invention |
+| D-RISK-3 | Human elects to test Lisp personally | Coder delivers Lisp/instructions; no automated test subsystem; native PASS remains UNVERIFIED until observed |
+| D-HOST-1 | A mock parser says Lisp "passes" but actual CAD has not run | Do not claim native AutoCAD PASS |
+| D-HOST-2 | A test drawing opens inside same AutoCAD process | Do not claim crash isolation or disregard binding impact |
+| D-BROWN-1 | A Job update is proposed through a new draft-per-edit lifecycle | Reviewer rejects unjustified duplication if verified V5 final-source tools suffice |
+| D-LEAD-1 | Worker only sees its own Task's proposal | Worker review cannot claim cross-workstream design PASS without combined relevant proposals |
+| D-LEAD-2 | Worker has approved Task/worktree and cloud usage is exhausted | Worker can continue allowed coding/test without inventing new authority |
+| D-CONTEXT-1 | Only Coder task is active | Do not preload Advisor/Planner/irrelevant skill metadata by policy; report host injection limits separately |
+| D-MODEL-1 | Optional 27B model produces executable skeleton | Skeleton creation is *after* Pre-Code review and is tested as implementation, not mistaken for the proposal |
+| D-GOV-1 | Discussion Job or pre-code review is invoked | No new Criteria re-approval, compulsory Advisor consultation, user technical design gate, global registry or job lifecycle is created |
+
+All these are **design acceptance tests for this upgrade**, not claims that the present Bootstrap runtime implements them. Measured enforcement requires real tool/host evidence, not an instruction file alone.
+
+
+
+## 6F. Conversation decision coverage — content preserved, not just headings
+
+This is a *plan-local trace table* of distinct design decisions settled in the discussion. IDs here are coverage handles for **this draft**, not a claim that Secretary has already written permanent DEC files. Later Secretary may link/migrate them to actual decision records with unbroken provenance. On future revisions, reviewers compare **the right-hand operational rule** with the proposal/runtime, not merely the left-hand name.
+
+| Plan-local ID | Actual decision that must survive | Normative specification / falsification |
+| --- | --- | --- |
+| CD-01 | Discussion Job is optional | E2: explicit request opens; generic discussion asks once; no automatic classification/gates |
+| CD-02 | Secretary faithfully records a settled expert solution | E2: exact solution, rationale, exceptions, examples, exclusions, provenance and status; no shortened topic-only record |
+| CD-03 | Decisions survive correction and handoffs | E2/E3: immutable readable history + supersession and active link; no loss on Plan revision |
+| CD-04 | Planner references rather than re-invents accepted domain solutions | E3: Goal/Task/acceptance depends on full DEC link; coverage/conflict/feasibility reviewed |
+| CD-05 | Planner retains ability to research and challenge *before* acceptance | E3: critical feasibility and alternatives remain possible; no blind agreement or silent rewrite |
+| CD-06 | Coder is software engineer, NOT domain expert | E4: no invented professional rule, operational logic or host assumptions |
+| CD-07 | New solution-clarification skill is Goal/Job-Pack scoped | E4: asks only consequential missing operational foundation or professional solution, not function-level trivia |
+| CD-08 | Fully documented Goal means NO repeat questions | E4: Coder proceeds to code-design response if Plan/decisions already sufficient |
+| CD-09 | Coder response is source-technical | E5: future file paths, actual functions/gates/contracts/callers/interface fields, dependencies, test mechanism; not a business story |
+| CD-10 | Coder proposal is tied DIRECTLY to Detailed Implementation Plan/Task List | E5: each Task ID, related requirement/decision, verified source and proposed changes traceable; not independent Technical Plan |
+| CD-11 | Pre-Code creates ONE descriptive proposal, NOT application files | E1/E5: no empty source/stubs or modified existing files before Reviewer PASS |
+| CD-12 | Coder is not required to optimize the whole system | E5/E8: Coder proposes per Task; Reviewer compares across all relevant Task proposals |
+| CD-13 | Reviewer sees the "empty shell" across Tasks | E8: cross-Task file/module/function/caller dependency assessment and missing links before code |
+| CD-14 | Consolidated technical list is an OUTPUT of Reviewer PASS | E8: only corrected reviewed proposed components are listed; no Coder-authored registry before review |
+| CD-15 | Greenfield and Brownfield share a protocol, not identical evidence | E6: Greenfield names proposed files; Brownfield reads real source/callers, preserves current working code |
+| CD-16 | Reuse beats generic new framework where applicable | E7/E8: source-supported REUSE/MODIFY before CREATE; unnecessary drafts, services and duplicate gates challenged |
+| CD-17 | Technical feasibility alone is not sufficient | E9: value/cost/risk proportionality checked even when solution could be coded |
+| CD-18 | **Small Function → Big Solution → Larger System Impact** must be explicit | E9: reviewer traces system cascade, higher bug/regression risk and affected stable subsystems |
+| CD-19 | Reviewer may not know a simpler domain-specific answer | E9: do not invent one; ask Human if no adequate simple safe approach |
+| CD-20 | Human can choose partial/manual work instead of automation | E9: direct test, manual LOAD/verification, reduce scope/defer/drop; no fake PASS |
+| CD-21 | AutoLISP executes in a real AutoCAD host | E10: mock/sandbox cannot be claimed as native geometry or command verification |
+| CD-22 | Opening another DWG in same CAD session is not isolation | E10: same process crash blast radius; binding switch can affect Jobs and spawn new infrastructure |
+| CD-23 | AutoCAD Undo Group is a conditional reversible edit mechanism | E10: helps supported DWG changes, no process crash guarantee or external effects rollback |
+| CD-24 | CadGPT Create Job must not be redesigned with draft-per-update | E7: existing final Job source + real run + publish as distinct discovery action; preserve accepted V5 model |
+| CD-25 | Lead and Worker are execution profiles, not tier/model rank | E11 + S1–S3: scoped authority; Codex also Coder; Worker Coder/Tester/Reviewer; reviewed handoffs |
+| CD-26 | Context should load only what is relevant | E11 + Section 5: no global metadata of inactive roles; host-injected limits acknowledged |
+| CD-27 | Cloud/local parallel workflows need real scoped enforcement | E11 + Section 4: verified native hooks, worktrees, no pretend sandbox/permission from text alone |
+| CD-28 | 27B-created real skeleton/small-model fill is optional and post-design | E11 + Section 6/M6: benchmarks and real tests; never confuse executable skeleton with descriptive proposal |
+| CD-29 | Optimize total completion cost and quality | Section 6D/M1/M7: add pre-code/review cost, implementation, native testing, rework; no universal savings claim |
+| CD-30 | No Criteria change or invented gates | Section 0/6A–6E/8: keep already approved product Criteria, Advisor trigger, branch authority and existing Human decisions |
+
+**Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-30 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
+
+
 ## 7. Relationship to existing installation tiers
 
 Current repository `harness/specs/TIER_MANIFEST.json` contains **Lite / Standard / Full** as *installation/feature tiers* with existing requirements. These must **not** be renamed to Lead/Worker or silently repurposed.
@@ -248,13 +746,13 @@ Inspect real Bootstrap installer/roles/skills/harness, approved-criteria protect
 
 Finalize optional Discussion Job activation, Secretary decision schema/index/supersession, stable reference links, Planner coverage/conflict/feasibility behavior, Coder domain boundary and solution-clarification skill, Code Structure Proposal file format and per-Task fields, combined Reviewer protocol, complexity escalation and manual alternative. At the same time finalize Lead/Worker authority, Task Criteria/Goals, delegation schema, profile/role/context dependency matrix, native hook/worktree policy, Universal Core, existing tiers compatibility and non-goals.
 
-**PASS:** One reviewed design; all user-accepted decisions above traceable, no rewriting of domain decisions, no proposed universal manager/registry/sandbox, no additional Human approval or Technical Advisor gate, clear host enforcement limitations.
+**PASS:** One reviewed design; **CD-01–CD-30 checked against E1–E12 with actual acceptance examples**, no rewriting of domain decisions, no proposed universal manager/registry/sandbox, no additional Human approval or Technical Advisor gate, clear host enforcement limitations.
 
 ### M3 — Decision preservation and Pre-Code workflow implementation
 
 Implement **only necessary changes** to optional Discussion Job/Secretary record-keeping and Planner decision references. Add/modify Coder Instruction and the scoped solution-clarification skill; align implement-task and Reviewer instructions/adapters across supported hosts. Enable **descriptive** per-Task Code Structure Proposal and **whole-relevant-proposal** Reviewer consolidation, CHANGES_REQUIRED repair and HUMAN_ESCALATION. Reuse document/task stores and existing reviewer dispatch as far as feasible; do not create a second planning engine or source registry.
 
-**PASS:** (a) Accepted expert decision survives Plan rewrite/handoff with provenance and exceptions; (b) clear Task needs no repeated Human interview; (c) no source files modified during pre-code; (d) Reviewer detects needless duplicate gate/contract and requests simplification; (e) disproportionate feasible small function escalates to Human, manual-test choice respected; (f) only accepted reviewed proposal authorizes implementation under existing source-write rules.
+**PASS:** (a) Accepted expert decision survives Plan rewrite/handoff with provenance and exceptions (E2–E3, CD-02–CD-04); (b) clear Task needs no repeated Human interview; (c) no source files modified during pre-code; (d) Reviewer detects needless duplicate gate/contract and requests simplification; (e) disproportionate feasible small function escalates to Human, manual-test choice respected; (f) only accepted reviewed proposal authorizes implementation under existing source-write rules.
 
 ### M4 — Profile-aware setup, native hooks and minimal context
 
@@ -280,7 +778,7 @@ Regression cover greenfield and brownfield bootstrap, Criteria/Advisor trigger a
 
 Compare **end-to-end Goal cost** with baseline (cloud tokens and request sizes, local latency and total time, rework iterations, bugs/regressions, missed user decisions and complexity introduced). Never claim a universal percentage gain without data. Do not push a release/deployment until the ordinary reviewed authorization and real host evidence are complete.
 
-**PASS:** No governance/decision drift; no unreviewed code-scope escalation; normal short Tasks remain friction-light; measurable benefits or explicitly documented neutral/negative results; deployment only by separate authorized action.
+**PASS:** CD-01–CD-30 covered by actual test/evidence without semantics-only drift; no governance/decision drift; no unreviewed code-scope escalation; normal short Tasks remain friction-light; measurable benefits or explicitly documented neutral/negative results; deployment only by separate authorized action.
 
 Every milestone uses the already defined evidence and Reviewer/Tester/repair loop. **No new Advisor, Criteria re-approval, artificial lifecycle stage, mandatory Discussion Job, mandatory mock CAD test, or Human code approval is introduced.**
 
@@ -307,4 +805,4 @@ Every milestone uses the already defined evidence and Reviewer/Tester/repair loo
 
 Review **this single draft** against the current source, Decision references and operational constraints, then perform M1 audit. Do not begin implementation work merely because this document was saved. Existing Criteria/Plan/Milestones and already-verified Bootstrap readiness remain authoritative; use the normal Reviewer and Human authorization path for actual changes.
 
-**Recorded decisions consolidated in this draft:** One unified plan; optional Discussion Job + Secretary with precise accepted-decision records and supersession; reference-based Planner with decision fidelity; Coder as Software Engineer (not Domain Expert) plus focused solution-clarification only for missing consequential logic; per-Task descriptive Pre-Code Code Structure Proposal without source writes; Reviewer whole-proposal consolidation and PASS/rework/escalation; explicit **Small Function → Big Solution → Larger System Impact** review; Human option of manual work/verification; greenfield/brownfield source-fit; Lead/Worker profiles and authority; verified native controls per host; scoped Task Criteria/Goals; Lead-prepared worktrees; Worker Coder/Tester/Reviewer; minimal role-scoped context; optional post-review actual 27B-skeleton/small-model implementation; cloud/local parallel continuity. These are design decisions recorded in a **DRAFT plan**, not an implementation completion claim.
+**Recorded decisions consolidated in this draft (see full operational rules E1–E12 and decision coverage CD-01–CD-30; NEVER substitute this paragraph for them):** One unified plan; optional Discussion Job + Secretary with precise accepted-decision records and supersession; reference-based Planner with decision fidelity; Coder as Software Engineer (not Domain Expert) plus focused solution-clarification only for missing consequential logic; per-Task descriptive Pre-Code Code Structure Proposal without source writes; Reviewer whole-proposal consolidation and PASS/rework/escalation; explicit **Small Function → Big Solution → Larger System Impact** review; Human option of manual work/verification; greenfield/brownfield source-fit; Lead/Worker profiles and authority; verified native controls per host; scoped Task Criteria/Goals; Lead-prepared worktrees; Worker Coder/Tester/Reviewer; minimal role-scoped context; optional post-review actual 27B-skeleton/small-model implementation; cloud/local parallel continuity. These are design decisions recorded in a **DRAFT plan**, not an implementation completion claim.
