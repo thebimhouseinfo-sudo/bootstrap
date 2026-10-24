@@ -111,6 +111,92 @@ class InstallTests(unittest.TestCase):
                 result = run(SOURCE / rel)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
+    def test_optional_discussion_decision_skill_and_planner_links_are_packaged(self):
+        """Script-level packaging/contract test, not live conversational agent PASS."""
+        secretary = SOURCE / ".agents/skills/record-decisions/SKILL.md"
+        self.assertTrue(secretary.is_file())
+        method = secretary.read_text(encoding="utf-8")
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
+        plan_task = (SOURCE / ".agents/skills/plan-task/SKILL.md").read_text(encoding="utf-8")
+        plan_template = (SOURCE / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8")
+        instructions = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
+        for value in ("Only a Human-chosen outcome", "read back", "SUPERSEDED",
+                      "rejected alternatives", "UNRESOLVED", "NOT_VERIFIED"):
+            self.assertIn(value, method)
+        self.assertIn("Optional Discussion Job", planner)
+        self.assertIn("record-decisions/SKILL.md", planner)
+        self.assertIn("COVERAGE", plan_task)
+        self.assertIn("full applicable Human-accepted decision records", plan_task)
+        self.assertIn("Accepted Decision references", plan_template)
+        self.assertIn("Decision coverage/conflicts/feasibility", plan_template)
+        self.assertIn("record-decisions/SKILL.md", instructions)
+        # The installer already copies skills via the existing layout. Verify
+        # no separate installer/profile architecture change is required.
+        for runtime in ("codex", "claude", "continue"):
+            with self.subTest(runtime=runtime), tempfile.TemporaryDirectory() as d:
+                target = pathlib.Path(d)
+                installed = run(INSTALLER, "--target", target, "--tier",
+                                "Standard", "--runtime", runtime, "--apply")
+                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+                self.assertEqual((target / ".agents/skills/record-decisions/SKILL.md").read_text(encoding="utf-8"), method)
+                if runtime in ("claude", "continue"):
+                    self.assertEqual((target / ("." + runtime) / "skills/record-decisions/SKILL.md").read_text(encoding="utf-8"), method)
+                self.assertIn("Accepted Decision references",
+                              (target / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8"))
+
+    def test_coder_precode_and_user_file_lifecycle_knowledge_are_packaged(self):
+        """Static/source packaging contract only; native Coder performance remains unverified."""
+        coder = (SOURCE / ".agents/roles/coder.md").read_text(encoding="utf-8")
+        implementation = (SOURCE / ".agents/skills/implement-task/SKILL.md").read_text(encoding="utf-8")
+        clarification = (SOURCE / ".agents/skills/solution-clarification/SKILL.md").read_text(encoding="utf-8")
+        lifecycle = (SOURCE / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8")
+        self.assertIn("descriptive Pre-Code", coder)
+        self.assertIn("whole related set", coder)
+        self.assertIn("Stage A", implementation)
+        self.assertIn("no empty", coder)
+        self.assertIn("materially changes the correct operational/domain solution", clarification)
+        self.assertIn("NOT a mandatory file-classifier", lifecycle)
+        for example in ("Word:", "AutoCAD:", "CadGPT:", "OPERATION", "DEV",
+                        "Temp Job", "DWL/DWL2", "SHA/GUID"):
+            self.assertIn(example, lifecycle)
+        # Skills/knowledge must use the current installer, no local Worker redesign.
+        with tempfile.TemporaryDirectory() as d:
+            target = pathlib.Path(d)
+            result = run(INSTALLER, "--target", target, "--tier", "Standard",
+                         "--runtime", "claude", "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for part in ("solution-clarification", "implement-task"):
+                self.assertTrue((target / ".agents/skills" / part / "SKILL.md").is_file())
+                self.assertTrue((target / ".claude/skills" / part / "SKILL.md").is_file())
+            self.assertEqual(
+                (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
+                lifecycle)
+
+    def test_reviewer_precode_cross_task_proportionality_contract_is_packaged(self):
+        """Enforces shipped Reviewer guidance; not a native Reviewer verdict."""
+        review = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
+        skill = (SOURCE / ".agents/skills/goal-review/SKILL.md").read_text(encoding="utf-8")
+        template = (SOURCE / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8")
+        for concept in ("ALL related Task", "CHANGES_REQUIRED",
+                        "HUMAN_ESCALATION", "Small Function",
+                        "same proposal", "PENDING_HUMAN_TEST"):
+            self.assertIn(concept, review)
+        self.assertIn("PRE-CODE Code Structure Proposal", skill)
+        self.assertIn("missing consumers", skill)
+        self.assertIn("PRE-CODE design verdict", template)
+        self.assertIn("Derived approved components", template)
+        self.assertIn("CODE/TEST outcome: PASS / FAIL / UNVERIFIED", template)
+        # Critic remains public-artifact-only; not a source or plan reviewer.
+        critic = (SOURCE / ".agents/skills/critical-review/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("do not read private CRITERIA or plan", critic)
+        with tempfile.TemporaryDirectory() as d:
+            target = pathlib.Path(d)
+            result = run(INSTALLER, "--target", target, "--tier",
+                         "Standard", "--runtime", "codex", "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PRE-CODE design verdict",
+                          (target / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8"))
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(
