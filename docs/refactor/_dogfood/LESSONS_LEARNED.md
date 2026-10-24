@@ -50,3 +50,14 @@ For each new finding, add symptom, exact entrypoint/test/host/revision, observed
 - **Role behavior evidence:** Coder role and Planner role canonical text now present in existing host mirror files; native agent discovery/hooks not re-tested here.
 - **Reviewer acceptance:** Manual design assessment only (GUIDED_ONLY). Formal independent Reviewer PASS and merge remain outstanding.
 - **Next scoped milestone:** Continue M1 evidence audit and subsequent M2 decision preservation. No Local Worker/installer refactor during functional M1–M7.
+
+## LL-004 — Tester assertion drifted from the actual Coder skill contract
+
+- **Status:** CONFIRMED TEST DEFECT; one minimal correction applied, CI retest pending.
+- **Date / Scope:** 2026-10-24, M4 Coder knowledge packaging regression.
+- **Evidence:** GitHub Actions [run 40114253849](https://github.com/thebimhouseinfo-sudo/bootstrap/actions/runs/40114253849), Ubuntu 3.12 job 120932164525, test_coder_precode_and_user_file_lifecycle_knowledge_are_packaged line 157. Same failure appears in six OS/Python jobs. New test asserted the exact non-existent fragment "materially missing".
+- **Actual skill wording and root cause:** solution-clarification/SKILL.md correctly limits invocation to information that "materially changes the correct operational/domain solution"; this rule was present. Tester used a guessed shorthand phrase as a brittle string oracle rather than checking the source's meaningful requirement. No product symptom demonstrated.
+- **Fix:** Update the test to assert the actual complete normative phrase, **not remove the check, weaken a runtime guard or change the user-approved skill**. Keep the same defect and first repair attempt.
+- **Regression:** Re-run tests/test_installer.py and full six-OS/Python CI after this commit; native host skill activation remains UNVERIFIED regardless of script result.
+- **Lesson:** Build static packaging assertions from the real contract and preserve semantic intent, not invented shorthand. For behavioral acceptance rely on real input-output simulation rather than text equality alone.
+- **Ship:** Remove this temporary record after source/tests are verified and useful checks retained; do not conceal CI history.

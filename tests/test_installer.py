@@ -154,7 +154,7 @@ class InstallTests(unittest.TestCase):
         self.assertIn("whole related set", coder)
         self.assertIn("Stage A", implementation)
         self.assertIn("no empty", coder)
-        self.assertIn("materially missing", clarification)
+        self.assertIn("materially changes the correct operational/domain solution", clarification)
         self.assertIn("NOT a mandatory file-classifier", lifecycle)
         for example in ("Word:", "AutoCAD:", "CadGPT:", "OPERATION", "DEV",
                         "Temp Job", "DWL/DWL2", "SHA/GUID"):
