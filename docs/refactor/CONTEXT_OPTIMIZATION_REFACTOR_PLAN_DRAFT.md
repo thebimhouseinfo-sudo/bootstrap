@@ -823,6 +823,152 @@ Branch retirement is a **logical authority restriction**; do not auto-delete Git
 
 ---
 
+## 6H. Tester simulation from REAL USER TRIGGERS and 3-cycle debug escalation
+
+**Human decision, 2026-10-24:** Tester must SIMULATE **people using the application**, not merely call the nearest implementation function and claim its logic is correct. Simulated users start with an actual or faithful app entrypoint, perform realistic interactions, vary timing/order, and ultimately attempt disorderly/adversarial use. Tester must trace **all flows activated by each user action**, including accidental concurrent workflows, waits, state and exclusive capabilities. For an unresolved bug, allow at most **three Coder repair → independent Tester retest cycles**, then STOP routine patching and invoke **a more advanced root-cause debugging skill**.
+
+### H0. Verified present capabilities and what is missing
+
+Current Bootstrap project-template/.agents/roles/tester.md, skills/bug-fix-loop/SKILL.md and skills/systematic-debugging/SKILL.md already require minimal reproduction, root-cause reasoning, regression tests and stopping blind repair after three unsuccessful repairs. Some hosts may provide native superpowers:systematic-debugging. Existing GSA lesson docs/process/lessons/BUG-FIX-ROOT-CAUSE-SIMULATION-2026-10-05.md documents end-to-end caller/state/runtime investigation and post-CI behavioral simulation but was a candidate lesson.
+
+**Gaps:** no complete requirement to **start as a user triggers the feature**, exercise realistic randomized and interleaved user-action sequences, observe all actual spawned subflows, and detect hidden race/deadlock/duplicate work; no distinct higher-depth diagnostic workflow reliably invoked after the failed **third** full Coder/Tester cycle. Do not mistake a previously written generic skill title for verified execution.
+
+### H1. What SIMULATE must mean, in executable terms
+
+**Not sufficient:** an imagined story, function unit test, successful mock or CI alone, fabricated UI clicks, or textual call graph declared "SIMULATION PASS."
+
+**Start at the application-facing boundary, whenever an authorized host is available:**
+- user opens app, presses an actual button, sends a prompt/command, selects a CAD/Revit element, uses a tool through its public connector, changes app state or performs another user-level action;
+- Tester records exact initial app state, environment, input, user intent, expected final UI/host result and the exact source/runtime revision;
+- activation must traverse actual deployed/presented UI → public entrypoint → router/dispatcher → Job/Task/tool/Lisp/command → callbacks/event handlers → shared capabilities/state/persistence → actual host when needed → result returned to the user;
+- capture **each child flow spawned by that one input** (flow IDs, causal parent, expected vs observed number, owner, dependencies, waits, leases/locks, writes, completion status, errors);
+- report both **correct outward result** and **internal operational safety**, not simply whether one function returned success.
+
+Use an actual host for the critical acceptance whenever possible. For inaccessible external hosts, a bounded executable simulation may call the **real production dispatcher and important logic** with controlled dependencies and deterministic event scheduling; identify it as SIMULATED only, and **REAL HOST UNVERIFIED** for untested native effects. A mock AutoCAD cannot prove actual AutoCAD command/geometry/save correctness, nor process-crash isolation. The Human may choose manual host testing; Tester must label pending evidence, not pretend to have run it.
+
+**Required scenario/test evidence shape:**
+~~~text
+Scenario ID; scenario level; deterministic seed/order where relevant
+User entrypoint: <actual button/prompt/public connector command>
+Initial state: <document binding, active Job/Run, queued operations, session>
+Input sequence: <each user interaction, with ordering and overlap>
+Expected user-visible result; expected number/ownership of background flows
+Observed graph:
+  User event U1 → UI/API entrypoint E1 → router R1
+  R1 → child flow F1 (why launched, which Job/Task)
+  R1 → child flow F2 (why launched, expected or accidental?)
+  F1 / F2 → exact queue/capability/state owner → host command/persistence
+  callbacks / retries / completions → final user-visible output
+For every flow: inputs, calls, state reads/writes, waits, lease ownership,
+  return/error/terminal status and any late event.
+Assertions:
+  correct request routing; allowed vs unintended flow count;
+  correct serialization/exclusivity, no deadlock, no leaked lease;
+  no duplicate side effect; correct binding and persisted state;
+  no stale Run/Job, no false DONE; expected UI/host output.
+Evidence: observable trace/log/ref/screenshot, real vs simulated boundary,
+  expected vs actual, failure classification and reproduction steps.
+~~~
+
+Do not impose a universal event-bus logger or new monitoring service just to support a tiny test: use existing traces, host tools, debugger instrumentation and bounded test harness when sufficient. Introduce instrumentation only if it addresses a proved observable gap without substantially changing runtime behavior.
+
+### H2. User behavior simulation ladder — from one happy path to troublemaking
+
+Tester selects **risk-proportionate** representative scenarios (not necessarily hundreds for every trivial function), in increasing behavioral complexity:
+
+**S1 — Single legitimate Task / happy path:** one ordinary user action starts the expected one Task/Job path and returns an observable correct result. Validate activation itself and ensure one action has not accidentally spawned extra child jobs.
+
+**S2 — Realistic sequential user workflow:** a person performs two or more normal actions in natural order: create, edit, run, save, switch tab/view where allowed, reopen, repeat. Test dependent operations, persistence, user-visible notifications and completion.
+
+**S3 — Realistic interleaving, concurrent and random behavior:** while action A runs or is awaiting an event/callback, user triggers B, retries, clicks repeatedly, sends another chat prompt, switches allowed UI state, or another Job performs an independent action. Include both compatible concurrent work and exclusive resource conflicts; vary order/delays with reproducible fixed seeds or explicit barriers. Do not declare that ALL parallelism is wrong: only simultaneous actions that violate the actual host/capability contract.
+
+**S4 — Adversarial/disorderly user behavior:** send invalid/stale inputs, issue commands out of order, spam/duplicate a request, cancel during a pending operation, close/reconnect/restart during a Task, force child-flow failure, edit a Plan while old Tasks are READY/IN_PROGRESS, choose conflicting drawing/tab, and attempt combinations a careful normal user avoids. Observe graceful refusal/recovery, lifecycle correctness and leak-free termination.
+
+**When the real host is stateful/destructive:** use the approved real execution environment, user-approved safety precautions, reversible checks where feasible, or safe staged tests. Do not execute destructive stress tests on a live user's production drawing just because a scenario is conceivable. Missing real-host proof stays UNVERIFIED; a Human may prefer to run Lisp manually.
+
+### H3. Trace multiple flows for ONE user action — CadGPT regression anchor
+
+CadGPT has a single primary bound drawing in a CAD session, and CAD commands/Lisp using one exclusive CAD capability must not run concurrently on that host; other independent SYSTEM/file processing may proceed concurrently where permitted.
+
+**Example bug class:** User requests one action to Create/Run a Job. A handler, callback, retry or duplicate routing accidentally starts TWO subflows for the same input. Flow F1 acquires CAD capability while F2 waits for a CAD command or event, or two flows hold mutually dependent states; one never settles. Each local function might pass its unit test. The user sees a stuck Job or inaccurate DONE.
+
+**Tester must establish causal evidence:**
+1. Identify the **one** user event and its expected outcome; do not start by calling an internal queue helper.
+2. Determine which public handler/router was actually activated; compare configured vs deployed tool/connector surfaces.
+3. Record every spawned child, Job, Run, request ID, callback/retry and reason; expected vs observed graph. Ask **why** the second flow exists.
+4. Read each flow's CAD lease/queue ownership, wait-for edges, shared drawing anchor/binding, persistent state and cleanup conditions.
+5. Check for cycle or permanent wait, double execution, early DONE, orphaned token or state touched by the wrong flow.
+6. Reproduce with controlled interleaving/seed; change one factor to distinguish duplicate dispatch from serializer error, callback race, missing release, process/binding error or stale client schema.
+7. Confirm after the repair by replaying **the same real user event** plus an overlapping interaction; do not replace this with only a passing test of the patched helper.
+
+Do **not** solve this automatically by inventing a second global scheduler, test runner, CAD mutex framework or source manager. Inspect existing serialization/capability leasing first; Reviewer's Small Function → Big Solution → Larger System Impact escalation still applies.
+
+**Important:** A "simulation" that invokes mocked Lisp functions without traversing real command registration, CAD adapter and ownership does NOT verify this bug class. Simulation fidelity must be stated explicitly: which real layers were executed, which were stubbed and what claims remain unverified.
+
+### H4. Exactly three full Coder-fix/independent-Tester-retest opportunities per defect
+
+The counter belongs to the **same defect/root user-visible symptom and reproduction scenario**, not to Job ID, chat, Coder hypothesis or newly named duplicate bug. One counted cycle is **Coder changes an authorized implementation** followed by **independent Tester actually rerunning the original user trigger, the failing behavioral scenario and relevant regression**.
+
+~~~text
+Tester discovers failure from actual app-user behavior → Defect OPEN
+→ Cycle 1: Coder diagnoses/repairs → independent Tester retest
+     PASS? close with real evidence. FAIL? retain same defect, add evidence.
+→ Cycle 2: Coder revises diagnosis/repairs → independent Tester retest
+     PASS? close. FAIL? retain same defect, add evidence.
+→ Cycle 3: Coder revises diagnosis/repairs → independent Tester retest
+     PASS? close. FAIL? STOP ordinary patch/retest.
+→ invoke advanced-root-cause diagnostic skill or proven native equivalent (H5)
+→ investigate and explain cause before any further implementation
+→ if architecture/decision must change: Coder new proposal → Reviewer, Human only if needed
+→ resume only on a genuinely revised evidence-based approach and current authorization
+~~~
+
+- A Coder self-check or CI green alone is not independent Tester PASS. Retest may fail because test fixture, tool connection or host is unavailable; classify accurately. UNVERIFIED is not a false Product FAIL or PASS and must not silently reset retries.
+- If a **serious structural/race/shared-state problem** is already apparent earlier, trigger advanced investigation before reaching three attempts; three is a **maximum**, never an instruction to perform three speculative patches.
+- If the same defect is renamed or assigned to a new Job, the three-attempt history stays linked; splitting records does not evade the stop rule. Unrelated genuinely new bugs have their own identities.
+- Tester never writes product source. Coder owns authorized repair; post-repair independent Tester repeats the original user action. Reviewer judges changed cross-module architecture where applicable.
+- Do not create a mandatory Human approval after ordinary three-cycle debugging. Ask Human only for missing host access, material scope/domain/risk decision, or unavailable necessary external action.
+
+### H5. Advanced root-cause skill (escalation, not a fourth patch)
+
+**Entry:** three failed full fix/retest cycles on the same defect OR earlier evidence of an architectural/cross-flow failure that cannot be responsibly fixed by a local patch.
+
+1. Stop patching. Capture exact failing revision, tested source/runtime, scenario seed/action sequence, log/event graph and the **three attempted fixes/results**.
+2. Load **a genuinely deeper available root-cause skill/tool**. Start with existing installed native systematic-debugging capability and project-local equivalents; if none includes full multi-flow causal analysis, define a focused advanced-root-cause-analysis skill or stronger mode of the current debugging skill. Do not add a persistent Bug Fixer agent/service. Record whether skill loading actually occurred; if not available, mark that limitation.
+3. Reconstruct the **whole** entrypoint-to-user-result call graph and causal event timeline, including UI/connector exposure, dispatchers, caller-of-caller, sibling implementations, async callbacks, resource acquisition/release, wait-for graph, Job/Task/Run states, branch/document binding, persistence, process/reload boundaries, real external host and UI completion.
+4. List **all plausible root-cause sites**, rank against observations and systematically eliminate wrong hypotheses using bounded discriminating experiments (one variable, deterministic interleavings, trace/replay, compare working vs failing path).
+5. Identify the **first diverging causal event**, not merely the nearest exception. Confirm if the symptom stems from wrong tool selection, duplicate route, deadlock, race, obsolete code path, stale deployed/plugin schema, missing host, mock fixture or true product logic.
+6. Deliver an **Advanced Defect Report**: original user action, exact reproduction, expected/actual, flow map + wait graph, seed/events, three attempts, experiments, root-cause evidence/confidence, minimal proportionate remediation, risk, acceptance replay and residual UNVERIFIED gaps.
+7. Do not automatically issue a fourth fix. When evidence demands changes to shared contracts, major architecture or accepted solution, update Code Structure Proposal and return through existing Reviewer/Human routes before new code. When an evidence-based narrow fix is identified within accepted scope, authorize the next controlled repair under existing rules and retest from the real user entrypoint.
+
+**Why:** This interrupts the failure pattern user-visible bug → patch nearest function → CI green → still broken in the actual application → repeated patching elsewhere. The target is a complete causal explanation and a user-behavior replay, not an elaborate new test infrastructure.
+
+### H6. Observable simulation/debug acceptance scenarios
+
+| Case | User trigger / condition | What Tester must demonstrate |
+| --- | --- | --- |
+| S-01 | One normal user command, one Task | Genuine user entrypoint → real router/Job path → correct result; no unintended second Run |
+| S-02 | One click produces two child flows | Capture both spawned flow IDs, causal parent, expected-vs-actual multiplicity and waiting state |
+| S-03 | Normal create → run → save → reopen | Correct state/host persistence and outward user outcome |
+| S-04 | Action B arrives while A owns exclusive CAD capability | Legitimate CAD commands serialize; independent permitted SYSTEM work may run without deadlock |
+| S-05 | Two chats use same bound DWG | No illegal CAD command overlap, wrong binding, stale Job ownership or false DONE |
+| S-06 | User repeatedly clicks/submits requests | No unintended duplicate mutation, leaked lease, ghost Job or silent overwrite |
+| S-07 | Cancel/reconnect during pending callback | Known terminal/pending state, no unsafe automatic replay and no orphan wait |
+| S-08 | User changes tab/drawing mid-Job | Approved binding semantics honored; no automatic rebind unless actually authorized |
+| S-09 | Reproducible randomized valid/invalid action sequence | Fixed seed/order/trace reproduces found defect or reports uncertainty |
+| S-10 | User edits Plan with READY/RUNNING old Jobs | Scope-wide retire fence prevents obsolete dispatch, race and zombie Job closure |
+| S-11 | One of two child flows fails | User-facing failure/partial result accurate, other flow terminates or remains explicitly pending |
+| S-12 | Only test-fixture/mock simulation available | Result marked SIMULATED and real host UNVERIFIED, no fabricated acceptance PASS |
+| S-13 | Coder fixes + independent Tester retests fail three times | Same defect/attempt history, STOP a fourth routine patch, advanced skill invoked or unavailable clearly reported |
+| S-14 | Deep diagnosis indicates a shared contract/architectural flaw | Coder revised technical proposal + Reviewer before source changes, no speculative infrastructure |
+| S-15 | CI/unit green but real user flow hangs | Tester FAIL with causal trace, no CI-only closure |
+| S-16 | App/plugin restart changes actual exposed entrypoint | Test registered vs externally callable surface and actual lifecycle, not code presence alone |
+| S-17 | Destructive adversarial test unsafe on production DWG | Do not execute without suitable authorization; report UNVERIFIED/manual alternative |
+
+**Implementation fit:** Extend the existing Tester instructions, test-and-verify, bug-fix-loop and systematic-debugging skill routing; optionally a focused user-behavior-simulation Tester skill and advanced-root-cause-analysis mode ONLY if actual native/local capabilities are insufficient. No new Tester role, Job state, general simulated application framework, fake sandbox or permanent test manager. Tester writes test scenarios/evidence in existing test locations; exact host adapters implement only supported real interaction.
+
+---
+
 ## 7. Relationship to existing installation tiers
 
 Current repository `harness/specs/TIER_MANIFEST.json` contains **Lite / Standard / Full** as *installation/feature tiers* with existing requirements. These must **not** be renamed to Lead/Worker or silently repurposed.
