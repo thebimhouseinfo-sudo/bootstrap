@@ -111,6 +111,39 @@ class InstallTests(unittest.TestCase):
                 result = run(SOURCE / rel)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
+    def test_optional_discussion_decision_skill_and_planner_links_are_packaged(self):
+        """Script-level packaging/contract test, not live conversational agent PASS."""
+        secretary = SOURCE / ".agents/skills/record-decisions/SKILL.md"
+        self.assertTrue(secretary.is_file())
+        method = secretary.read_text(encoding="utf-8")
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
+        plan_task = (SOURCE / ".agents/skills/plan-task/SKILL.md").read_text(encoding="utf-8")
+        plan_template = (SOURCE / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8")
+        instructions = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
+        for value in ("Only a Human-chosen outcome", "read back", "SUPERSEDED",
+                      "rejected alternatives", "UNRESOLVED", "NOT_VERIFIED"):
+            self.assertIn(value, method)
+        self.assertIn("Optional Discussion Job", planner)
+        self.assertIn("record-decisions/SKILL.md", planner)
+        self.assertIn("COVERAGE", plan_task)
+        self.assertIn("full applicable Human-accepted decision records", plan_task)
+        self.assertIn("Accepted Decision references", plan_template)
+        self.assertIn("Decision coverage/conflicts/feasibility", plan_template)
+        self.assertIn("record-decisions/SKILL.md", instructions)
+        # The installer already copies skills via the existing layout. Verify
+        # no separate installer/profile architecture change is required.
+        for runtime in ("codex", "claude", "continue"):
+            with self.subTest(runtime=runtime), tempfile.TemporaryDirectory() as d:
+                target = pathlib.Path(d)
+                installed = run(INSTALLER, "--target", target, "--tier",
+                                "Standard", "--runtime", runtime, "--apply")
+                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+                self.assertEqual((target / ".agents/skills/record-decisions/SKILL.md").read_text(encoding="utf-8"), method)
+                if runtime in ("claude", "continue"):
+                    self.assertEqual((target / ("." + runtime) / "skills/record-decisions/SKILL.md").read_text(encoding="utf-8"), method)
+                self.assertIn("Accepted Decision references",
+                              (target / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8"))
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(
