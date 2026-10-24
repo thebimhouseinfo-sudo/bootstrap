@@ -51,3 +51,11 @@ Canonical role file → existing installer packages canonical portable `.agents/
 2. Make scoped changes on `refactor/functional-dogfood-v7`, never main.
 3. Let push-triggered GitHub Actions run fresh CI; record actual matrix findings.
 4. On PASS, keep repaired role mirrors and unchanged parity tests; remove THIS temporary proposal and Lessons Learned from shipped tree.
+
+## Post-implementation Tester evidence (append-only M1 result)
+
+- **Actual source commit:** Planner mirrors `ea935b41e08eae2786ab169be236fdcb5713a8e9`; Coder mirrors `e82de5308f330ba0c86681608b1e1e36e0439529`.
+- **Scope:** 14 existing host adapter role mirrors changed; canonical role files, installer, Criteria and Tier Manifest unchanged.
+- **Automated Tester result:** [Actions run 40108684465](https://github.com/thebimhouseinfo-sudo/bootstrap/actions/runs/40108684465): **6/6 OS/Python jobs SUCCESS**, formerly failing role-parity tests now PASS and remaining suites completed.
+- **Honest limitation:** SCRIPT_TESTED only. No native host loading/authenticated Reviewer or local Git common-dir branch-authority `check-write` was executed for this remote GitHub-connector change.
+- **Disposition:** Keep the code and existing test coverage; delete this PRE-CODE working proposal from shipped tree after normal independent review/acceptance.
