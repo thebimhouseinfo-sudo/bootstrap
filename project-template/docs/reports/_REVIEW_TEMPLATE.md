@@ -1,9 +1,14 @@
 # Goal-scoped review — <target / T-ID / GL-ID>
 
-- Target: PLAN / CODE / TEST
+- Target: PRE-CODE / PLAN / CODE / TEST
 - Approved goal and version: <GL-ID @vN>
-- Inputs: <task, goal, diff, evidence>
-- Review outcome: PASS / FAIL / UNVERIFIED
+- Inputs: <goal, ALL related Task Code Structure Proposal sections, full accepted Decision refs, verified existing callers/host facts, diff/evidence where CODE or TEST>
+- PRE-CODE design verdict: PASS / CHANGES_REQUIRED / HUMAN_ESCALATION / UNVERIFIED
+- CODE/TEST outcome: PASS / FAIL / UNVERIFIED
+- Cross-Task duplicate gates/interfaces/state and missing callers: <specific overlapping paths, or NONE with evidence>
+- Proportionality (Small Function → Big Solution → Larger System Impact): <source-supported cost/risks and simpler native/manual alternative where relevant>
+- Derived approved components (only after PRE-CODE PASS): <section/view of SAME corrected proposal, never a separate registry>
+- Host/native-test limits: <SCRIPT_TESTED / GUIDED_ONLY / REAL_HOST verified with evidence>
 
 | Finding | Blocking? | Goal / condition | Reproducible evidence | Required action |
 |---|---|---|---|---|
