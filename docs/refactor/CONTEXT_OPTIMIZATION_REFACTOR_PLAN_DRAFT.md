@@ -727,89 +727,99 @@ This is a *plan-local trace table* of distinct design decisions settled in the d
 **Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-36 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
 
 
-## 6G. Plan revisions and RETIRED — READY / IN_PROGRESS work must not become zombie Tasks
+## 6G. Revised Human decision — RETIRE entire unfinished changed scope, rebuild fresh work topology
 
-### G0. Verified starting point and limits (2026-10-24)
+**Decision revision — 2026-10-24:** The former per-Task KEEP/REVALIDATE/REPLACE analysis within a replaced Phase is **SUPERSEDED**. Human chose a simpler rule: when an accepted implementation direction changes, **all UNFINISHED work within the changed Plan boundary is RETIRED**, while completed work is examined for reusable results. Create new Milestone/Job/Task identities for the replacement work. The purpose is to eliminate old READY/RUNNING duplicates, stale obligations and zombie Jobs without an expensive Task-by-Task salvage process.
 
-**Bootstrap itself:** project-template/TASKS.md currently names Active, Next, Done, STALE, Blocked; harness/active-task.json is NOT_CONFIGURED or ACTIVE and harness/common/task.py validates ACTIVE only. There is **no verified Bootstrap standalone RETIRED Task/Job lifecycle**. STALE is a repair/revalidation condition; it is NOT a terminal record of abandoned approved work.
+### G0. Source-grounded status and boundaries
 
-**GSA as orchestration host:** the GPT-supper-agent repository defines Job/Task RETIRED, and source in supabase/functions/gsa-mcp/index.ts implements reviewed Plan-change RETIRE, immutable intent, exact-current-record SHA, dispatch fence, in-flight Run/cursor reconciliation, terminal transition with reason/provenance, and non-dispatchable retired Tasks. The 2026-10-23 deployment note reports runtime deployment but no real-Job E2E PASS; already-registered plugin schemas may reject RETIRE/RETIRED before reaching it. Do not promise success from a repository enum or no-write smoke test.
+- Standalone Bootstrap currently has TASKS.md Active/Next/Done/STALE/Blocked and a single active-task.json using ACTIVE/NOT_CONFIGURED; no verified standalone Plan/Phase/Milestone/Job/Task retirement execution.
+- GSA already recognizes Job/Task RETIRED, with reviewed Plan-change intent, dispatch fence, exact-SHA transitions and Run/cursor settlement; however its current generic per-Job Plan reconciliation does NOT establish complete **scope-wide Phase/Milestone/Plan revision retirement**. Inspect/extend the owning GSA operations only when needed rather than cloning its runtime.
+- GSA has a separate source-branch retirement contract. The 2026-10-23 deploy note documents a runtime rollout, **not an E2E PASS on a real Job**; old registered plugin schemas may reject RETIRED. Verify actual connected behavior, not just source enum declarations.
 
-**Noteworthy GSA partial-retirement gap:** the inspected Plan change assessor only accepts selected retired_task_ids with REPLACE or whole-Job RETIRE, not KEEP/REVALIDATE. Existing transition marks all unfinished Tasks RETIRED on Job RETIRE or selected Tasks when predecessor Job becomes SUPERSEDED. These paths do **not establish** that a subset of Tasks can be retired while their parent Job remains IN_PROGRESS to finish other valid Tasks. Verify other existing source paths; if missing, implement the smallest gap in the responsible lifecycle authority, not a new Bootstrap-controlled Job engine.
+### G1. Select changed boundary once, not each unfinished Task
 
-### G1. Concrete failure and desired observable behavior
+1. On an authorized, reviewed Plan revision, determine **which Phase boundaries are replaced**. If several Phases changed, use their union. If the entire Plan is reworked, the whole old Plan revision is the affected boundary. An explicitly defined smaller independently replaceable unit may be used only when it already exists in the Plan topology; do not invent a new hierarchy for this purpose.
+2. **Examine COMPLETED items only for output reuse**: preserve their historical identity, PASS and evidence; check whether their result still meets the newly agreed solution. If valid, explicitly reference that result in the new scope. If incompatible, preserve history but create new work; no retroactive RETIRED status for completed work.
+3. **Every other unfinished item in the changed boundary automatically RETIRES**, including PLANNED/DRAFT, READY, IN_PROGRESS, BLOCKED/WAITING Job/Task work and unfinished Milestones. Do NOT apply a per-unfinished-Task KEEP-vs-REPLACE analysis to save the old plan.
+4. Rebuild the changed portion as **fresh Phase revision/identity, new Milestone IDs, new Job IDs and new Task IDs**, updated dependencies/acceptance and a new applicable Code Structure Proposal/Reviewer review. Do not just rename old READY Task IDs or inherit a stale Pre-Code PASS.
+5. Outside changed boundaries, all independent Phases/Jobs/Tasks remain intact. Only actual crossing dependencies need targeted review for valid upstream deliverables/replacements. No blanket retirement of unrelated work.
+6. A **draft or discussion** of changes does not retire anything. The action is applied at the current existing authorized Plan-review checkpoint, with no new Human/Advisor gate.
 
-Human changes an accepted Detailed Implementation Plan mid-execution. Old Task T01 is READY, T02 is IN_PROGRESS and T03 depends on T02. The new reviewed solution makes those Tasks obsolete and replaces the actual needed objective with T04.
+**Example — one Phase changed:** Phase P2 currently has two COMPLETED Tasks, three READY Tasks, two IN_PROGRESS Tasks and one incomplete Milestone. Human changes the solution used by P2. Verify the two completed outputs, mark **all five unfinished Tasks and that incomplete Milestone RETIRED**, terminate/retire obsolete P2-owned Jobs after safe Run settlement, retire old Phase P2 revision and create replacement Phase/Milestone/Job/Task IDs. P1 and P3 remain unchanged.
 
-Without reconciliation, T01/T03 can still be dispatched, T02 can continue producing wrong or duplicate code, old dependencies can block Job completion, and a replacement Job can coexist with a never-closed predecessor. An outdated pre-code Proposal PASS must not authorize coding against the new Plan.
+**Example — multiple Phases or whole Plan:** Human replaces the approach across P2, P3 and P5: do a completed-work reuse review for each, RETIRE **all** remaining unfinished structures inside P2/P3/P5 and the exclusive branches that belong only to that old work, and create new topology. For an entire Plan rewrite, logically retire its old revision and unfinished topology, then create new Plan revision with fresh Phase/Milestone/Job/Task identities; keep the old plan and historical PASS readable.
 
-Correct behavior: compare the new reviewed Plan with current real Job/Task records; KEEP work still needed, REVALIDATE uncertain evidence/dependencies, RETIRE genuinely unnecessary unfinished work with **no successor**, or REPLACE with explicit successor and lineage; handle active Runs before terminal writes. Remove obsolete work from actionable queues **and** from the current parent closure obligations. Preserve real historical source, results and evidence. Do not automatically delete or roll back them.
+### G2. Retirement applies to Plan, Phase, Milestone, Job, Task and source branch
 
-### G2. Impact decisions and lifecycle meanings — no invented states
+| Artifact | Meaning and record |
+| --- | --- |
+| **Plan revision** | Logically RETIRED when superseded as a whole; preserve the old approved Plan content, decision refs, reason and link to current revision. Do not delete the canonical Plan file or all valid unchanged Phases because one Phase changed. |
+| **Phase** | The replaced Phase revision is logically retired and its unfinished children retire. If Phase is a section of a Plan, annotate it in the existing Plan history/trace; do not create a Phase database just for status. |
+| **Milestone** | Every unfinished Milestone in changed Phase is retired; it cannot keep its old checkpoint/evidence requirements active in the new Plan. New scope gets fresh Milestone ID. Completed Milestones remain historical. |
+| **Job** | Every unfinished Job in changed Phase retires once active Runs settle. Fresh Job IDs represent new implementation work. Broad retirement needs NO one-to-one successor for every old Job, even if new work is conceptually similar. |
+| **Task** | Every unfinished Task under changed scope retires, including READY or IN_PROGRESS; no new dispatch or unfinished closure obligation. |
+| **Run** | No invented Run.RETIRED state: settle actual running work, possibly CANCELLED with Plan-change reason, before terminal parent transition. |
+| **Git repo branch** | Exclusive work branch owned only by retired scope is logically RETIRED and ineligible for future code, merge/deploy, with exact ref/head SHA and lineage. Physical ref deletion is separate, never implicit. New work uses a fresh authorized branch from a verified approved base; carry forward only deliberately accepted source. **Do NOT retire/delete main, default, Release/active integration or a shared branch with unaffected work.** On a shared branch retire obsolete scope claims and isolate new work, or raise the specific branch-ownership decision. Preserve unmatched commits and open PR facts. |
 
-- KEEP: remains relevant and compatible with the new approved/reviewed Plan.
-- REVALIDATE: potentially relevant but its contract, test/evidence or dependency needs renewed proof; do not declare it done or retired from uncertainty alone.
-- RETIRE: unfinished Job/Task not required by the revised Plan, **with no replacement work item needed**. Terminal lifecycle RETIRED, reason and Plan-change provenance, not dispatchable and not a pending blocker.
-- REPLACE: there is a real replacement objective/Task/Job. Predecessor SUPERSEDED with explicit successor lineage, new identity only when necessary. Do NOT create another Job merely to retire an old one.
-- HUMAN_DECISION: impact is materially ambiguous or handling active effects has an unresolved operational choice. Ask Human rather than invent a policy.
+**Term distinctions:** RETIRED means obsolete old unfinished work, not deletion, rollback or PASS. SUPERSEDED remains historically valid for explicit one-to-one replacements outside this scope-wide policy. CANCELLED means actual Run/operation interruption, not Plan retirement; STALE is unknown applicability, not retirement. COMPLETED history is preserved and only its output reuse is assessed.
 
-These are impact classifications, not five lifecycle states. Existing COMPLETED work and its PASS evidence stay historical; do not retroactively mark completed Jobs/Tasks RETIRED. CANCELLED is distinct (explicit stop/interruption); in-flight Run cancellation may be used to settle an obsolete Run with documented Plan-change reason, **not a new Run.RETIRED state**. STALE/NEEDS_REVALIDATION is not terminal RETIRED.
+### G3. Exact safe execution order
 
-**Trigger:** The Human proposing or discussing a new Plan does not immediately retire anything. Reconcile only after the revised Plan has passed the existing required review/authorization. Do not add another Human/Advisor gate merely to activate retirement.
+~~~text
+Human changes solution → Planner revises Plan → existing Reviewer/Human authority
+→ identify changed Phase(s) / whole Plan boundary ONCE
+→ fence new dispatch and source-step continuation for old affected scope
+→ inspect COMPLETED outputs for valid reuse (not all unfinished Tasks)
+→ for unfinished READY/DRAFT: record terminal RETIRED, read back
+→ for unfinished IN_PROGRESS:
+   inspect real Runs, tools/host writes, cursor, Git branch/HEAD/tree
+   settle at safe boundary; if UNKNOWN/PENDING keep fenced, DO NOT fake RETIRED
+   write RETIRED when safe, with Plan-change reason/provenance/readback
+→ retire replaced Phase/Plan revisions and exclusive job-owned branches logically
+→ create NEW Phase/Milestone/Job/Task identities + fresh authorized work branch
+→ validate cross-boundary dependencies / current closure obligations
+→ new relevant Code Structure Proposal + whole-Task Reviewer
+→ dispatch only current authorized work
+~~~
 
-### G3. READY vs IN_PROGRESS procedure
+- A fence prevents **new** dispatch, not an automatic cross-chat hard stop or rollback of a CAD/Git tool already executing. Do not repeat an uncertain non-idempotent action or discard committed source. Preserve evidence, diffs, unique commits and observable effects.
+- Do not mark an IN_PROGRESS Job terminal until its active Run/source/cursor has been reconciled. UNKNOWN/PENDING remains clearly NEEDS_RECONCILIATION, not magically retired.
+- Idempotent retry: one reviewed Plan-change identity maps to one retirement action set and one new-work topology. Rerunning may not mint duplicate Job/Task/branch identities, repeat source writes, or turn unrelated work terminal.
+- A retired Job/Task is not a PASS but **is no longer pending** for old/current closure. Current Job acceptance uses only current reviewed obligations and explicitly re-accepted completed outputs; obsolete READY work must not block closure.
 
-**READY / DRAFT / PLANNED non-running work:**
-1. Read the authoritative Job/Task record, old Plan link, current revision, dependencies and accepted new reviewed Plan.
-2. Mark the specific obsolete unfinished item terminal RETIRED (or predecessor SUPERSEDED if an actual successor exists) using existing authorized revision-safe writes and readback. Persist Plan-change ID, reason and time; reference successor only when a REPLACE exists.
-3. Prevent new dispatch, remove obsolete acceptance/Task requirements from current Job closure while retaining prior history, and revalidate dependents whose proofs truly changed.
-4. Avoid touching unaffected Tasks/Jobs or creating new replacement records solely to close an old READY item.
+### G4. Ownership and implementation limits
 
-**IN_PROGRESS with active Run(s) or potential writes:**
-1. Fence **new dispatch, next-step continuation and unsafe source/cursor operations** for the affected obsolete scope as the reviewed Plan reconciliation begins.
-2. Read actual Run states, source cursor, pending tool effects, Git branch/HEAD/tree, task workspace and evidence. Do not assume local snapshots are current.
-3. Do not claim an asynchronous hard stop; let a running tool reach a safe boundary and settle its observed result. Distinguish settlement of a Run (often CANCELLED with reason) from terminal status of the Job or Task.
-4. If the source write/cursor/tool outcome is PENDING or UNKNOWN, retain the fence and report NEEDS_RECONCILIATION/BLOCKED; **do not mark RETIRED, repeat non-idempotent mutations, fake success or silently discard effects**.
-5. After safe settlement, transition the appropriate Task/Job to RETIRED or SUPERSEDED, preserve committed source and records, then re-read confirmed authoritative state.
-6. No implicit source rollback, no deletion of worktrees or evidence, no automatic rebind/Save/merge, and no transfers of old PASS evidence to a replacement Job.
+When Bootstrap runs via GSA, **GSA owns durable Job/Task/Run transitions** and already has some of the tools. Adapt Plan-scope selection and lifecycle integration there if needed; Bootstrap Planner/Reviewer skills route and verify, not create a shadow control plane. When Bootstrap runs alone, use existing Plan/Milestone/Task artifacts and actual dispatch authority; add a minimum retirement guard only when needed and verifiable.
 
-### G4. Closure, dependencies and prevention of duplicate work
+Branch retirement is a **logical authority restriction**; do not auto-delete Git refs or retire protected/shared integration branches merely because they contain old code. If changed work shares a branch with valid work, preserve the valid work and retire only obsolete work claims. A new Phase does not imply a new remote repository or separate Git history.
 
-- If every remaining *current reviewed* obligation of an active parent Job has been fulfilled or legitimately retired, the Job must be **closable** using its actual remaining acceptance/evidence rules. A retired obsolete Task requires no fake PASS and must not remain an outstanding required Task forever.
-- If the parent objective itself no longer exists, RETIRE the whole Job once Runs are safely settled; do not leave a zombie IN_PROGRESS Job.
-- If only some Tasks became obsolete, retire **those Tasks**, preserve still-valid Tasks and let the Job continue and later close. Do not assume a whole-Job RETIRE solves this; verify the partial-Task path.
-- When a replacement genuinely exists, SUPERSEDE the predecessor with a unique new successor and unambiguous lineage. Never leave predecessor READY alongside the new work or silently create duplicates on retry.
-- Dependents of retired Tasks are classified RETIRE / REVALIDATE / REPLACE based on the revised Plan. They do not inherit obsolete PASS/evidence, and a retired prerequisite is not automatically satisfied.
-- Plan-change reconciliation must be scoped, restartable and idempotent: same reviewed Plan revision/change intent and exact records must not spawn duplicate Jobs, repeat side-effecting tools or terminalize valid unrelated work.
-- Before dispatch, recheck active Task/Job against reviewed Plan revision and retirement/fence; ACTIVE or READY on an old snapshot does not authorize another Run.
-- Retirement is **not deletion**: keep original identity, terminal outcome, actual source/Run results, reason, timestamp, approved Plan revision and links.
+### G5. Scope-wide retirement acceptance (previous per-Task R-01–R-14 meanings SUPERSEDED)
 
-### G5. Integration ownership — reuse GSA, do not grow Bootstrap into another orchestrator
-
-When Bootstrap works **through GSA**, GSA owns durable Job/Task/Run lifecycle, reviewed Plan-change intent, fences and exact revision transitions. Bootstrap Planner, Coder and Reviewer should use real GSA capabilities and keep their Task/Proposal references up to date. Verify GSA connected client schema and actual Run/Task/Job E2E. If a subset-of-Tasks KEEP-Job path is unsupported, raise that narrow defect in GSA rather than inventing a shadow queue or state store.
-
-When Bootstrap runs **standalone**, audit current TASKS.md, active-task.json, task.py, host hooks and verification logic. Implement the smallest justified equivalent for retirement/invalid Task rejection only if this execution mode genuinely needs it. Distinguish guidance-only marking from enforced dispatch. Do not import GSA's entire Memory Repo/Run cursor/fence service by default.
-
-### G6. Retirement test matrix
-
-| Case | Starting state | Expected result |
+| Case | Starting condition | Required observation |
 | --- | --- | --- |
-| R-01 | Obsolete READY Task, no successor | RETIRED with reason/Plan link, non-dispatchable, does not block Job closure |
-| R-02 | Obsolete READY Job objective, no successor | Whole Job RETIRED, no replacement Job generated |
-| R-03 | Obsolete IN_PROGRESS Task with active Run | New dispatch fenced, Run settled, effects/evidence preserved before terminal retirement |
-| R-04 | IN_PROGRESS unknown/pending tool or source cursor | Remain fenced/unresolved; never report RETIRED or retry uncertain mutation |
-| R-05 | Job has three Tasks; one now unnecessary | Only that unfinished Task RETIRED; other Tasks continue and parent can close |
-| R-06 | New Plan truly replaces a Job | Old SUPERSEDED, new unique replacement with lineage; no duplicate READY predecessor |
-| R-07 | Historical COMPLETED Job/Task | History/PASS unchanged, no retroactive retirement |
-| R-08 | Unaffected concurrent Job/Task | KEEP, no forced stoppage or re-approval |
-| R-09 | Task depends on obsolete retired work | Retire dependent, revalidate, or replace explicitly; no silent PASS inheritance |
-| R-10 | Reconciliation interrupted and retried | Idempotent, no duplicate successor or duplicate writes |
-| R-11 | Reviewed Plan change invalidates an unimplemented Code Structure Proposal | Affected Proposal/Task requires renewed Reviewer design review before coding |
-| R-12 | Connected schema/runtime cannot execute RETIRE | Report exact capability mismatch; no fabricated successful retirement or bypass |
-| R-13 | Old READY Task persisted next to valid newly ready Task | Queue and completion reflect only current reviewed scope; obsolete Task cannot dispatch or block close |
-| R-14 | Run cancellation is necessary for retirement | Run CANCELLED with Plan attribution; Task/Job RETIRED; no invented Run lifecycle |
+| R-01 | One changed Phase, two COMPLETED and five unfinished Tasks | Completed results evaluated for reuse; all five unfinished RETIRED, fresh replacement IDs |
+| R-02 | Three of five Phases changed | Unfinished work in all three retired; other two untouched |
+| R-03 | Entire Plan changed | Old Plan revision/topology logically retired, fresh Plan/Phase/Milestone/Job/Task identities; historical output preserved |
+| R-04 | IN_PROGRESS Job in retired Phase | Fence new work, settle actual Run/cursor/source effect before terminal |
+| R-05 | Pending/UNKNOWN host or Git write | Remain fenced/NEEDS_RECONCILIATION, no false RETIRED/duplicate write |
+| R-06 | Old READY Job/Task or unfinished Milestone | All non-dispatchable, no obsolete checkpoint blocks new closure |
+| R-07 | Completed result still applicable | Historical PASS intact; explicit result reuse by current new scope |
+| R-08 | Completed result no longer applicable | Historical PASS intact, new work required, not retroactive RETIRED |
+| R-09 | Retired work has conceptually similar new requirement | New unique Job/Task/Milestone IDs with Plan lineage, not resuming old |
+| R-10 | Exclusively owned old branch contains unmerged unique commits | Logical retired status and retained remote ref/history, no auto-delete/merge |
+| R-11 | Shared/default/release/integration branch | Remains active/protected; retire old write claims, new work branches safely |
+| R-12 | Another Phase depends on old completed work | Check only crossing dependency, do not retire whole unaffected Phase |
+| R-13 | Old READY/IN_PROGRESS jobs remain in queue during revision | Dispatch rejects old scope, no zombie closure blocker after safe terminal |
+| R-14 | Restart after interrupted retirement | Same intent, same IDs, no duplicate work or source mutations |
+| R-15 | Connector schema lacks RETIRE though runtime source has it | Show UNVERIFIED/client mismatch, never bypass authority |
+| R-16 | Old Code Structure Proposal was reviewed PASS | PASS revoked for replaced scope; new proposal/review required |
+| R-17 | Human only discusses a possible Plan change | No retirement until existing reviewed authorization |
+| R-18 | Standalone mode lacks enforced Task RETIRED state | Report precise guidance-only vs tool-enforced limitation |
+| R-19 | Run cancelled as part of Plan retirement | Run CANCELLED with cause; Job/Task RETIRED only after settlement |
+| R-20 | Partial Phase change with many unfinished Tasks | One enclosing-scope sweep; no per-unfinished-Task salvage/classification debate |
 
-This finding must not become a new universal daemon, Job registry, lifecycle engine, separate project approval gate or extra Advisor invocation.
+**Non-goals:** no global cleanup daemon, Task-salvage arbitration system, GSA shadow lifecycle, automatic branch ref deletion, evidence erasure or new Human approval gate.
 
 ---
 
