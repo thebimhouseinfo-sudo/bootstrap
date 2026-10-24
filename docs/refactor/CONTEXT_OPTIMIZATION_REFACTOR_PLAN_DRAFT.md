@@ -993,6 +993,93 @@ Tester discovers failure from actual app-user behavior → Defect OPEN
 
 ---
 
+## 6I. Coder knowledge — DEV internal files versus OPERATION user-produced artifacts
+
+**Human decision, 2026-10-24:** Coder must NOT automatically apply its own internal development file governance (GUID/ID, SHA/content-hash identity, deduplication, immutable naming, forced revisions, Git/branch lifecycle, publish/registry promotion or automatic cleanup) to files the application creates **because a user operates the product**. The appropriate lifecycle, naming and loading behavior of those outputs is an operational/domain decision. Follow the already-approved user workflow; when it is genuinely unspecified and consequential, **ask the Human first**, in language of how their files will behave, before designing the storage scheme.
+
+### I1. Classification by PHASE and PURPOSE — never by extension, location, or author
+
+| Kind of file | Purpose and legitimate controls | What must not be assumed |
+| --- | --- | --- |
+| **DEV-internal application asset** | Source, test, installer/config, generated internal build outputs and internal protocol metadata that developers maintain while building the product. Existing Git commit/ref SHA, CAS/readback, code versioning, access controls and test artifacts can be appropriate for this authority. | Do not infer that these engineering controls are the correct way to identify the user's eventual operational outputs. |
+| **OPERATION user-produced artifact** | A result created, saved, edited, loaded or exported because a user requested a real task through the running app. Examples: AutoCAD DWG/DWF/DWT, user-facing generated LISP, a user-directed Job package (including JOB.md and helper scripts), reports, schedules and drawings. Its ownership, naming, replacement and discovery semantics come from the actual product/host workflow and accepted User decisions. | No automatically imposed GUID/ID, SHA-as-identity, mandatory version suffix, registry/publish gate, permanent reuse promotion, copy-to-draft lifecycle, cleanup or content-hash conflict refusal. |
+| **OPERATION internal runtime supporting file** | Transient logs, cache, per-Run diagnostics, temporary system transport material or control-plane data that is genuinely internal to execution, and not the user's requested output. Existing verified technical mechanisms may assign internal IDs or hashes when required. | Do not assume every file created in an OPERATION session is user-visible, or that technical runtime identity must also become an identifier for the user's output. |
+
+**Phase and purpose outrank filename, extension, path and who created the bytes.** The same .lsp, .md or .py can be internal product code when made to develop the app, or a user-owned delivered artifact when generated during a user's CadGPT Job. The fact that AI/Coder wrote JOB.md or Lisp does not make it an internal developer artifact. A Job's internally required Run/Job ID (if part of an existing platform control contract) does **not** turn the Job's user-created files into GUID-named, SHA-pinned or Git-governed products.
+
+**Technical distinction:** Git SHA, blob SHA and optimistic concurrency checks are valid *where their source/record authority already requires them* (e.g. DEV source writes, a platform Job control record). They are **not automatically the operational file's business identity**, filename, compatibility test or allowed-reload gate. A content hash can sometimes be useful for a user-approved integrity/caching function; it must not silently redefine Save, overwrite, update, duplicate or LOAD behavior. This rule does **not** remove existing legitimate branch authority, security/permission checks, correct-path lookup or host error handling.
+
+### I2. Decision procedure for Coder before designing any output-file mechanism
+
+1. **Read the Task, full accepted Decisions and host-specific workflow**, and determine what the user is actually producing/consuming. Name the artifact's *purpose* and phase; if mixed, distinguish user-deliverable content from internal diagnostic/control records. This is engineering analysis, **not a new persistent classification registry or phase gate**.
+2. **Identify the real owner and native semantics**. For AutoCAD output this can include the chosen drawing/project, target path and name, Save/Save As/Export/Load commands, and legitimate user edits. For generated Job/LISP files inspect existing user/source ownership and execution rules. Do not assume a fake virtual filesystem or all outputs managed like Git repositories.
+3. Check **which questions the existing criteria, approved expert decisions and host behavior have already answered**: user filename and directory, whether updating the same name is allowed, duplicate names in different folders, overwrite/backup policy, when a new version is requested, optional publication/discovery, restoration and deletion/retention. **Never ask again if specified.**
+4. If the missing answer **materially changes what the user sees or risks overwriting/losing files**, ask the Human **once at the workflow/artifact-family level**, stating the practical alternatives (example: when a Lisp with the same name is regenerated, should LOAD the revised contents replace the previous definition, ask confirmation, or keep both?). Do not ask for database technology, cryptographic hashes or an internal class design. If the user cannot yet choose, record an unresolved operational decision and offer a bounded manual or host-native workflow; don't invent a permanent policy.
+5. Coder proposes only the **smallest appropriate file behavior**, preferably reusing native Save/Export/Load and established product source ownership. The Code Structure Proposal describes the actual file-action semantics and callers only when that Task creates/manages operational outputs, so Reviewer can check the boundary **before code**.
+6. Reviewer challenges a SHA/GUID-driven user-file registry, forced promotion or extra lifecycle as **Small Function → Big Solution → Larger System Impact** where unwarranted; it checks that User decisions are honored, no version/data is silently lost, and no unsupported host promises are made. This is **an existing review responsibility, not a new Human approval on every file**.
+7. Tester, when relevant, uses its on-demand **simulate** skill to exercise *user actions* such as Save, Save As, overwrite/rename, editing a file then reloading it, duplicate filenames at different paths, update without publish and reopening the project. Assert observed host behavior against the real User/Criteria oracle rather than an SHA policy invented by Coder.
+
+### I3. Concrete unacceptable and acceptable behavior — keep the original causal lessons
+
+**Example A — AutoCAD DWG, DWF and DWT.** The user creates/saves a drawing (.dwg), exports a deliverable (.dwf), or uses/creates a drawing template (.dwt). These are familiar, user-directed files with normal user/host path and filename semantics. A Coder must NOT assign a GUID/SHA business identifier to each drawing/template/output by default or forbid an otherwise permitted Save/Save As/Export because the bytes or hash differ. The fact that two revisions of an AutoCAD drawing differ is **ordinary file editing**, not proof of a version/identity conflict. Honor AutoCAD's actual supported operations, permissions and the accepted User's file naming/overwrite choices.
+
+**Example B — AutoLISP same name, new contents.**
+~~~text
+User asks to generate or edit: fan-block.lsp
+Version A: fan-block.lsp → LOAD to AutoCAD (host result observed)
+User revises the LISP and retains the same name:
+Version B: fan-block.lsp → LOAD to AutoCAD again
+
+WRONG:
+  file name matches prior entry but SHA differs
+  → INVALID_IDENTITY / DUPLICATE_FILE / LOAD_REJECTED
+  → Coder insists on GUID suffix, registry promotion or new file ID
+
+RIGHT:
+  Use actual authorized path, content and AutoCAD-compatible LOAD/reload behavior.
+  If existing host/runtime contracts require replacing an in-memory definition,
+  invoke/verify the correct existing host operation and report its real outcome.
+  A changed SHA alone is NEVER the reason to reject a new LOAD.
+  If two files with the same basename but DIFFERENT paths need disambiguation,
+  resolve the actual path/context with User/host policy, not fabricated hash identity.
+~~~
+This does **not** mean running arbitrary untrusted Lisp without normal user authorization, permission checks or error reporting. It means normal authorized edits to user-created Lisp cannot be forbidden by a DEV-style immutable-content assumption. Whether to overwrite, retain both, or promote a user-produced Lisp to a permanent tool is a **User/domain decision** unless the accepted operational contract already specifies it.
+
+**Example C — CadGPT Create Job and temporary Jobs.** User-created JOB.md, helper LISP/Python, temp/custom Job source and the resulting files of an OPERATION workflow are user-facing products even when they look like code. Do not force developer Git/ID/SHA naming, draft→checkout→promote, mandatory permanent Registry registration or automatic cleanup. Existing Job/Run control-plane IDs, source-ownership boundaries and actual write authorization remain in force where genuinely required. A user may later choose to **retain/promote** a temporary Job or LISP; this is not a new category the Coder must invent for every creation.
+
+**Example D — internal DEV code and control records.** The Coder edits application TypeScript source under a Git branch and persists an authorized GSA control-plane Job record: existing SHA/CAS safeguards and collision-resistant record identifiers may still be appropriate. This does not authorize applying the same validation to loading the operational fan-block.lsp or naming the customer's drawing. Distinguish actual file content/host behavior from internal concurrency metadata.
+
+### I4. Resulting Coder knowledge and review integration
+
+- Add a **focused, on-demand Coder knowledge module/instruction about artifact purpose and DEV-vs-OPERATION file lifecycle** within existing host/skills conventions; do not create another file-management agent, Job type, universal file catalog, identity registry, source manager or approval gate.
+- Teach both Lead/Worker Coders and compatible hosting adapters. The module should include examples A–D and the ask-only-when-missing decision procedure above. It is not an across-the-board ban on IDs or content hashes; it is a ban on **unrequested inheritance of internal developer governance by user-produced files**.
+- In Pre-Code Proposals that genuinely touch operational output files, Coder includes a compact: "file purpose/owner; expected Save/Update/Load/Export action; user-visible name/path; version/overwrite/duplicate policy source (Decision/host/Human or UNRESOLVED); which metadata is internal only; expected real-host test." **Do not force this metadata form into unrelated Coder Tasks.**
+- Reviewer rejects **wrong lifecycle semantics** even if the implementation compiles, passes code-unit tests or is technically easy to build. Tester exercises actual user Save/Load/Update workflows, not a fake SHA compatibility rule.
+- If User has already established behavior for a given workflow, the knowledge module must **prevent repetition of clarifying questions**. If there is a genuine new irreversible naming/overwrite decision, ask once in plain user language instead of silently shipping an internal policy.
+
+### I5. Acceptance scenarios — file lifecycle intent, not invented technical gates
+
+| Case | Scenario | Required behavior |
+| --- | --- | --- |
+| F-01 | Coder creates app source in DEV through a reviewed Git Task | Existing branch authority, Git SHA/CAS and code ownership apply as before |
+| F-02 | User operates AutoCAD and saves or updates a DWG | Normal authorized native Save/Save As outcome; no forced GUID/SHA output identity |
+| F-03 | User exports DWF or creates/uses DWT | Follow host/User filename, path, naming and overwrite contract; no automatic developer file-registry entry |
+| F-04 | User regenerates a .lsp under the same name with different contents | Authorized LOAD/reload not rejected **solely** because SHA changed; verify actual AutoCAD result |
+| F-05 | Two LISP files have same basename but different folders | Use actual path/context semantics or ask if materially ambiguous; not SHA-as-business-identity gate |
+| F-06 | User-created JOB.md/helper LISP in an operational temp/custom Job | Classified by purpose as user artifact; no compulsory draft, permanent registry, GUID naming or auto-promotion |
+| F-07 | Runtime caches/logs created during an Operation | Genuinely internal runtime metadata may use IDs/hashes, but never silently becomes the output's user identifier |
+| F-08 | Accepted Criteria/Decision already specifies Save/Load/overwrite | Coder follows it without asking Human again or adding new technical lifecycle |
+| F-09 | Operational file name collision/overwrite behavior is materially unspecified | Coder asks Human one practical workflow question; does not impose Git-style versioning |
+| F-10 | Reviewer sees SHA/GUID manager proposed for small DWG/LISP feature | Reject as unjustified overengineering or escalate genuine user-impact tradeoff |
+| F-11 | Tester replays user file edit → same-name reload in real host | Original intended workflow works or truthful native FAIL/UNVERIFIED; not fake mock PASS |
+| F-12 | Accepted User chooses manual file naming, backup or Lisp testing | No automatic promotion, versioning, file catalog or test framework invented to replace user's choice |
+| F-13 | Plan-revision retirement gives a new DEV Job/Task ID | Does not rename/re-ID unrelated user DWG/LISP artifacts; control-plane and user-file identity remain separate |
+| F-14 | Mixed extension (.md/.py/.lsp) appears in DEV and OPERATION | Classification comes from **purpose and phase**, not extension, directory or which agent authored it |
+
+**Scope and non-goals:** This is a knowledge/decision-fidelity correction for Coder, not a demand to replace legitimate Git SHA or GSA canonical IDs. No new universal naming convention, artifact metadata store, archive daemon, automatic persistence policy, or runtime-file GUID schema is authorized by this section.
+
+---
+
 ## 7. Relationship to existing installation tiers
 
 Current repository `harness/specs/TIER_MANIFEST.json` contains **Lite / Standard / Full** as *installation/feature tiers* with existing requirements. These must **not** be renamed to Lead/Worker or silently repurposed.
