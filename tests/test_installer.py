@@ -172,6 +172,18 @@ class InstallTests(unittest.TestCase):
                 (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
                 lifecycle)
 
+    def test_entrypoint_and_planner_contract_are_standalone_and_mode_scoped(self):
+        """Contract regression for Bootstrap, not a native multi-agent run."""
+        entry = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
+        report = (SOURCE / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8")
+        self.assertIn("PRE_CODE_TECHNICAL", entry)
+        self.assertIn("PUBLIC_ARTIFACT", entry)
+        self.assertIn("Bootstrap is standalone", planner)
+        self.assertNotIn("GSA when connected", planner)
+        self.assertIn("PRE-CODE Critic verdict", report)
+        self.assertIn("Critic receives scoped approved Criteria", report)
+
     def test_critic_precode_is_final_and_bootstrap_has_no_gsa_runtime_dependency(self):
         """Static design/packaging regression; native Critic execution is separate."""
         source = SOURCE / ".agents/skills/critical-review/SKILL.md"
