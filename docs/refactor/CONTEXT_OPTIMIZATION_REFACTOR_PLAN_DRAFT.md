@@ -3,7 +3,7 @@
 **Status:** DRAFT — awaiting Planner/Reviewer review and Human approval  
 **Repository:** `thebimhouseinfo-sudo/bootstrap`  
 **Document authority:** One canonical Upgrade Plan, updated in place. Draft v7.0 preserves ALL previously accepted operational rules (Decision/Planner, RETIRED, Coder Pre-Code/DEV-vs-OPERATION, Reviewer, Tester simulate and debugging, Lead/Worker/context/multi-model). **Only implementation sequencing changed:** functional M1–M7 first; installer/local Worker B1–B5 deferred. A topic heading alone is never proof of decision fidelity.
-**Execution order:** Section 8 is authoritative for sequencing: M1–M7 functional first; B1–B5 local Worker installer/context/model later. Previous Lead/Worker design is preserved but deferred, not canceled.
+**Execution order:** Section 8 is authoritative for sequencing: P0→P1→P2 functional-first, then B1–B5 deferred installation/context/model work. Previous Lead/Worker design is preserved but deferred, not canceled.
 **Scope:** context efficiency; optional Discussion Job and Secretary decision preservation; reference-linked expert decisions; Coder solution clarification and descriptive Pre-Code proposals; cross-Task Reviewer and disproportionate complexity escalation; **scope-wide RETIRED for replaced Plan/Phase/Milestone/Job/Task and exclusive source branch**; **Coder knowledge about DEV internal files vs OPERATION user-produced artifacts and consultation before inventing file identity/version/LOAD rules**; **Tester user-entrypoint simulation through multi-flow interleaving/adversarial behavior**; **maximum three Coder-fix/independent Tester-retest cycles then advanced root-cause skill**; Lead/Worker profiles; host-native enforcement, worktrees, multi-model benchmark and regression.
 **Criteria:** Existing approved project Criteria remain unchanged. **This document is not approval to implement, merge implementation code, or deploy.**
 
@@ -748,7 +748,7 @@ This is a *plan-local trace table* of distinct design decisions settled in the d
 | CD-55 | Export/import preserves the intended user-owned CadGPT Job across bytes, paths and time | I1/I3-C2/F-15/F-16/F-17: same Job as User intends, no version counter/GUID/SHA dependency for ordinary reuse |
 | CD-56 | Hash/content mismatch alone cannot block imported Job or Lisp Run | I3-C2/F-16/F-19/F-20: distinguish authentic format/host/security failure from invented identity conflict |
 | CD-57 | Imported name collision is a User workflow decision, not SHA identity | I1/I3-C2/F-18: don't merge unrelated Jobs merely by name, don't create a mandatory GUID registry; use agreed policy or focused Human question |
-| CD-58 | Functional stability precedes local Worker/installer change | Section 8.1–8.12: implement M1–M7 Secretary/Planner, RETIRED, Coder, Reviewer, Tester/debug and current-harness E2E first; preserve B1–B5 Lead/Worker/install/context/multi-model goals as deferred, not canceled |
+| CD-58 | Functional stability precedes local Worker/installer change | Section 8.1–8.12: complete P0 unified Pre-Code source design, then P1 authorized FUNCTION implementation and P2 independent current-harness E2E; preserve B1–B5 Lead/Worker/install/context/multi-model goals as deferred, not canceled |
 
 **Coverage rule:** A later abbreviated plan summary can link to CD-01…CD-58 and their full sections, but cannot replace these rules. Deleting or changing a CD line requires evidence of a subsequent actual Human change to that decision, not a stylistic compression.
 
@@ -1166,7 +1166,7 @@ This does **not** mean any two unrelated Jobs with the same name are identical, 
 
 Current repository `harness/specs/TIER_MANIFEST.json` contains **Lite / Standard / Full** as *installation/feature tiers* with existing requirements. These must **not** be renamed to Lead/Worker or silently repurposed.
 
-**Scheduling clarification:** The Lead/Worker setup described here is DEFERRED to Phase B (B1–B5). Existing installation must remain operational during functional M1–M7. Do not use this future section as authority to edit install.py for Worker profiles now.
+**Scheduling clarification:** The Lead/Worker setup described here is DEFERRED to Phase B (B1–B5). Existing installation must remain operational during functional P0–P2. Do not use this future section as authority to edit install.py for Worker profiles now.
 
 Add profile-aware setup **orthogonally**:
 - Existing installation tier answers *what shared files/capabilities are installed*.
