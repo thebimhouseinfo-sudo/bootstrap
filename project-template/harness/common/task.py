@@ -14,7 +14,11 @@ def validate(path=CONFIG, stage="delivery"):
         task = json.loads(path.read_text(encoding="utf-8"))
     except (ValueError, OSError) as exc:
         raise ValueError("active task not configured: " + str(exc)) from exc
-    if not isinstance(task, dict) or task.get("status") != "ACTIVE":
+    if not isinstance(task, dict):
+        raise ValueError("active task is NOT_CONFIGURED")
+    if task.get("status") == "RETIRED":
+        raise ValueError("task RETIRED: obsolete scope cannot dispatch or pass trace checks")
+    if task.get("status") != "ACTIVE":
         raise ValueError("active task is NOT_CONFIGURED")
     goal = task.get("goal_id")
     theory = task.get("theory_ids")

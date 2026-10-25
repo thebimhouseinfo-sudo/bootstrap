@@ -88,6 +88,16 @@ class HarnessRuntimeTests(unittest.TestCase):
         (self.root / "tests/test_sample.py").write_text("# present", encoding="utf-8")
         (self.root / "docs/reports/proof.txt").write_text("observed result", encoding="utf-8")
         self.assertEqual(self.command("harness/common/task.py").returncode, 0)
+        value["status"] = "RETIRED"
+        task.write_text(json.dumps(value), encoding="utf-8")
+        retired = self.command("harness/common/task.py", "--stage", "plan")
+        self.assertEqual(retired.returncode, 2, retired.stdout + retired.stderr)
+        self.assertIn("RETIRED", retired.stdout)
+        self.assertNotIn("TRACE_LINKS_VALID", retired.stdout)
+        self.assertEqual(self.command("harness/common/task.py", "--stage", "delivery").returncode, 2)
+        value["status"] = "ACTIVE"
+        task.write_text(json.dumps(value), encoding="utf-8")
+        self.assertEqual(self.command("harness/common/task.py", "--stage", "plan").returncode, 0)
         value["theory_ids"] = ["REQ-NOT-FOUND"]
         task.write_text(json.dumps(value), encoding="utf-8")
         self.assertEqual(self.command("harness/common/task.py").returncode, 2)
