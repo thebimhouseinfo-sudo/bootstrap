@@ -113,3 +113,11 @@ For each new finding, add symptom, exact entrypoint/test/host/revision, observed
 - **Repair:** Correct canonical text, add CR-01–08 to §8.4C, keep reviewed source/file/caller map as design without inventing new runtime. No application code or installer changed.
 - **Retest:** Re-read the canonical milestone introduction, §8.1, CD-29, §8.11 and §10, ensure they agree. Native reviewer dispatch and actual Host scenarios remain UNVERIFIED; continue P0 until independent verdict and Human authorization.
 - **Ship:** Remove this temporary finding with `_dogfood` at authorized release after relevant accepted product documentation remains.
+
+## LL-010 — Unrequested independent Reviewer and Human technical-design approval gates
+
+- **Status:** CONFIRMED PROCESS DESIGN ERROR, corrected in canonical proposal §8.4D. **P0 final CR DESIGN PASS**, without native runtime claims.
+- **Human decision:** CR is the **last** technical review loop. Coder nominates source-level design, Reviewer challenges and the descriptive proposal is revised until no actionable finding remains. There is **no additional independent Reviewer round** or compulsory Human review of Technical Proposal implementation details. Human reviews/provides accepted business, professional, logic and theoretical solutions; consult Human only when a consequential solution is absent or disproportionate complexity needs simple/manual alternatives.
+- **Observed defect:** Previous document treated separate native Reviewer invocation and Human technical-proposal sign-off as mandatory release gates after CR. This duplicates review and is poorly fitted to vibe coding.
+- **Minimal repair:** Remove those gates in canonical status, §8 and §10; use existing CR PASS / CHANGES_REQUIRED / HUMAN_ESCALATION; preserve real source/branch authorization and native Tester evidence as independent **execution** responsibilities, not extra technical design approvals.
+- **Acceptance:** A sufficiently clear source-backed proposal with no unresolved disproportionate complexity earns CR PASS and exits P0 directly. An unresolved domain/theoretical tradeoff goes to Human for practical guidance and returns to CR. CI or prompt-only evidence never implies runtime verification. This working lesson remains under temporary `_dogfood` pending shipped cleanup.
