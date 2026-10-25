@@ -5,7 +5,7 @@
 
 ## Goal and invariant
 
-Make **Lead/Worker execution responsibility** selectable without conflating it with installer **Lite/Standard/Full** tiers, changing the primary host, or inventing an executor. Existing installs and updates must remain safe. Critic `PRE_CODE_TECHNICAL` is the last proposal review, never another Reviewer approval.
+Lead and Worker run the **same Bootstrap harness, roles, skills and process**. The difference is the **Criteria/scope supplied to each instance**, not agent kind, installer profile or capability ranking. Lead holds the whole-project approved Criteria; Worker holds the specific accepted assignment whose operative Criteria is the **approved Technical Proposal** for that delegated work. Preserve traceability to overall project Criteria, but do not force the Worker to re-bootstrap the project or redesign/reapprove its assignment. Existing installs and updates must remain safe. Critic `PRE_CODE_TECHNICAL` is the last proposal review, never another Reviewer approval.
 
 ## Concrete existing call path
 
@@ -17,7 +17,7 @@ Make **Lead/Worker execution responsibility** selectable without conflating it w
 - **Reject:** Create a Worker installer, orchestrator, queue, identity registry, runtime daemon, or global hook abstraction. No demonstrated missing function requiring these.
 - **Reject:** Automatically downgrade/strip Planner/Advisor/Critic from installed Worker role files. Install packaging and *per-task delegated authority* are different concepts; role absence can break independent review.
 - **Reject:** Claim that a copied generic file or local Git worktree enforces host permissions.
-- **Prefer:** Reuse the installed role/skill set; express Lead/Worker **execution scope per delegated task**, via existing Task/Plan/role instructions. No additional installer CLI profile is needed **unless a real host-specific workflow demonstrates an otherwise unmet installation requirement**.
+- **Prefer:** Reuse the **identical Bootstrap installation/harness**. Supply different scope inputs: whole-project Criteria to Lead; accepted Task assignment and **CR-PASS Technical Proposal as Worker operative Criteria**. No additional installer CLI profile is needed **unless a real host-specific workflow demonstrates an otherwise unmet installation requirement**.
 
 ## Reviewed minimal B2 design — REUSE first
 
@@ -25,16 +25,24 @@ Make **Lead/Worker execution responsibility** selectable without conflating it w
 | --- | --- | --- |
 | REUSE_AS_IS | `install.py` `main`, `role_names`, `eligible`, `entries`, `multi_entries`, `plan_multi`, `classify` | All existing tier/runtime/staged/upgrade pathways remain unchanged |
 | REUSE_AS_IS | `project-template/harness/specs/TIER_MANIFEST.json` | No new tier, role removal or renamed tier |
-| REUSE_AS_IS | Existing `.agents/roles`, Pre-Code Critic skill and `harness/specs/REVIEW_LOOP.md` | Authority comes from reviewed Task context and host permissions, not installer labels |
+| REUSE_AS_IS | Existing `.agents/roles`, Pre-Code Critic skill and `harness/specs/REVIEW_LOOP.md` | Both instances keep the same capabilities; Worker operates under approved Technical Proposal and assigned task scope, not installer labels |
 | REUSE_AS_IS | `.generic/ADAPTER_REQUIREMENTS.md`, `HOST_NATIVE_LAYOUT.md` | Selected real host/version must verify native discovery and interception before claims of enforcement |
-| DEFER TO B3 | Worktree, task-scoped handoff/context selection and delegated write boundary | Evaluate actual user task and host mechanics; distinguish guided procedure from enforced guard |
+| DEFER TO B3 | Pass approved Technical Proposal as Worker operative Criteria; task-scoped handoff/context selection and delegated write boundary | Evaluate actual user task and host mechanics; distinguish guided procedure from enforced guard |
 | NO CREATE | A universal `--profile lead/worker` flag, `PROFILE_MANIFEST`, dedicated Worker installer, cross-platform dispatcher | No verified consumer requiring any of them |
 | TEST WHEN ACTUAL HOST SELECTED | Installed role discovery, allowed vs denied write, non-destructive `--upgrade`, staged lock, user-modified local settings | Host-specific observation, never inferred from static package tests |
 
+## Human correction — identical Lead/Worker, different Criteria
+
+- **Lead instance:** Bootstrap with project-wide approved Criteria; plans/co-ordinates the entire project and delegates reviewed work.
+- **Worker instance:** The **same Bootstrap**, no separate agent type or installer; its operative Criteria is the **specific assigned work**, expressed by the **Technical Proposal already approved through independent Critic CR**. That proposal should define precise outputs, affected files/functions/callers, constraints, dependencies and acceptance.
+- **Handoff:** Lead delivers the approved Technical Proposal and necessary bounded implementation context. Worker executes it directly and returns code/evidence/deviations. Worker's role skills and Tester/Review contracts remain the same; there is **no new Pre-Code gate**, no independent redesign and no shadow Criteria document required by default.
+- **Boundary:** A Worker must not promote task-specific instructions into project-wide Criteria or reinterpret the proposal beyond approved scope. Material design gaps or changed scope are escalated to Lead and appropriate Critic CR; normal implementation choices remain Worker engineering responsibility.
+- **Result:** No Lead/Worker selector, different tier, distinct installer, separate registration, or special model identity is justified.
+
 ## Explicit limitation and review outcome
 
-The approved **objective** is role-aware execution. B1 source inspection does not prove that this requires *installation-time* profile selection. Since the existing tier installer already installs appropriate role definitions, an unconditional `--profile` switch is an unjustified implementation. Critic's source-grounded objections resolve by choosing **no B2 installer source changes** until there is evidence of a missing native setup capability. This is a scoped **design PASS for the minimal no-op installer choice**, not a claim of a real native Critic agent call or native host success.
+The approved **objective** is identical harness execution with distinct Criteria scope. **Lead Criteria = whole project's approved Criteria. Worker Criteria = concrete assignment's approved Technical Proposal (including acceptance, interfaces, files and dependencies).** These are scope inputs, not two file-format families or two permission engines. B1 source inspection does not prove that this requires *installation-time* profile selection. Since the existing tier installer already installs appropriate role definitions, an unconditional `--profile` switch is an unjustified implementation. Critic's source-grounded objections resolve by choosing **no B2 installer source changes** until there is evidence of a missing native setup capability. This is a scoped **design PASS for the minimal no-op installer choice**, not a claim of a real native Critic agent call or native host success.
 
-For actual Lead-to-Worker delegation, continue to **B3** with a concrete task packet, role-scoped context, source ownership and one observed supported host. A concrete B3 contract can then identify whether any B2 installation delta is truly needed. B4 model comparisons and B5 host-wide regression remain separate.
+For actual Lead-to-Worker delegation, continue to **B3** with the **already approved Technical Proposal as the primary Worker assignment**, plus only necessary source/context and source authority. Do not invent a second Worker Criteria approval or ask Worker to run a fresh project-wide Pre-Code proposal on an already passed assignment. Work outside the approved proposal returns to Lead for appropriate design handling. A concrete B3 contract can then identify whether any B2 installation delta is truly needed. B4 model comparisons and B5 host-wide regression remain separate.
 
 **No Criteria changes; no B2 source files generated.**
