@@ -6,6 +6,18 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 **Cách dùng:** mở coding agent có quyền truy cập thư mục dự án và công cụ thực thi lệnh. Chọn **một** prompt dưới đây, chỉ thay đường dẫn thư mục. Không cần tự clone Bootstrap, copy template hay chạy installer; agent sẽ làm các việc đó sau khi được cấp quyền cần thiết.
 
+## Hai cách sử dụng Bootstrap: Lead là luồng chính
+
+**Lead profile là cách dùng mặc định** cho một dự án mới hoặc dự án đã có code. Lead vận hành toàn bộ quy trình Bootstrap: tìm hiểu dự án, xây dựng/duy trì Criteria, Plan và milestones, chuẩn bị Technical Proposal, tổ chức **Critic Review** trước khi code, rồi trực tiếp thực hiện hoặc giao việc. Hai prompt Greenfield và Brownfield ở trên đều khởi động **Lead**, không phải Worker.
+
+**Worker profile là gì?** Worker là phiên thực thi công việc *do một Lead đang quản lý dự án giao xuống*, nhằm chia nhỏ phần triển khai cụ thể, giảm context phải đọc và giúp Lead tập trung vào thiết kế, điều phối, tích hợp. Worker **không** khởi tạo hoặc quản lý dự án độc lập. Worker nhận **Technical Proposal đã Critic Review PASS** làm *Criteria thực thi của nhiệm vụ*, kèm branch/phạm vi source được phép sửa, dependency, đầu ra và điều kiện nghiệm thu. Worker dùng **cùng Bootstrap, roles, skills và các khả năng kỹ thuật** như Lead; không có installer, tier hay loại model riêng.
+
+**Worker sẽ làm gì?** Đọc assignment và đúng những tài liệu/source cần thiết; thực hiện thay đổi đã được duyệt; tự kiểm tra, sửa lỗi trong phạm vi giao việc; trả lại cho Lead source/diff, bằng chứng test, phần chưa xác minh và những lệch phạm vi cần quyết định. Worker **bỏ qua toàn bộ project bootstrap**: không khám phá lại Criteria cấp dự án, không gọi Technical Advisor để duyệt lại Criteria, không tạo lại Plan/milestones và **không bắt chạy lại Pre-Code CR** cho proposal đã PASS. Nếu thiết kế cần thay đổi đáng kể, báo Lead xử lý thay vì tự mở rộng phạm vi.
+
+**Quan hệ Lead–Worker:** Worker chỉ có ý nghĩa **sau khi tồn tại Lead và assignment đã duyệt**. Lead có thể tự code, tự test và hoàn tất dự án mà không tạo Worker nào. Không giả định model local khoảng 27B đủ năng lực làm Lead dự án; nó chỉ là ứng viên cho công việc triển khai được giao và cần đánh giá bằng kết quả thực tế. Nếu model local thực sự đủ năng lực điều hành cả dự án, sử dụng **Lead profile** với model đó — và Lead có thể tự thực hiện luôn công việc của Worker.
+
+**Thiết kế tối thiểu:** Lead/Worker là **điểm vào và phạm vi Criteria**, không phải hai bản Bootstrap. Giữ nguyên Lite/Standard/Full (cấp tính năng cài đặt). Không cần công tắc installer `--profile lead/worker` hay hệ thống điều phối mới chỉ để đặt tên hai luồng. Worker handoff và giới hạn context được triển khai trong giai đoạn B3 theo hợp đồng công việc; việc chép role/skill không tự chứng minh host-native agent hoặc quyền ghi được cưỡng chế.
+
 ## 1. Greenfield — dự án mới
 
 > Thiết lập Bootstrap cho **dự án greenfield (mới, chưa có code)** tại `<ĐƯỜNG_DẪN_DỰ_ÁN>`. Đọc và làm theo https://raw.githubusercontent.com/thebimhouseinfo-sudo/bootstrap/main/docs/FOR_AI.md. Trước khi gọi tool xin quyền, thông báo trước rằng sẽ có câu hỏi cấu hình riêng. Tự setup và chỉ hỏi khi cần duyệt.
@@ -27,18 +39,6 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 **Generic (OpenCode, Qwen Code và các CLI/IDE khác):** installer chỉ chép bộ hợp đồng hành vi và script chung. **Ngay trong quá trình setup, agent phải đọc `.generic/ADAPTER_REQUIREMENTS.md`, chuyển cấu hình `.generic` sang đúng thư mục native của host (ví dụ `.opencode/`, `.qwen/`, `.github/`), tự viết/đăng ký adapter và hook, rồi kiểm thử host thực sự nạp các setting. Không đổi tên cả thư mục một cách máy móc vì mỗi host có schema khác nhau.** Không yêu cầu Human tự viết code và không dừng ở bước `PORT_REQUIRED` nếu host có khả năng hỗ trợ. Các cơ chế host không hỗ trợ phải được chứng minh và thông báo `GUIDED_ONLY`; Tier `Standard` không tự xác nhận hook hoặc quyết định Human.
 
 **Codex Cloud:** nếu không thể mở phiên mới hay chạy Human-terminal độc lập, kiểm thử ở workspace tạm trong **task đang mở** và báo `SCRIPT_TESTED / HOOK_RUNTIME_UNVERIFIED`; không khai `READY` hay giả lập lượt xác nhận của Human. Xem hướng dẫn [For AI](docs/FOR_AI.md).
-
-## Hai cách sử dụng Bootstrap: Lead là luồng chính
-
-**Lead profile là cách dùng mặc định** cho một dự án mới hoặc dự án đã có code. Lead vận hành toàn bộ quy trình Bootstrap: tìm hiểu dự án, xây dựng/duy trì Criteria, Plan và milestones, chuẩn bị Technical Proposal, tổ chức **Critic Review** trước khi code, rồi trực tiếp thực hiện hoặc giao việc. Hai prompt Greenfield và Brownfield ở trên đều khởi động **Lead**, không phải Worker.
-
-**Worker profile là gì?** Worker là phiên thực thi công việc *do một Lead đang quản lý dự án giao xuống*, nhằm chia nhỏ phần triển khai cụ thể, giảm context phải đọc và giúp Lead tập trung vào thiết kế, điều phối, tích hợp. Worker **không** khởi tạo hoặc quản lý dự án độc lập. Worker nhận **Technical Proposal đã Critic Review PASS** làm *Criteria thực thi của nhiệm vụ*, kèm branch/phạm vi source được phép sửa, dependency, đầu ra và điều kiện nghiệm thu. Worker dùng **cùng Bootstrap, roles, skills và các khả năng kỹ thuật** như Lead; không có installer, tier hay loại model riêng.
-
-**Worker sẽ làm gì?** Đọc assignment và đúng những tài liệu/source cần thiết; thực hiện thay đổi đã được duyệt; tự kiểm tra, sửa lỗi trong phạm vi giao việc; trả lại cho Lead source/diff, bằng chứng test, phần chưa xác minh và những lệch phạm vi cần quyết định. Worker **bỏ qua toàn bộ project bootstrap**: không khám phá lại Criteria cấp dự án, không gọi Technical Advisor để duyệt lại Criteria, không tạo lại Plan/milestones và **không bắt chạy lại Pre-Code CR** cho proposal đã PASS. Nếu thiết kế cần thay đổi đáng kể, báo Lead xử lý thay vì tự mở rộng phạm vi.
-
-**Quan hệ Lead–Worker:** Worker chỉ có ý nghĩa **sau khi tồn tại Lead và assignment đã duyệt**. Lead có thể tự code, tự test và hoàn tất dự án mà không tạo Worker nào. Không giả định model local khoảng 27B đủ năng lực làm Lead dự án; nó chỉ là ứng viên cho công việc triển khai được giao và cần đánh giá bằng kết quả thực tế. Nếu model local thực sự đủ năng lực điều hành cả dự án, sử dụng **Lead profile** với model đó — và Lead có thể tự thực hiện luôn công việc của Worker.
-
-**Thiết kế tối thiểu:** Lead/Worker là **điểm vào và phạm vi Criteria**, không phải hai bản Bootstrap. Giữ nguyên Lite/Standard/Full (cấp tính năng cài đặt). Không cần công tắc installer `--profile lead/worker` hay hệ thống điều phối mới chỉ để đặt tên hai luồng. Worker handoff và giới hạn context được triển khai trong giai đoạn B3 theo hợp đồng công việc; việc chép role/skill không tự chứng minh host-native agent hoặc quyền ghi được cưỡng chế.
 
 ## AI sẽ tự làm gì?
 
