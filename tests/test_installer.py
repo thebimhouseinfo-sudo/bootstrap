@@ -621,5 +621,20 @@ class InstallTests(unittest.TestCase):
                 self.assertTrue(parsed["rules"], p)
                 self.assertNotIn("\\n", parsed["rules"][0], p)
 
+    def test_worker_delegation_contract(self):
+        skill = (SOURCE / ".agents/skills/worker-execution/SKILL.md").read_text(encoding="utf-8")
+        coder_skill = (SOURCE / ".agents/skills/implement-task/SKILL.md").read_text(encoding="utf-8")
+        coder = (SOURCE / ".agents/roles/coder.md").read_text(encoding="utf-8")
+        handoff = (SOURCE / "harness/MULTI_HARNESS.md").read_text(encoding="utf-8")
+        for token in ("sole", "Technical Proposal", "Lead", "Stage B", "bootstrap"):
+            self.assertIn(token.lower(), skill.lower())
+        self.assertIn("worker-execution/SKILL.md", coder_skill)
+        self.assertIn("go directly to Stage B", coder_skill)
+        self.assertIn("worker-execution/SKILL.md", coder)
+        self.assertIn("Worker's sole Criteria", handoff)
+        self.assertEqual(
+            json.loads((SOURCE / "harness/specs/TIER_MANIFEST.json").read_text(encoding="utf-8"))["schema_version"], 1
+        )
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
