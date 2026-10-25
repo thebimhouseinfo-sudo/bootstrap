@@ -34,10 +34,18 @@ Lead and Worker run the **same Bootstrap harness, roles, skills and process**. T
 ## Human correction — identical Lead/Worker, different Criteria
 
 - **Lead instance:** Bootstrap with project-wide approved Criteria; plans/co-ordinates the entire project and delegates reviewed work.
-- **Worker instance:** The **same Bootstrap**, no separate agent type or installer; its operative Criteria is the **specific assigned work**, expressed by the **Technical Proposal already approved through independent Critic CR**. That proposal should define precise outputs, affected files/functions/callers, constraints, dependencies and acceptance.
-- **Handoff:** Lead delivers the approved Technical Proposal and necessary bounded implementation context. Worker executes it directly and returns code/evidence/deviations. Worker's role skills and Tester/Review contracts remain the same; there is **no new Pre-Code gate**, no independent redesign and no shadow Criteria document required by default.
+- **Worker instance:** The **same Bootstrap**, no separate agent type or installer; its operative Criteria is the **specific assigned work**, expressed by the **Technical Proposal already approved through independent Critic CR**. That proposal should define precise outputs, affected files/functions/callers, constraints, dependencies and acceptance. **Worker does NOT run project Bootstrap:** no project discovery, initial project Criteria drafting/approval, Technical Advisor consultation, project-wide planning/milestone creation, or fresh Pre-Code CR for an unchanged already-approved proposal.
+- **Handoff:** Lead delivers the approved Technical Proposal and necessary bounded implementation context. Worker enters **EXECUTION** directly, not BOOTSTRAP. Worker performs only task-relevant source/permission checks, implementation, tests, defect repair and handoff evidence. Worker's role skills and Tester/Review contracts remain available as needed, but **project initialization and project-wide approval gates are not re-run**; there is no new Pre-Code gate, independent redesign or shadow Criteria document required by default.
 - **Boundary:** A Worker must not promote task-specific instructions into project-wide Criteria or reinterpret the proposal beyond approved scope. Material design gaps or changed scope are escalated to Lead and appropriate Critic CR; normal implementation choices remain Worker engineering responsibility.
 - **Result:** No Lead/Worker selector, different tier, distinct installer, separate registration, or special model identity is justified.
+
+## Worker entry contract — no Bootstrap phase
+
+**Preconditions supplied by Lead:** assigned and already CR-PASS Technical Proposal; source revision/branch and authorized write scope; necessary input references and acceptance tests. If a prerequisite is missing, Worker reports a specific handoff gap to Lead, **not** a new project bootstrap request.
+
+**Worker flow:** consume assignment → inspect only relevant existing code and constraints → implement the approved solution → run scoped verification/bug-repair → deliver outputs and evidence to Lead. It must not repeat discovery, ask Human to reapprove Criteria, create new GOALMAP/milestones for the project, or issue another mandatory technical proposal review. A proposed material redesign returns to Lead for a new scoped proposal/CR outside this execution flow.
+
+**Separation of responsibility:** Lead alone is responsible for project bootstrap and global Criteria/Plan governance. Identical harness tooling does not imply identical entry workflow. This is a task-entry contract, not a new agent kind, installer flavor, tier or runtime manager.
 
 ## Explicit limitation and review outcome
 
