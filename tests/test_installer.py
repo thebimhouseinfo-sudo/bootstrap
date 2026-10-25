@@ -172,6 +172,31 @@ class InstallTests(unittest.TestCase):
                 (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
                 lifecycle)
 
+    def test_critic_precode_is_final_and_bootstrap_has_no_gsa_runtime_dependency(self):
+        """Static design/packaging regression; native Critic execution is separate."""
+        source = SOURCE / ".agents/skills/critical-review/SKILL.md"
+        critic = source.read_text(encoding="utf-8")
+        implementation = (SOURCE / ".agents/skills/implement-task/SKILL.md").read_text(encoding="utf-8")
+        lifecycle = (SOURCE / ".agents/skills/trace-impact/SKILL.md").read_text(encoding="utf-8")
+        review_loop = (SOURCE / "harness/specs/REVIEW_LOOP.md").read_text(encoding="utf-8")
+        for token in ("PRE_CODE_TECHNICAL", "PUBLIC_ARTIFACT",
+                      "CHANGES_REQUIRED", "HUMAN_ESCALATION", "whole related"):
+            self.assertIn(token, critic)
+        self.assertIn("do not read private CRITERIA or plan", critic)
+        self.assertIn("Critic in PRE_CODE_TECHNICAL mode", implementation)
+        self.assertIn("Critic PASS", review_loop)
+        self.assertIn("Bootstrap is standalone", lifecycle)
+        self.assertNotIn("authoritative GSA runtime", lifecycle)
+        self.assertNotIn("GSA APIs", lifecycle)
+        with tempfile.TemporaryDirectory() as d:
+            target = pathlib.Path(d)
+            result = run(INSTALLER, "--target", target, "--tier",
+                         "Standard", "--runtime", "codex", "--apply")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(
+                (target / ".agents/skills/critical-review/SKILL.md").read_text(encoding="utf-8"),
+                critic)
+
     def test_reviewer_precode_cross_task_proportionality_contract_is_packaged(self):
         """Enforces shipped Reviewer guidance; not a native Reviewer verdict."""
         review = (SOURCE / ".agents/roles/reviewer.md").read_text(encoding="utf-8")
