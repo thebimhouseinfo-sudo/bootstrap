@@ -197,6 +197,58 @@ class InstallTests(unittest.TestCase):
             self.assertIn("PRE-CODE design verdict",
                           (target / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8"))
 
+    def test_simulate_original_bundle_tester_activation_and_debug_escalation(self):
+        """Source/installer acceptance, never an unsupported native UAT claim."""
+        source = SOURCE / ".agents/skills/simulate"
+        original = ("SKILL.md", "references/app-brief-template.md",
+                    "references/input-catalog.md", "references/external-mocks.md",
+                    "references/example-autocad-addin.md",
+                    "references/harness-playwright.md")
+        supplement = "references/bootstrap-causal-fanout.md"
+        for part in (*original, supplement):
+            self.assertTrue((source / part).is_file(), part)
+            self.assertGreater((source / part).stat().st_size, 300, part)
+
+        method = (source / "SKILL.md").read_text(encoding="utf-8")
+        tester = (SOURCE / ".agents/roles/tester.md").read_text(encoding="utf-8")
+        guidance = (source / supplement).read_text(encoding="utf-8")
+        loop = (SOURCE / ".agents/skills/bug-fix-loop/SKILL.md").read_text(encoding="utf-8")
+        debug = (SOURCE / ".agents/skills/systematic-debugging/SKILL.md").read_text(encoding="utf-8")
+        verification = (SOURCE / ".agents/skills/test-and-verify/SKILL.md").read_text(encoding="utf-8")
+
+        for original_rule in ("Designer (mù code)", "Tracer (được đọc code)",
+                              "T0", "T6", "references/external-mocks.md"):
+            self.assertIn(original_rule, method)
+        self.assertIn("simulate/SKILL.md", tester)
+        self.assertIn("NOT a new Contract or Job Pack", tester)
+        self.assertIn("single user request", tester)
+        self.assertIn("every spawned child", guidance)
+        self.assertIn("wait-for graph", guidance)
+        self.assertIn("no generic host mock", guidance.lower())
+        self.assertIn("three complete Coder repair", loop)
+        self.assertIn("Advanced cross-flow root cause", debug)
+        self.assertIn("simulate/references/bootstrap-causal-fanout.md", verification)
+
+        for runtime in ("codex", "claude", "continue"):
+            with self.subTest(runtime=runtime), tempfile.TemporaryDirectory() as folder:
+                target = pathlib.Path(folder)
+                args = ("--target", target, "--tier", "Standard",
+                        "--runtime", runtime, "--apply")
+                first = run(INSTALLER, *args)
+                self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+                second = run(INSTALLER, *args)
+                self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+                self.assertIn("SAME", second.stdout)
+                for part in (*original, supplement):
+                    body = (source / part).read_bytes()
+                    self.assertEqual((target / ".agents/skills/simulate" / part).read_bytes(), body)
+                    if runtime in ("claude", "continue"):
+                        self.assertEqual(
+                            (target / ("." + runtime) / "skills/simulate" / part).read_bytes(),
+                            body)
+                self.assertIn("User-initiated SIMULATE",
+                              (target / ".agents/roles/tester.md").read_text(encoding="utf-8"))
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(
