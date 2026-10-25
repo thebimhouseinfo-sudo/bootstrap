@@ -103,3 +103,13 @@ For each new finding, add symptom, exact entrypoint/test/host/revision, observed
 - **Minimal design repair:** §8.4B records Coder nominations and Reviewer challenges CLR-01–08. Retain narrow existing Python APIs; use guided role/skill invocation unless independently verified; do not create new review/context/retirement/Secretary engines or speculative patches. Distinguish design review completeness from actual Reviewer PASS and host RUNTIME_VERIFIED.
 - **Tester retest / acceptance:** In an installed supported host, verify actual role/skill activation, independent design Reviewer action, no source writes while P0 is DRAFT, branch authority and user follow-up continuity. Existing CI regression proves packaging/CLI only. No native run executed in this GitHub-only CLR, so remains UNVERIFIED.
 - **Ship:** Remove this temporary record with `_dogfood` only after separately authorized acceptance, preserving legitimate source/tests and accepted product docs.
+
+## LL-009 — CR found stale milestone references and unconditional runtime ownership
+
+- **Status:** CONFIRMED DOCUMENT/DESIGN CONSISTENCY FINDING; corrected at GUIDED_ONLY level in canonical §8.4C, independent native Reviewer PASS remains pending.
+- **Observed:** After a milestone reorganization, introduction still named M1–M7 as delivery phases; decision trace CD-29 cited obsolete M1/M7; §8.11 made GSA appear responsible for Job/Run in generic Bootstrap. The proposed P0 exit also risked conflating resolved design with host-tested functionality.
+- **Evidence/reproducer:** Read `docs/refactor/CONTEXT_OPTIMIZATION_REFACTOR_PLAN_DRAFT.md` introduction, CD-29, §8.11, §8.5 together; compare source `project-template/harness/specs/REVIEW_LOOP.md`, `READINESS.md` and `harness/common/task.py`. The local project template has no autonomous reviewer nor complete Job/Run owner.
+- **Expected:** One coherent P0→P1→P2→B1–B5 sequence; GSA merely an optional external integration; DESIGN_RESOLVED_GUIDED and RUNTIME_UNVERIFIED cannot mean independent Reviewer PASS.
+- **Repair:** Correct canonical text, add CR-01–08 to §8.4C, keep reviewed source/file/caller map as design without inventing new runtime. No application code or installer changed.
+- **Retest:** Re-read the canonical milestone introduction, §8.1, CD-29, §8.11 and §10, ensure they agree. Native reviewer dispatch and actual Host scenarios remain UNVERIFIED; continue P0 until independent verdict and Human authorization.
+- **Ship:** Remove this temporary finding with `_dogfood` at authorized release after relevant accepted product documentation remains.
