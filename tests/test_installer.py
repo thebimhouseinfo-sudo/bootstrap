@@ -228,6 +228,10 @@ class InstallTests(unittest.TestCase):
         self.assertIn("do not read private CRITERIA or plan", critic)
         self.assertIn("PRE_CODE_TECHNICAL", critic)
         self.assertIn("PUBLIC_ARTIFACT", critic)
+        role = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
+        self.assertIn("PRE_CODE_TECHNICAL", role)
+        self.assertIn("PUBLIC_ARTIFACT", role)
+        self.assertIn("whole related", role)
         self.assertIn("Critic receives scoped approved Criteria", template)
         with tempfile.TemporaryDirectory() as d:
             target = pathlib.Path(d)
