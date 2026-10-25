@@ -5,6 +5,9 @@ description: Coder reads complete accepted decisions, describes Task-level Code 
 
 # implement-task — pre-code then authorized implementation
 
+## Delegated Worker exception (approved work only)
+An existing Lead may delegate a Technical Proposal already passed by independent Critic. For that **specific Worker assignment**, follow `.agents/skills/worker-execution/SKILL.md` and **go directly to Stage B** without project bootstrap, another Criteria, or repeating Stage A/CR. Confirm approval and actual source authority; if absent, report to Lead rather than self-approving. A material design/scope change returns to Lead for fresh scoped Critic CR. Ordinary project Coder/Lead tasks continue with Stage A below.
+
 ## Stage A — descriptive PRE-CODE (NOT executable files)
 1. Validate the assigned approved Goal/Task, Criteria, branch authority, full relevant current accepted Human decisions, existing source/callers and actual host/SDK. Do not invent missing domain logic or assume a Coder-made technology decision is a User-approved workflow.
 2. When the professional/host operating solution is **materially missing**, use solution-clarification once at Goal/Task-pack level. Normal coding choices are not Human questions. Use the focused operational-file-lifecycle knowledge only when the Task handles User file products or app-owned supporting files.
