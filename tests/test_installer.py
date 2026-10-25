@@ -221,7 +221,7 @@ class InstallTests(unittest.TestCase):
             self.assertIn(original_rule, method)
         self.assertIn("simulate/SKILL.md", tester)
         self.assertIn("NOT a new Contract or Job Pack", tester)
-        self.assertIn("single user request", tester)
+        self.assertIn("single CadGPT user input", tester)
         self.assertIn("every spawned child", guidance)
         self.assertIn("wait-for graph", guidance)
         self.assertIn("no generic host mock", guidance.lower())
