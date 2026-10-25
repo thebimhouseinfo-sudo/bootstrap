@@ -82,3 +82,13 @@ For each new finding, add symptom, exact entrypoint/test/host/revision, observed
 - **Next verification:** In a fresh session read the repository handoff, canonical DRAFT Plan and harness template before choosing the active action. Verify RL status and compare proposed file/function/caller interactions; exercise the real installed Bootstrap role/skill dispatch when possible, and label current GitHub-only guided coordination accurately.
 - **Acceptance:** An ambiguous user follow-up never silently changes project/phase; new execution is blocked by real current Phase/Plan authority; independent review and actual host evidence are not inferred from CI or self-review. Record each failure against the same relevant existing Task/defect rather than spawning duplicate Jobs.
 - **Ship:** Retain any verified source/test corrections and remove the temporary `docs/refactor/_dogfood/` folder from release HEAD only after normal ship authorization; Git history remains.
+
+
+## LL-007 — Milestone phase inversion: design finding/refactor split into implementation milestones
+
+- **Status:** CONFIRMED PROPOSAL-STRUCTURE ERROR; corrected in canonical proposal, independently reviewed native runtime still UNVERIFIED.
+- **Observed:** Unified v7.0 §8 labeled M1–M6 as functional implementation milestones while source/code changes were already introduced in Draft PR #21 before a combined, source-grounded Technical Proposal RL. This misplaced finding resolution, cross-Task refactor optimization and design tests after the point where code had begun.
+- **Expected:** ONE Pre-Code design milestone encompasses all functional findings and Coder-nominated file/function/interface/caller/dependency/test/exclusion decisions, with whole-related Reviewer challenge and repeated proposal-only revisions **before** approved implementation. Functional code and real-host acceptance are subsequent separate milestones.
+- **Repair:** Canonical §8 is revised in place to P0 unified PRE-CODE → P1 Functional implementation → P2 independent verification → deferred B1–B5; existing M1–M6 evidence becomes design inputs, not proof of milestone completion. Source-level nomination and guided review findings are explicit in §8.3–§8.4; no new gate, runtime manager or installer changes.
+- **Remaining verification:** Run an actual independent Reviewer across the whole proposed design and current source/callers; confirm native host role/skill selection; Human decides on proposal approval. Do not call self-review RUNTIME_VERIFIED or independent PASS.
+- **Ship:** This temporary dogfood entry is removed with the entire _dogfood directory from release HEAD only after accepted source/regression/documentation results survive.
