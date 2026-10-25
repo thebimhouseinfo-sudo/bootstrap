@@ -5,7 +5,7 @@
 
 ## Goal and invariant
 
-Lead and Worker run the **same Bootstrap harness, roles, skills and process**. The difference is the **Criteria/scope supplied to each instance**, not agent kind, installer profile or capability ranking. Lead holds the whole-project approved Criteria; Worker holds the specific accepted assignment whose operative Criteria is the **approved Technical Proposal** for that delegated work. Preserve traceability to overall project Criteria, but do not force the Worker to re-bootstrap the project or redesign/reapprove its assignment. Existing installs and updates must remain safe. Critic `PRE_CODE_TECHNICAL` is the last proposal review, never another Reviewer approval.
+Lead and Worker use the **same Bootstrap harness and role/skill capabilities**, but Worker is an **execution-only subordinate session that can exist only after a Lead**. The difference is the **Criteria/scope supplied to each instance**, not agent kind, installer profile or capability ranking. Lead holds the whole-project approved Criteria; Worker holds the specific accepted assignment whose operative Criteria is the **approved Technical Proposal** for that delegated work. Preserve traceability to overall project Criteria, but do not force the Worker to re-bootstrap the project or redesign/reapprove its assignment. Existing installs and updates must remain safe. Critic `PRE_CODE_TECHNICAL` is the last proposal review, never another Reviewer approval.
 
 ## Concrete existing call path
 
@@ -46,6 +46,16 @@ Lead and Worker run the **same Bootstrap harness, roles, skills and process**. T
 **Worker flow:** consume assignment → inspect only relevant existing code and constraints → implement the approved solution → run scoped verification/bug-repair → deliver outputs and evidence to Lead. It must not repeat discovery, ask Human to reapprove Criteria, create new GOALMAP/milestones for the project, or issue another mandatory technical proposal review. A proposed material redesign returns to Lead for a new scoped proposal/CR outside this execution flow.
 
 **Separation of responsibility:** Lead alone is responsible for project bootstrap and global Criteria/Plan governance. Identical harness tooling does not imply identical entry workflow. This is a task-entry contract, not a new agent kind, installer flavor, tier or runtime manager.
+
+## Worker existence and model-capability boundary — Human decision
+
+**Worker profile is subordinate, never standalone.** It exists only after an actual Lead has established the project Criteria/Plan and delegated a specific **CR-PASS Technical Proposal**. Without that Lead and accepted assignment, do not offer/start Worker-only project initialization: use the normal Lead Bootstrap setup instead. The Worker has no independent project bootstrap and cannot create its own overarching Criteria/Plan.
+
+**Model size does not define a profile.** There is no proposal to make a ~27B local model an autonomous Lead for a complete project: its capability is not established for that responsibility. The ~27B reference in B4 is an optional *bounded implementation benchmark only*, not Lead eligibility. Do not infer that all larger models are adequate without evidence.
+
+**If a user's local model is genuinely capable of leading their project**, install/run the normal **Lead profile** with that model; the Lead may itself perform implementation work (acting as its own Worker) rather than requiring a separately installed Worker. This does not create two models, two installers or duplicate agents by default.
+
+**B2/B3 implications:** The installer need not expose a standalone Worker onboarding path. A delegated Worker execution session is meaningful only with the Lead-provided approved proposal, scoped source access and task acceptance. Any future profile-selection UX must enforce the Lead-first dependency rather than present Worker as an independent bootstrap alternative; do not code such UX without a demonstrated B2 consumer and source-backed review.
 
 ## Explicit limitation and review outcome
 
