@@ -17,6 +17,18 @@ For an existing, unlocked setup, repeat the original primary plus the additional
 
 The lifecycle hashes the install manifest and all installed native hook adapters, including Continue Stop. This detects configuration drift; it does not prove that secondary hosts load the hooks. Keep the exact host version, surface, allow/deny observations and limitations in the handoff report for **each** installed host. A primary READY is not a native PASS for all selected hosts.
 
+## Lead → Worker: the recommended delegated execution path
+
+**Lead is the primary project Bootstrap flow** and may implement its own work without delegating. A Worker exists only for an assignment from an existing Lead. Both use the same Bootstrap; the difference is **entry workflow and Criteria scope**, not model, installation tier, role set or a separate installer.
+
+1. Lead completes project Bootstrap, develops the concrete Technical Proposal and obtains independent **Critic PRE_CODE_TECHNICAL PASS**.
+2. In the recommended flow, **the approved Technical Proposal is the Worker's sole Criteria**. The Lead may give a repository path, branch/revision, write permissions and source references as operational access information, never as another Criteria or an expanded assignment.
+3. Worker explicitly enters `.agents/skills/worker-execution/SKILL.md`, skips project Bootstrap and duplicate Pre-Code, reads only relevant source/context, implements the approved proposal, tests and sends evidence to Lead.
+4. Material design/scope gaps return to Lead for revised proposal and Critic CR; ordinary bug repair and testing remain Worker responsibilities. Lead integrates changes and manages project-wide decisions.
+5. Multiple hosts do not share chat history automatically; native agent dispatch or write guards are unverified until observed on the actual host. A Git worktree is Git isolation, not a security sandbox.
+
+**Model choice:** Do not presume ~27B local models can lead whole projects. If an actual local model is capable of Lead responsibility, use normal Lead and let it do the implementation too. Worker is never an independent bootstrap alternative.
+
 ## Codex Planner → Continue with a local model → review
 
 1. Codex Planner settles approved `docs/CRITERIA.md`, technical direction, `docs/IMPLEMENTATION_PLAN.md` with GOALMAP, and milestones. Human approval precedes task creation/coding. Each task needs concrete behavior, files or interfaces to change, dependencies, non-goals, actual checks and completion evidence.
