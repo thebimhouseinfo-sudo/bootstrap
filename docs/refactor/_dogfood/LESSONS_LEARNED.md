@@ -53,11 +53,21 @@ For each new finding, add symptom, exact entrypoint/test/host/revision, observed
 
 ## LL-004 — Tester assertion drifted from the actual Coder skill contract
 
-- **Status:** CONFIRMED TEST DEFECT; one minimal correction applied, CI retest pending.
+- **Status:** REPAIRED / SCRIPT_TESTED for M4; analogous M6 assertion defect reproduced and corrected without modifying feature requirements.
 - **Date / Scope:** 2026-10-24, M4 Coder knowledge packaging regression.
 - **Evidence:** GitHub Actions [run 40114253849](https://github.com/thebimhouseinfo-sudo/bootstrap/actions/runs/40114253849), Ubuntu 3.12 job 120932164525, test_coder_precode_and_user_file_lifecycle_knowledge_are_packaged line 157. Same failure appears in six OS/Python jobs. New test asserted the exact non-existent fragment "materially missing".
 - **Actual skill wording and root cause:** solution-clarification/SKILL.md correctly limits invocation to information that "materially changes the correct operational/domain solution"; this rule was present. Tester used a guessed shorthand phrase as a brittle string oracle rather than checking the source's meaningful requirement. No product symptom demonstrated.
 - **Fix:** Update the test to assert the actual complete normative phrase, **not remove the check, weaken a runtime guard or change the user-approved skill**. Keep the same defect and first repair attempt.
-- **Regression:** Re-run tests/test_installer.py and full six-OS/Python CI after this commit; native host skill activation remains UNVERIFIED regardless of script result.
+- **Regression:** M4's original assertion fix passed CI matrix in [run 40114621257](https://github.com/thebimhouseinfo-sudo/bootstrap/actions/runs/40114621257). In M6, [run 40157624397](https://github.com/thebimhouseinfo-sudo/bootstrap/actions/runs/40157624397) caught an **analogous assertion mistake**: tester searched `single user request`, but the real Tester contract says `single CadGPT user input`. Corrected only the assertion on commit `fe86e09`, keeping user requirements and original simulate bundle unchanged. Latest CI verification belongs to that commit; live agent activation remains UNVERIFIED.
 - **Lesson:** Build static packaging assertions from the real contract and preserve semantic intent, not invented shorthand. For behavioral acceptance rely on real input-output simulation rather than text equality alone.
 - **Ship:** Remove this temporary record after source/tests are verified and useful checks retained; do not conceal CI history.
+
+## LL-005 — Active-project context lost on short ambiguous user message
+
+- **Status:** USER-OBSERVED CONTEXT/UX FAILURE; Bootstrap native host causal attribution UNVERIFIED, so not labeled a confirmed repository code defect.
+- **Reproduction in the surrounding conversation:** After sustained and active Bootstrap refactor work on PR #21, Human wrote a short ambiguous question resembling "topics?". The assistant incorrectly jumped to a wholly unrelated education application and asserted its topic structure. Human explicitly corrected the scope: work was still Bootstrap. This is cross-project contamination from unrelated context, not a request to switch repositories.
+- **Expected:** Continue interpreting short, underspecified follow-ups within the active project/branch/Task. If the term is genuinely ambiguous, ask one concise scope-sensitive question **without** inventing a different active project. Change project only on actual Human instruction.
+- **Root cause:** Observed assistant context-selection error. Whether native Bootstrap Planner/Tester/Lead role rules, model memory retrieval or another host process caused it is **UNVERIFIED**. Do not claim a Bootstrap code fix by adding a Markdown instruction.
+- **Action within scope:** Tester on-demand `simulate` should include an actual host scenario: after a long Bootstrap handoff with current PR/branch and M6 active, send a short ambiguous user prompt; record the selected project/task and response. Treat wrong-project content as FAIL in user-facing behavior, and unavailable real host as UNVERIFIED. This scenario belongs in existing Tester evidence, not a new permanent project-context registry or Job.
+- **Prevent overengineering:** Reuse current session/Task scope when provided; no global user-profile scanning, new identity manager or forced file-based context state.
+- **Ship:** Keep any verified scoped role/skill improvement/test; remove this temporary finding from release HEAD when reviewed and accepted. Git history retains prior evidence.

@@ -36,6 +36,10 @@ ordinary User command is still possible.
 ~~~
 Never propose a second CAD dispatcher solely because its absence is measurable. Reviewer determines whether the smallest correction is fixing the duplicate launch, callback/ownership or an existing queue contract.
 
+## Session/project continuity as a user-behavior simulation
+
+When testing an AI-led application or harness, include a **risk-scoped context-boundary scenario** if the User workflow depends on the active project: after a long active-project conversation/handoff, supply a short ambiguous message through the normal chat entrypoint. The oracle comes from the User's current active project/Task and explicit project-switch rules, not from the source code. Expected: preserve the current Project/branch/Task when naturally applicable, or ask one concise clarification if genuinely uncertain; **never silently import an unrelated project's content and call it the active Task**. Trace which accepted session scope/context references were actually read and whether a source-of-truth retrieval was missed. Model/ChatGPT behavior outside the installed Bootstrap agent cannot be claimed fixed by this skill's text; native execution remains UNVERIFIED until exercised.
+
 ## Tester execution and closure
 Start with a simple genuine user T0 entrypoint, then risk-proportionate realistic sequence, overlapping action, and disorderly user behavior from the original scenario generator. Control seeds and interleaving order where possible; archive expected versus actual and trace under the **existing Test Task**. When a defect is found, hand one evidence set to existing `bug-fix-loop`; run **at most 3** independent full Coder-fix/Tester-retest cycles for the same defect. After unresolved third FAIL, use existing advanced `systematic-debugging`, causal timeline/wait-for and hypothesis experiments before further architecture-changing repair. No fake Reviewer receipt.
 
