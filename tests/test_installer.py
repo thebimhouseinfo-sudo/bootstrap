@@ -208,18 +208,21 @@ class InstallTests(unittest.TestCase):
             self.assertIn(concept, review)
         self.assertIn("PRE-CODE Code Structure Proposal", skill)
         self.assertIn("missing consumers", skill)
-        self.assertIn("PRE-CODE design verdict", template)
+        self.assertIn("PRE-CODE Critic verdict", template)
         self.assertIn("Derived approved components", template)
         self.assertIn("CODE/TEST outcome: PASS / FAIL / UNVERIFIED", template)
-        # Critic remains public-artifact-only; not a source or plan reviewer.
+        # Critic has scoped technical Pre-Code access and separate public-only mode.
         critic = (SOURCE / ".agents/skills/critical-review/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("do not read private CRITERIA or plan", critic)
+        self.assertIn("PRE_CODE_TECHNICAL", critic)
+        self.assertIn("PUBLIC_ARTIFACT", critic)
+        self.assertIn("Critic receives scoped approved Criteria", template)
         with tempfile.TemporaryDirectory() as d:
             target = pathlib.Path(d)
             result = run(INSTALLER, "--target", target, "--tier",
                          "Standard", "--runtime", "codex", "--apply")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("PRE-CODE design verdict",
+            self.assertIn("PRE-CODE Critic verdict",
                           (target / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8"))
 
     def test_simulate_original_bundle_tester_activation_and_debug_escalation(self):
