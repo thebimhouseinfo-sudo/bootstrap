@@ -568,23 +568,25 @@ Evidence required:
 
 **Important semantic edge:** "Save Job after testing" does **not** imply writing source for the first time after native execution. The V5 source must exist to be run and is written to its final managed owner location first; **publishing it for future discovery** is a distinct later action. Do not silently delete a failed unpublished source if repair is expected. If actual Human intent conflicts with this distinction, ask the consequential question instead of inventing a new source lifecycle.
 
-### E8. Reviewer — cross-Task review, findings, derived inventory and implementation handoff
 
-Reviewer input is **all relevant Task proposals together**, not just one local Task. Reviewer may be a Lead/independent Reviewer with the full relevant view; a Worker Reviewer restricted to one Task cannot falsely claim to have consolidated an unseen multi-Task design.
+**Clarification effective 2026-10-25:** For Pre-Code Technical Proposal evaluation, every reference below to a technical Reviewer decision or “Reviewer PASS” means **independent Critic in PRE_CODE_TECHNICAL mode (CR)**; regular Reviewer retains Plan/CODE/TEST verification, and public-artifact Critic remains separately restricted. §8.4F contains the exact source-change contract. This correction does not authorize extra review after CR.
+### E8. Critic (PRE_CODE_TECHNICAL) — cross-Task review, findings, derived inventory and implementation handoff
 
-**Reviewer reads, in this order:**
+Critic (PRE_CODE_TECHNICAL) input is **all relevant Task proposals together**, not just one local Task. Critic (PRE_CODE_TECHNICAL) may be a Lead/independent Critic (PRE_CODE_TECHNICAL) with the full relevant view; a Worker Critic (PRE_CODE_TECHNICAL) restricted to one Task cannot falsely claim to have consolidated an unseen multi-Task design.
+
+**Critic (PRE_CODE_TECHNICAL) reads, in this order:**
 1. The Goal, all affected Tasks, their acceptance and direct full accepted decision references.
 2. Each Coder-proposed future file, important symbol, caller, contract, gate, state, dependency and planned test.
 3. Relevant existing source, existing callers, host execution path, hooks/permissions, shared interfaces and integration boundaries (especially brownfield).
 4. Cross-Task overlap: where two proposed things do the same work, where a new contract is not consumed, where an existing hook/helper suffices, and where a change causes a cascade in another subsystem.
 5. Architecture/risk proportionality, testing feasibility and genuine host constraints.
 
-**Reviewer decisions (with specific findings):**
-- **PASS:** whole applicable design is sufficiently simple, feasible and faithful; Reviewer records/derives the final approved file/interface responsibility list from corrected proposals. PASS does not certify future code or test execution.
-- **CHANGES_REQUIRED:** specify Task/file, exact problem, source/decision evidence, impact and the proposed simplification when known. Coder edits the descriptive proposal, **not source**; Reviewer re-evaluates the affected combined design. Avoid an unbounded speculative redesign loop.
-- **HUMAN_ESCALATION:** consequential missing operational/domain input, change of accepted scope, or a technically feasible but disproportionate/high-risk large-system change that cannot be responsibly simplified. Ask Human in ordinary practical language, not to select programming frameworks. After Human chooses, Coder updates the proposal, then Reviewer re-evaluates.
+**Critic (PRE_CODE_TECHNICAL) decisions (with specific findings):**
+- **PASS:** whole applicable design is sufficiently simple, feasible and faithful; Critic (PRE_CODE_TECHNICAL) records/derives the final approved file/interface responsibility list from corrected proposals. PASS does not certify future code or test execution.
+- **CHANGES_REQUIRED:** specify Task/file, exact problem, source/decision evidence, impact and the proposed simplification when known. Coder edits the descriptive proposal, **not source**; Critic (PRE_CODE_TECHNICAL) re-evaluates the affected combined design. Avoid an unbounded speculative redesign loop.
+- **HUMAN_ESCALATION:** consequential missing operational/domain input, change of accepted scope, or a technically feasible but disproportionate/high-risk large-system change that cannot be responsibly simplified. Ask Human in ordinary practical language, not to select programming frameworks. After Human chooses, Coder updates the proposal, then Critic (PRE_CODE_TECHNICAL) re-evaluates.
 
-**What cross-Task consolidation actually does:** If T1 proposes ReadGate and T2 proposes WriteGate, Reviewer inspects semantics and may recommend one permission mechanism or existing authority checker. If separation has a real necessity, retain it; do not force arbitrary code reduction. If T1 adds a request contract and no caller accepts it, Reviewer requests deletion or a real call path. If several Tasks need a common helper, Reviewer can coordinate ownership and names **before** code exists.
+**What cross-Task consolidation actually does:** If T1 proposes ReadGate and T2 proposes WriteGate, Critic (PRE_CODE_TECHNICAL) inspects semantics and may recommend one permission mechanism or existing authority checker. If separation has a real necessity, retain it; do not force arbitrary code reduction. If T1 adds a request contract and no caller accepts it, Critic (PRE_CODE_TECHNICAL) requests deletion or a real call path. If several Tasks need a common helper, Critic (PRE_CODE_TECHNICAL) can coordinate ownership and names **before** code exists.
 
 **Derived technical component list — only after PASS:**
 ~~~md
@@ -600,7 +602,7 @@ Known host limits: <verified facts, not assumed test results>
 
 This can be a section/view of the **same reviewed proposal** or existing task artifact. **No second coder-authored catalog, index database or automatic registry sync is required.** Proposed names are useful lookup targets for later Coders and cross-worktree handoff, not a freeze on local variable spelling.
 
-**Once PASS:** Coder implements within the already authorized branch/worktree and file scope, using accepted reviewed interfaces and direct decisions. Routine private refactors and local variable names do not need fresh Human input. Material new modules, contracts, shared interfaces, changed host behavior or expanded system impact require updated technical review; decisions requiring Human authority go through existing paths. Tester verifies the actual result and post-code Reviewer still checks code/test/decision fidelity. Do not confuse proposal PASS with native runtime PASS.
+**Once PASS:** Coder implements within the already authorized branch/worktree and file scope, using accepted reviewed interfaces and direct decisions. Routine private refactors and local variable names do not need fresh Human input. Material new modules, contracts, shared interfaces, changed host behavior or expanded system impact require updated technical review; decisions requiring Human authority go through existing paths. Tester verifies the actual result and post-code Critic (PRE_CODE_TECHNICAL) still checks code/test/decision fidelity. Do not confuse proposal PASS with native runtime PASS.
 
 ### E9. Small Function → Big Solution → Larger System Impact: actual decision procedure
 
@@ -816,7 +818,7 @@ Human changes solution → Planner revises Plan → existing Reviewer/Human auth
 
 ### G4. Ownership and implementation limits
 
-When Bootstrap runs via GSA, **GSA owns durable Job/Task/Run transitions** and already has some of the tools. Adapt Plan-scope selection and lifecycle integration there if needed; Bootstrap Planner/Reviewer skills route and verify, not create a shadow control plane. When Bootstrap runs alone, use existing Plan/Milestone/Task artifacts and actual dispatch authority; add a minimum retirement guard only when needed and verifiable.
+Bootstrap is standalone. **No GSA dependency exists.** If a target project has a separately integrated Job/Run system, only that verified external owner can settle its own runtime effects; Bootstrap's Planner/Task harness never claims an external transition happened merely from document edits. Bootstrap Planner/Critic design and existing Task checks guide and verify, not create a shadow control plane. When Bootstrap runs alone, use existing Plan/Milestone/Task artifacts and actual dispatch authority; add a minimum retirement guard only when needed and verifiable.
 
 Branch retirement is a **logical authority restriction**; do not auto-delete Git refs or retire protected/shared integration branches merely because they contain old code. If changed work shares a branch with valid work, preserve the valid work and retire only obsolete work claims. A new Phase does not imply a new remote repository or separate Git history.
 
