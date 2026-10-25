@@ -1288,7 +1288,7 @@ The following is a **technical nomination**, not a retrospective claim that all 
 
 This is an explicit **guided design iteration**, NOT an independent native Reviewer verdict. Additional Reviewer findings update this SAME canonical section and temporary Lessons Learned. Keep Reviewer findings and Coder revisions traceable by source/path; do not claim an arbitrary design to be mathematically globally optimal. Seek smallest sufficient design satisfying all accepted decisions and practical host risks.
 
-### 8.4A All dogfood Lessons Learned integrated into technical design (LL-001–LL-008)
+### 8.4A All dogfood Lessons Learned integrated into technical design (LL-001–LL-009)
 
 **This section, together with §8.4B CLR, is the canonical DESIGN disposition of the observed Lessons Learned**, not merely a link to a temporary log. Evidence details remain in `docs/refactor/_dogfood/LESSONS_LEARNED.md` during review. Each row maps the observation to an existing or nominated source location, a specific coding/test action for the later authorized P1/P2 phases, and what evidence must NOT be claimed in P0. An observation that lacks a proven Bootstrap code root cause is a test/harness investigation, not permission to invent a service.
 
@@ -1347,7 +1347,7 @@ This is an explicit **guided design iteration**, NOT an independent native Revie
 3. **Pre-Code/review (guided):** Existing Task/Goal/Decisions/source read → Coder/`implement-task` produces descriptive proposal → Reviewer/`goal-review` considers all interacting tasks → proposed PASS/CHANGES_REQUIRED/HUMAN_ESCALATION with evidence. The current harness has **no autonomous Reviewer dispatcher**; independent invocation and verdict must be observed separately before P1.
 4. **Implementation/testing (post-P0 only):** authorized Coder source updates → existing `tests/test_installer.py` + `tests/test_harness_runtime.py` prove scoped scripts, not host conduct → Tester/`test-and-verify` optionally loads `simulate`, uses causal addendum and `bug-fix-loop`, observes host outcomes when available. Three unsuccessful independent defect retests then advanced `systematic-debugging`, not a fourth ordinary patch.
 
-**Reviewer challenge of complexity and coverage:** no new Secretary background service, automatic role sync, context/phase manager, GSA dependency, Plan/Run graph, signed review gate, native hook implementation, file identity registry or full CAD testing subsystem is warranted by the current evidence. All LL-001–008 are incorporated into the design disposition and X01–X12 test contract. The corrected design names known real CLI functions and distinguishes all host-procedure consumers.
+**Reviewer challenge of complexity and coverage:** no new Secretary background service, automatic role sync, context/phase manager, GSA dependency, Plan/Run graph, signed review gate, native hook implementation, file identity registry or full CAD testing subsystem is warranted by the current evidence. All LL-001–009 are incorporated into the design disposition and X01–X12 test contract. The corrected design names known real CLI functions and distinguishes all host-procedure consumers.
 
 **Round result:** **GUIDED DESIGN REVIEW — NO FURTHER SOURCE-SUPPORTED DESIGN CHANGES REQUIRED IN THIS ROUND**. This does **not** mean independent Reviewer PASS or Human approval. Open evidence: selected host native role/skill dispatch, local Git-common-dir authority, actual separate Reviewer execution, and P2 user-flow verification. Those are execution/authorization evidence, not justification for inventing additional design components.
 
@@ -1370,7 +1370,7 @@ This is an explicit **guided design iteration**, NOT an independent native Revie
 
 **After critical recheck:** CR-01/02/03 corrected in canonical text; CR-04–08 resolved as design rules with clearly deferred test/caller evidence. No additional mandatory module is justified by these findings. **Overall P0 remains DRAFT / INDEPENDENT_REVIEW_PENDING**.
 
-### 8.5 P0 exit requirements and P1 implementation handoff
+**LL-009 incorporation:** CR-01–08 above are the canonical proposal response to the LL-009 observation: stale milestone references, Bootstrap/GSA owner confusion, and design-vs-native evidence leakage. No app source change is nominated solely for this documentation contradiction. Retest = inspect introduction, §8.1, CD-29, §8.11, §10 for consistent P0→P1→P2→B1–B5 authority; independent Reviewer evidence remains pending.\n\n### 8.5 P0 exit requirements and P1 implementation handoff
 
 P0 exit requires: (a) source-backed proposed file/symbol/caller/dependency/test and exclusions for **every** affected Task including cross-Task shared consumers; (b) no outstanding actionable design finding, unresolved double ownership or unreasoned new subsystem; (c) Decision coverage with actual CD/D/R/S/F clauses preserved; (d) independent Reviewer DESIGN PASS with recorded evidence and scope; (e) Human approval through existing process; (f) branch/worktree/write authority independently verified **before P1 source writes**, not manufactured as a P0 design-review result. **If native independent Reviewer cannot be run, remain DRAFT / GUIDED_ONLY**, even when the draft is well optimized.
 
