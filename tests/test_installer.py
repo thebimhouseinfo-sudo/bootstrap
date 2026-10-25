@@ -172,6 +172,18 @@ class InstallTests(unittest.TestCase):
                 (target / ".agents/knowledge/operational-file-lifecycle.md").read_text(encoding="utf-8"),
                 lifecycle)
 
+    def test_entrypoint_and_planner_contract_are_standalone_and_mode_scoped(self):
+        """Contract regression for Bootstrap, not a native multi-agent run."""
+        entry = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
+        planner = (SOURCE / ".agents/roles/planner.md").read_text(encoding="utf-8")
+        report = (SOURCE / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8")
+        self.assertIn("PRE_CODE_TECHNICAL", entry)
+        self.assertIn("PUBLIC_ARTIFACT", entry)
+        self.assertIn("Bootstrap is standalone", planner)
+        self.assertNotIn("GSA when connected", planner)
+        self.assertIn("PRE-CODE Critic verdict", report)
+        self.assertIn("Critic receives scoped approved Criteria", report)
+
     def test_critic_precode_is_final_and_bootstrap_has_no_gsa_runtime_dependency(self):
         """Static design/packaging regression; native Critic execution is separate."""
         source = SOURCE / ".agents/skills/critical-review/SKILL.md"
@@ -208,18 +220,25 @@ class InstallTests(unittest.TestCase):
             self.assertIn(concept, review)
         self.assertIn("PRE-CODE Code Structure Proposal", skill)
         self.assertIn("missing consumers", skill)
-        self.assertIn("PRE-CODE design verdict", template)
+        self.assertIn("PRE-CODE Critic verdict", template)
         self.assertIn("Derived approved components", template)
         self.assertIn("CODE/TEST outcome: PASS / FAIL / UNVERIFIED", template)
-        # Critic remains public-artifact-only; not a source or plan reviewer.
+        # Critic has scoped technical Pre-Code access and separate public-only mode.
         critic = (SOURCE / ".agents/skills/critical-review/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("do not read private CRITERIA or plan", critic)
+        self.assertIn("PRE_CODE_TECHNICAL", critic)
+        self.assertIn("PUBLIC_ARTIFACT", critic)
+        role = (SOURCE / ".agents/roles/critic.md").read_text(encoding="utf-8")
+        self.assertIn("PRE_CODE_TECHNICAL", role)
+        self.assertIn("PUBLIC_ARTIFACT", role)
+        self.assertIn("whole related", role)
+        self.assertIn("Critic receives scoped approved Criteria", template)
         with tempfile.TemporaryDirectory() as d:
             target = pathlib.Path(d)
             result = run(INSTALLER, "--target", target, "--tier",
                          "Standard", "--runtime", "codex", "--apply")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("PRE-CODE design verdict",
+            self.assertIn("PRE-CODE Critic verdict",
                           (target / "docs/reports/_REVIEW_TEMPLATE.md").read_text(encoding="utf-8"))
 
     def test_simulate_original_bundle_tester_activation_and_debug_escalation(self):
