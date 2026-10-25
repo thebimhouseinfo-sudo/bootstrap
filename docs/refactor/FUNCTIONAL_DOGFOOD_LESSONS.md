@@ -1,3 +1,9 @@
+# Bootstrap — Functional Dogfood Lessons (archived after PR #21/#22)
+
+**Closeout:** The entries below preserve historical findings, including statements that were true *when first observed* but have since been superseded. Normative decisions and current implementation status live in `CONTEXT_OPTIMIZATION_REFACTOR_PLAN_DRAFT.md` §8.4F and §10. Bootstrap is standalone, and independent technical CR is performed by Critic. M1–M6 P1 merged; host-native automatic role activation remains unverified; effectiveness must be observed in real project use. Do not treat historical “next steps” below as new release gates.
+
+---
+
 # Bootstrap self-dogfood — temporary Lessons Learned
 
 **Scope:** Refactor Functional Core M1–M7, using the current Bootstrap roles/skills/harness in this same project.
