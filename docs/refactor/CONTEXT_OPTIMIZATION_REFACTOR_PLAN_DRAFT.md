@@ -1,6 +1,6 @@
 # Bootstrap — Unified Context, Decision Preservation & Pre-Code Engineering Upgrade Plan (Draft v7.0 — Functional-First Detail Plan)
 
-**Status:** DRAFT — awaiting Planner/Reviewer review and Human approval  
+**Status:** P0 CR DESIGN PASS — technical proposal review complete; P1 source edits require existing branch/write authority, not an extra Human technical sign-off  
 **Repository:** `thebimhouseinfo-sudo/bootstrap`  
 **Document authority:** One canonical Upgrade Plan, updated in place. Draft v7.0 preserves ALL previously accepted operational rules (Decision/Planner, RETIRED, Coder Pre-Code/DEV-vs-OPERATION, Reviewer, Tester simulate and debugging, Lead/Worker/context/multi-model). **Current milestone structure:** unified P0 Pre-Code technical design RL across former M1–M6 findings, then P1 authorized implementation and P2 independent functional stabilization; B1–B5 remain deferred. A topic heading alone is never proof of decision fidelity.
 **Execution order:** Section 8 is authoritative for sequencing: P0→P1→P2 functional-first, then B1–B5 deferred installation/context/model work. Previous Lead/Worker design is preserved but deferred, not canceled.
@@ -1178,7 +1178,7 @@ A project may have Codex Lead and QwenCode Worker installed together without two
 
 ## 8. Detailed Implementation Plan — PRE-CODE FIRST, FUNCTIONAL SOURCE ONLY AFTER REVIEW
 
-**Status: DRAFT / TECHNICAL PROPOSAL REVIEW LOOP (RL).** Human correction 2026-10-25: all functional findings, source-fit work, nominated refactor design, cross-Task optimization, and test design belong to ONE **Pre-Code milestone**, rather than being labeled individually delivered M1–M6. The existing M1–M6 proposals in `docs/refactor/_dogfood/` are inputs to the same design review, **not accepted implementation milestones**. WIP code already present in Draft PR #21 is review evidence, not authorization or a substitute for design approval. Criteria remains unchanged.
+**Status: P0 CR DESIGN PASS (2026-10-25); P1 source implementation not yet started under this decision.** Human correction 2026-10-25: all functional findings, source-fit work, nominated refactor design, cross-Task optimization, and test design belong to ONE **Pre-Code milestone**, rather than being labeled individually delivered M1–M6. The existing M1–M6 proposals in `docs/refactor/_dogfood/` are inputs to the same design review, **not accepted implementation milestones**. WIP code already present in Draft PR #21 is review evidence, not authorization or a substitute for design approval. Criteria remains unchanged.
 
 **Authority:** Actual Bootstrap repository and this Plan; **Bootstrap's own** `project-template/` harness, NOT a GSA-managed Bootstrap project. The template's `active-task.json` and `TASKS.md` are NOT_CONFIGURED placeholders; `REVIEW_LOOP.md` explicitly does not provide an autonomous Reviewer engine. Remote GitHub content edits cannot establish the local Git-common-dir `branch_authority.py check-write` result. Review coordination here is **GUIDED_ONLY** unless an independent native Reviewer run is actually evidenced; CI is **SCRIPT_TESTED**, not native `RUNTIME_VERIFIED`. Never invent a PASS receipt.
 
@@ -1456,7 +1456,7 @@ Tester freezes expected behavior from approved outcome before tracing code; runs
 
 ## 10. Immediate next step and stop condition
 
-Complete unified **P0 Technical Proposal RL** (§8.1–§8.5), including all former M1–M6 findings, source-grounded Caller/Dependency/Test mapping and cross-Task architecture critique. Coder nominates descriptive alternatives, Reviewer independently examines the corrected whole design and returns PASS / CHANGES_REQUIRED / HUMAN_ESCALATION; on CHANGES_REQUIRED, revise **proposal text only** and repeat. After final CR DESIGN PASS, enter P1 through existing source/branch authority; no additional Human approval of technical file/function choices is needed. Human decisions are requested only for unresolved domain/theory or disproportionate-complexity tradeoffs. P2 carries independent functional and native-host stabilization. B1–B5 are deferred. Existing PR #21 WIP is **not automatically approved** by CI or by the existence of a file.
+P0 Technical Proposal CR is complete (§8.4D). In future CR iterations, Coder nominates descriptive alternatives, Reviewer critiques the whole interacting design and returns PASS / CHANGES_REQUIRED / HUMAN_ESCALATION; CHANGES_REQUIRED edits **proposal text only**. On final CR PASS, enter P1 through existing branch/write authority without an extra Human technical design signature. Escalate only consequential domain/theory or disproportionate-complexity choices. P2 carries independent functional and native-host stabilization. B1–B5 are deferred. Existing PR #21 WIP is **not automatically approved** by CI or by the existence of a file.
 
 Native orchestration and local branch-authority state have not been verified by the present GitHub-only review; guided inspection is not an independent Reviewer receipt or a native gate. The canonical Plan remains DRAFT, and nothing here authorizes coding, merging, deploying, changing Criteria or redesigning the installer.
 
