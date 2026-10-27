@@ -7,8 +7,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
-            "commandWindows": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
+            "commandWindows": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 10
           }
         ]
@@ -20,8 +20,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
-            "commandWindows": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
+            "commandWindows": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 15
           }
         ]
@@ -32,8 +32,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
-            "commandWindows": "python -c \"import pathlib,runpy; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
+            "commandWindows": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/codex/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/codex/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/codex/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 135
           }
         ]

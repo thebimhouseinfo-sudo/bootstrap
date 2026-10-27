@@ -118,6 +118,14 @@ class HarnessRuntimeTests(unittest.TestCase):
             input=json.dumps({"hook_event_name":"SessionStart"}),
             capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
         self.assertEqual(actual.returncode, 0, actual.stdout + actual.stderr)
+        with tempfile.TemporaryDirectory() as outside:
+            skipped = subprocess.run(
+                hook_config["hooks"]["SessionStart"][0]["hooks"][0]["command"],
+                shell=True, cwd=outside, input=json.dumps({"hook_event_name": "SessionStart"}),
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
+        self.assertEqual(skipped.returncode, 0, skipped.stdout + skipped.stderr)
+        self.assertIn("hook skipped", skipped.stderr)
+        self.assertNotIn("Traceback", skipped.stderr)
         self.assertIn("hookSpecificOutput", json.loads(actual.stdout))
 
     def test_codex_preflight_detects_invalid_native_hook_schema(self):
