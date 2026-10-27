@@ -1,4 +1,4 @@
-model = "gpt-6-astra"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 name = "harness_fixer"
 description = "Full-tier diagnosis without weakening protections"

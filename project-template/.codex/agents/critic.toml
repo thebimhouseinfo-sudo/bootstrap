@@ -1,5 +1,5 @@
-model = "gpt-6-astra"
-model_reasoning_effort = "medium"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 name = "critic"
 description = "Outsider-only artifact critique without private plan context"
 developer_instructions = """
