@@ -120,16 +120,26 @@ class InstallTests(unittest.TestCase):
         plan_task = (SOURCE / ".agents/skills/plan-task/SKILL.md").read_text(encoding="utf-8")
         plan_template = (SOURCE / "docs/IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8")
         instructions = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
-        for value in ("Only a Human-chosen outcome", "read back", "SUPERSEDED",
-                      "rejected alternatives", "UNRESOLVED", "NOT_VERIFIED"):
+        for value in ("main chat agent", "not a subagent", "docs/discussions/<YYYY-MM-DD>",
+                      "Draft in chat, in full", "Human confirms", "exactly the confirmed text",
+                      "Read the file back", "SUPERSEDED", "rejected alternatives", "UNRESOLVED", "NOT_VERIFIED"):
             self.assertIn(value, method)
-        self.assertIn("Optional Discussion Job", planner)
+        self.assertTrue((SOURCE / "docs/discussions/README.md").is_file())
+        self.assertIn("## Discussion mode, Secretary records", planner)
         self.assertIn("record-decisions/SKILL.md", planner)
         self.assertIn("COVERAGE", plan_task)
         self.assertIn("full applicable Human-accepted decision records", plan_task)
         self.assertIn("Accepted Decision references", plan_template)
         self.assertIn("Decision coverage/conflicts/feasibility", plan_template)
         self.assertIn("record-decisions/SKILL.md", instructions)
+        self.assertIn("**Discussion mode and the Secretary:**", instructions)
+        hosts = (".agents/roles/{}.md", ".claude/agents/{}.md", ".antigravity/agents/{}.md",
+                 ".codex/agents/{}.toml", ".continue/agents/{}/config.yaml",
+                 ".continue/rules/roles/{}.md", ".generic/agents/{}.md", ".github/agents/{}.agent.md")
+        for role, phrase in (("planner", "never a subagent"), ("coder", "implement **that decision as written**"),
+                             ("critic", "replaces a linked ACCEPTED decision")):
+            for pattern in hosts:
+                self.assertIn(phrase, (SOURCE / pattern.format(role)).read_text(encoding="utf-8"), pattern.format(role))
         # The installer already copies skills via the existing layout. Verify
         # no separate installer/profile architecture change is required.
         for runtime in ("codex", "claude", "continue"):

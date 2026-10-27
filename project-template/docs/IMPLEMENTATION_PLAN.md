@@ -12,12 +12,12 @@ Status: NOT_CONFIGURED. Requires confirmed `docs/CRITERIA.md`. Planner sets this
 
 ## Plan items
 
-Planner reads and links full current accepted Decision sources before writing Goals/Tasks. A short summary is not a replacement for an operational solution. Optional Discussion Job records may exist under the project's chosen documentation path; their absence does not prevent ordinary planning from existing Human decisions.
+Planner reads and links full current accepted Decision sources before writing Goals/Tasks. A short summary is not a replacement for an operational solution. Decisions settled in Discussion mode live in `docs/discussions/<folder>/DEC-*.md`; link each one from the Plan item and Task it governs so work there follows it instead of re-thinking it. Planning does not require a discussion to exist.
 
 ### PLAN-<ID> — GOAL: <observable result to achieve>
 
 - **CRITERIA references:** <approved requirement IDs>
-- **Accepted Decision references (when applicable):** <links to FULL active Human-chosen domain/operational solution; include supersession status and source provenance, not a lossy paraphrase>
+- **Accepted Decision references (when applicable):** `Decisions:` <paths such as docs/discussions/<folder>/DEC-001-<slug>.md — links to FULL active Human-chosen domain/operational solution; include supersession status and source provenance, not a lossy paraphrase>
 - **Decision coverage/conflicts/feasibility:** <which accepted steps each Task implements; contradictory active decisions; verified vs unverified host dependencies>
 - **Current state / gap:** <verified evidence; existing projects>
 - **Implementation:** <specific bounded technical approach from approved ARCHITECTURE>

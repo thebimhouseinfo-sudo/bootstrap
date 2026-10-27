@@ -1,34 +1,48 @@
 ---
 name: record-decisions
-description: Optional Secretary recording method used only in an explicitly active Discussion Job to preserve full Human-accepted decisions without changing Criteria.
+description: Secretary for Discussion mode. Turns on when Human calls a discussion or asks to discuss in chat; records every settled point in full, exactly as Human confirmed it, under docs/discussions/<folder>/ so later Plan and code refer to it instead of inventing.
 ---
 
-# record-decisions — faithful Human decisions, not a new Job runtime
+# Secretary — Discussion mode
 
-## Invocation and authority
-- Explicit Human "open/create Discussion Job" → use this skill to open the existing project documentation context directly when permitted. **No extra question or invented approval**.
-- A vague "we should discuss" → offer the optional Discussion Job **once**; refusal and ordinary questions continue as normal chat with no files created.
-- A Discussion Job is **not** a new executable Job Pack, extra lifecycle/state, daemon, agent or Criteria approval gate. The Secretary is a recording **responsibility** of the existing lead/Planner while recording is active.
-- If no writable, user-authorized project documentation context is available, explain the actual limitation and retain the complete proposed record in the current conversation as NOT_VERIFIED. Do not invent a GitHub path/commit or claim persistence.
+**Why this exists.** Human is the domain expert. Solutions settled in chat are lost when an AI later "summarizes" them into topic headings, and Coder then invents a different solution. The Secretary keeps the settled solution **complete and exact**, so Plan, Technical Proposal and code refer to it instead of re-thinking it.
 
-## Procedure — at a genuine Human decision, not every message
-1. Read the exact Human statement(s) and already accepted decisions in the active discussion, including corrections. **Only a Human-chosen outcome** can become ACCEPTED. Do not promote assistant proposals, speculative examples or unresolved decisions.
-2. Record the **full chosen solution** in Human/domain language: outcome and WHY; ordered actions; input/output fields and exact example values; native host/environment; constraints and exceptions; risks; rejected alternatives and their rationale; open questions and affected Goals/Tasks. A topic-name summary is NOT a decision record.
-3. Record provenance with a real available message/document link or accurate conversation source context. Do not invent URLs, message IDs, dates or Human signatures.
-4. Use the project's established file naming/storage convention. If none exists and the Human wants files, a readable local example is docs/discussions/<discussion-topic>/INDEX.md plus a distinct decision document (e.g. DEC-001.md). Those labels are references, **not a universal SHA/GUID-based file registry or required product identity**.
-5. Index current ACCEPTED, SUPERSEDED and UNRESOLVED records. For a material correction keep the prior decision readable and link its successor; do not overwrite accepted history or treat earlier rejected options as new active instructions. Human's latest accepted choice governs only the specifically replaced scope.
-6. Write through existing authorized documentation tools and **read back** the written file(s) before claiming they are saved. Failed or uncertain writes are NOT_VERIFIED, with a complete recoverable proposed text; never fabricate persistence or auto-retry unsafe mutations.
-7. Hand Planner links to the **complete active decision documents**, plus relevant supersession history. Planner may then plan. Recording alone never changes approved CRITERIA, Plan, Tasks, Git branch, code or publication state.
+## Who the Secretary is
+- The Secretary is the **main chat agent** — the agent talking with Human — while Discussion mode is on. It is **not a subagent**: a subagent never sees the conversation and would only receive a retold copy, which is where detail gets lost.
+- The Secretary records. It does not decide, plan, change Criteria or write code. Recording never edits approved CRITERIA, Plan, Tasks, branches or source.
 
-## Minimum decision record (illustrative, not a new database schema)
-- Title and status: ACCEPTED / SUPERSEDED / UNRESOLVED (only Human-approved instructions are ACCEPTED)
-- Discussion context, applicable feature/Goal and actual Human provenance
-- **Decision in full:** exact ordered professional/operational mechanism, inputs and outputs
-- Reason/benefit; verified host/domain constraints; examples with unchanged values
-- Exceptions, accepted risks and exclusions; explicitly rejected solutions and why
-- Unresolved facts, if any, never silently completed
-- Supersedes / superseded by when appropriate; links to affected work
-- Write/readback evidence or NOT_VERIFIED
+## Turning Discussion mode on and off
+- **On** when Human calls it ("mở discussion", "open discussion", "/discussion", "Discussion mode") **or asks to discuss something in chat** ("thảo luận về…", "let's discuss…"). No extra confirmation question.
+- At start, create a **new folder** `docs/discussions/<YYYY-MM-DD>-<short-topic-slug>/` with `INDEX.md` (topic, date, status OPEN, empty decision list), and tell Human the path. Continuing an earlier discussion reuses its folder when Human names it.
+- **Off** when Human closes it ("đóng discussion", "close discussion") or clearly moves on. Set `INDEX.md` status CLOSED and list any UNRESOLVED points.
+- A normal question outside Discussion mode creates no files.
 
-## Negative checks and handoff
-A normal chat must not spawn a Discussion Job or files. A refusal does not block Planner. No mandatory SHA, GUID, immutable user-file version, new Agent/Job/registry, re-bootstrap, Technical Advisor gate or permanent checklist. Do not identify the file's programming-language extension as authority to classify its lifecycle. The file is a user-directed documentation artifact; use native project/host management. Reviewer should detect missing full decisions, overwritten history and false saved state. Testers may run scenario examples, but skill text alone is GUIDED_ONLY until real-host execution is observed.
+## Settling a point — draft in chat, Human confirms, then write
+1. **Trigger:** Human asks to settle a point ("chốt", "chốt ý này", "settle this", "ghi lại").
+2. **Draft in chat, in full.** Write the complete settled solution in the chat, in Human's language and terms. Include everything Human said that belongs to it: outcome and WHY; ordered steps; inputs/outputs, field names and exact example values; host/domain behavior (e.g. how AutoCAD behaves); constraints, exceptions and edge cases; rejected alternatives and why; open questions. **Do not summarize or shorten.** A heading such as "Use block attributes" is not a decision; the full mechanism is.
+3. **Ask:** "Đúng chưa? / Is this exactly right?" — and point out anything you are unsure was settled.
+4. **Human corrects** → revise the draft in chat and ask again. Nothing is written yet.
+5. **Human confirms** → write `DEC-<NNN>-<slug>.md` in the discussion folder containing **exactly the confirmed text**, unchanged, plus the record header below. Add a line to `INDEX.md`.
+6. **Read the file back** and tell Human the path. If writing fails or cannot be verified, say NOT_VERIFIED and keep the full text in chat; never claim it was saved.
+
+Only text Human confirmed becomes ACCEPTED. Assistant suggestions Human did not confirm stay out of the record (or go under UNRESOLVED).
+
+## Record header (above the confirmed text)
+```
+# DEC-<NNN> — <title>
+Status: ACCEPTED | SUPERSEDED by DEC-<MMM> | UNRESOLVED
+Discussion: docs/discussions/<folder>/
+Confirmed by Human: <date>, in chat (<host/session if known>)
+Applies to: <feature / Goal / Plan item, if known>
+Supersedes: <DEC id or none>
+```
+
+## Changing a settled point
+Never edit an ACCEPTED record in place. Write a new DEC that says what it supersedes, mark the old one `SUPERSEDED by DEC-<new>` in its header and in `INDEX.md`. The latest ACCEPTED record governs only the scope it replaces.
+
+## How the record is used afterwards
+- **Planner** reads every relevant ACCEPTED record **in full** and links it from the Plan item and Task it governs (`Decisions:` with file paths). A Plan line orients; the DEC file is the reference.
+- **Coder**, when a Task links a decision, opens and implements **that decision as written**. If it seems wrong, incomplete or conflicts with code, ask Human — do not substitute an own solution.
+- **Critic** returns CHANGES_REQUIRED when the Technical Proposal or code departs from, drops detail from, or replaces a linked ACCEPTED decision.
+
+This skill is a written procedure; real-host behavior is GUIDED_ONLY until observed.

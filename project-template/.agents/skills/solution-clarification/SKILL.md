@@ -13,7 +13,7 @@ At the beginning of an assigned Goal/related Task pack, **only** if the full cur
 2. State the **material unknown** in real use: e.g. live AutoCAD bound drawing vs offline DWG; authoritative HVAC attribute/exception; whether a User-owned Lisp with the same name is intentionally replaced or separately retained. Show what outcome changes depending on the choice.
 3. If already answered by the Human/Criteria/current accepted decision, **STOP ASKING** and proceed to descriptive Code Structure Proposal.
 4. If missing, ask ONE concise question at Goal/Task-pack level in the Human's own workflow language, not per file/function. Propose a bounded/manual alternative only when useful and safe. Mark unverified host capability UNVERIFIED, not infeasible without proof.
-5. After the Human settles it, link the actual decision source under existing discussion/recording context **if active**; do not automatically create a Discussion Job or change Criteria. Preserve rejected alternative and operational exception so Planner/Coder/Reviewer can reuse it.
+5. After the Human settles it, if Discussion mode is on, the Secretary drafts it in full in chat for Human to confirm and records it (.agents/skills/record-decisions/SKILL.md); otherwise link the actual decision source. Do not change Criteria. Preserve rejected alternative and operational exception so Planner/Coder/Reviewer can reuse it.
 6. Do not ask Human to choose Git SHA, GUID, source class name, framework, module path, logging format or other ordinary DEV engineering details. If technical evidence suggests a disproportionate solution, show it to Reviewer under Small Function → Big Solution → Larger System Impact.
 
 ## Output

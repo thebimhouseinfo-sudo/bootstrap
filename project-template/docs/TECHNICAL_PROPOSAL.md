@@ -10,7 +10,7 @@ Critic CR: NOT_REVIEWED
 ### MILESTONE-<ID> — <goal>
 
 #### TASK-<ID> — <observable result>
-- **Plan / Criteria / decision refs:** <PLAN-ID, CRITERIA IDs, full decision sources>
+- **Plan / Criteria / decision refs:** <PLAN-ID, CRITERIA IDs, linked DEC files under docs/discussions/ — the design follows them as written>
 - **Files:** <CREATE / MODIFY / REUSE_AS_IS / REMOVE with paths; VERIFIED existing vs PROPOSED>
 - **Functions / interfaces:** <names, inputs/outputs, callers and consumers>
 - **Shared dependencies / state / host constraints:** <verified facts; UNVERIFIED marked>
