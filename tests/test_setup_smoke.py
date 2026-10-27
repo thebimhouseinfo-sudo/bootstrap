@@ -97,6 +97,32 @@ class SetupSmokeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('Bootstrap', result.stdout)
 
+    def test_claude_hook_command_skips_cleanly_outside_project(self):
+        self.install('claude')
+        settings = json.loads((self.root / '.claude/settings.json').read_text(encoding='utf-8'))
+        command = settings['hooks']['UserPromptSubmit'][0]['hooks'][0]['command']
+        with tempfile.TemporaryDirectory() as outside:
+            result = self.run_command(command, {'hook_event_name': 'UserPromptSubmit'},
+                                      cwd=outside, shell=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('hook skipped', result.stderr)
+        self.assertNotIn('Traceback', result.stderr)
+
+    def test_claude_matcher_uses_native_tool_names(self):
+        self.install('claude')
+        settings = json.loads((self.root / '.claude/settings.json').read_text(encoding='utf-8'))
+        tools = set(settings['hooks']['PreToolUse'][0]['matcher'].split('|'))
+        self.assertEqual(tools, {'Edit', 'Write', 'MultiEdit', 'NotebookEdit', 'Bash'})
+
+    def test_claude_notebook_edit_is_snapshotted(self):
+        self.install('claude')
+        path = self.root / 'docs/ARCHITECTURE.md'
+        result = self.run_command([sys.executable, str(self.root / 'harness/claude/hook.py')], {
+            'hook_event_name': 'PreToolUse', 'tool_name': 'NotebookEdit',
+            'tool_input': {'notebook_path': str(path), 'new_source': 'x'}})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('snapshot', result.stdout.lower())
+
     def test_claude_protected_absolute_path_returns_native_context(self):
         self.install('claude')
         result = self.run_command([sys.executable, str(self.root / 'harness/claude/hook.py')], {

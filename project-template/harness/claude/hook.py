@@ -75,9 +75,13 @@ def extract_file_paths(tool_name, tool_input):
     paths = []
     if not isinstance(tool_input, dict):
         return paths
-    # Edit, Write, MultiEdit, Create
-    if tool_name in ("Edit", "Write", "Create", "str_replace_editor"):
-        p = tool_input.get("file_path") or tool_input.get("path")
+    # Edit, Write, NotebookEdit, MultiEdit
+    if tool_name in ("Edit", "Write"):
+        p = tool_input.get("file_path")
+        if isinstance(p, str) and p.strip():
+            paths.append(p.strip())
+    elif tool_name == "NotebookEdit":
+        p = tool_input.get("notebook_path")
         if isinstance(p, str) and p.strip():
             paths.append(p.strip())
     elif tool_name == "MultiEdit":
@@ -104,7 +108,7 @@ def pretool(payload):
     tool_input = payload.get("tool_input", {})
 
     # 1. Git branch authority check for all write tools.
-    write_tools = {"Edit", "Write", "Create", "MultiEdit", "str_replace_editor", "Bash"}
+    write_tools = {"Edit", "Write", "MultiEdit", "NotebookEdit", "Bash"}
     if tool_name in write_tools:
         err = git_check_write()
         if err:
@@ -133,7 +137,7 @@ def pretool(payload):
     # 4. Optional pre-edit snapshot for known project files.
     config = policy()
     if paths and config.get("snapshot_apply_patch", False) and tool_name in (
-        "Edit", "Write", "MultiEdit", "str_replace_editor"
+        "Edit", "Write", "MultiEdit", "NotebookEdit"
     ):
         try:
             mod = load_module("snapshot")

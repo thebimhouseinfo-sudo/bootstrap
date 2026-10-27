@@ -6,7 +6,7 @@ Follow AGENTS.md for approved product scope, Planner/Advisor checkpoints and acc
 
 Hook event mapping vs Codex:
 - `UserPromptSubmit` ← injects project context (analogous to Codex `SessionStart`)
-- `PreToolUse` matcher `Edit|Write|Create|MultiEdit|str_replace_editor|Bash` ← branch check + snapshot (analogous to Codex `PreToolUse` on `apply_patch`)
+- `PreToolUse` matcher `Edit|Write|MultiEdit|NotebookEdit|Bash` ← branch check + snapshot (analogous to Codex `PreToolUse` on `apply_patch`)
 - `Stop` ← task trace + verify (analogous to Codex `Stop`)
 
 The adapter reads `hook_event_name` and tool data from Claude's JSON stdin. `CLAUDE_HOOK_EVENT` is an optional override for custom wrappers, not a required native variable. Exit 2 blocks supported events; stderr text is returned to Claude. PreToolUse guidance uses native `hookSpecificOutput.additionalContext` JSON.

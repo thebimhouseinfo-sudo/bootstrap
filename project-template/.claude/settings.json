@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/claude/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 10
           }
         ]
@@ -14,11 +14,11 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|Create|MultiEdit|str_replace_editor|Bash",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/claude/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 15
           }
         ]
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import pathlib,runpy; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__')\"",
+            "command": "python -c \"import pathlib,runpy,sys; p=next((d/'harness/claude/hook.py' for d in (pathlib.Path.cwd(),*pathlib.Path.cwd().parents) if (d/'harness/claude/hook.py').is_file()),None); runpy.run_path(str(p),run_name='__main__') if p else print('Bootstrap: harness/claude/hook.py not found from cwd; hook skipped',file=sys.stderr)\"",
             "timeout": 135
           }
         ]

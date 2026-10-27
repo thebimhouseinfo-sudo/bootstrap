@@ -5,7 +5,7 @@ The main chat model/effort and effective sandbox/approval are chosen by the user
 **Executable project-local native hooks:** `.claude/settings.json` → `harness/claude/hook.py`. Hook commands search cwd and its parents for the adapter, so nested project directories work. The adapter discovers the project root at `parents[2]` relative to its file. Python 3.9+ must be available as `python` on PATH. Native `hook_event_name` and tool payload arrive as JSON stdin; `CLAUDE_HOOK_EVENT` is an optional custom-wrapper override.
 
 - `UserPromptSubmit` (all tools) — injects short project context on each prompt.
-- `PreToolUse` (matcher `Edit|Write|Create|MultiEdit|str_replace_editor|Bash`) — checks Git branch authority for write tools; snapshots recognized file paths when policy enables it; warns on protected paths. Bash coverage is best-effort; no universal shell-write protection.
+- `PreToolUse` (matcher `Edit|Write|MultiEdit|NotebookEdit|Bash`) — checks Git branch authority for write tools; snapshots recognized file paths when policy enables it; warns on protected paths. Bash coverage is best-effort; no universal shell-write protection.
 - `Stop` (all) — validates `harness/active-task.json` trace and runs `harness/common/checks.json`; blocks with exit 2 and requests one repair turn if checks fail. `stop_hook_active` prevents looping.
 
 **Differences from Codex adapter:**
