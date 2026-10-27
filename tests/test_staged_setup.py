@@ -118,6 +118,8 @@ class StagedSetupTests(unittest.TestCase):
         self.install()
         self.record_native_dialog_fixture("codex")
         (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
+        for _rel, _text in (("docs/IMPLEMENTATION_PLAN.md", "Status: ACTIVE\nPLAN-1\n"), ("docs/MILESTONES.md", "Status: ACTIVE\nM-1\n"), ("docs/TECHNICAL_PROPOSAL.md", "Status: FINAL\nCritic CR: PASS\n")):
+            (self.root / _rel).write_text(_text, encoding="utf-8")
         (self.root / "docs/ARCHITECTURE.md").write_text("# Accepted architecture\nUses Python.\n", encoding="utf-8")
         (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified host profile\nPython SDK identified.\n", encoding="utf-8")
         (self.root / "harness/common/checks.json").write_text(json.dumps(
@@ -147,7 +149,8 @@ class StagedSetupTests(unittest.TestCase):
             "notes": "Synthetic CI fixture, not attested host"}), encoding="utf-8")
         handoff = fixture_action(command, "finalize", post, self.root)
         self.assertEqual(handoff.returncode, 0, handoff.stdout + handoff.stderr)
-        self.assertIn("GOALMAP", handoff.stdout)
+        self.assertIn("CODER START PROMPT", handoff.stdout)
+        self.assertIn("docs/TECHNICAL_PROPOSAL.md", handoff.stdout)
         self.assertEqual(json.loads((self.root / "harness/setup-state.json").read_text())["phase"],
                          "HANDOFF_COMPLETE")
         hook = self.root / "harness/hook-policy.json"
@@ -161,6 +164,8 @@ class StagedSetupTests(unittest.TestCase):
         self.install("continue")
         self.record_native_dialog_fixture("continue")
         (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: expected behavior\n", encoding="utf-8")
+        for _rel, _text in (("docs/IMPLEMENTATION_PLAN.md", "Status: ACTIVE\nPLAN-1\n"), ("docs/MILESTONES.md", "Status: ACTIVE\nM-1\n"), ("docs/TECHNICAL_PROPOSAL.md", "Status: FINAL\nCritic CR: PASS\n")):
+            (self.root / _rel).write_text(_text, encoding="utf-8")
         (self.root / "docs/ARCHITECTURE.md").write_text("# Approved architecture\nRuntime selected.\n", encoding="utf-8")
         (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified profile\nChosen provider and models.\n", encoding="utf-8")
         (self.root / "harness/common/checks.json").write_text(json.dumps(
@@ -364,6 +369,27 @@ class StagedSetupTests(unittest.TestCase):
         self.assertLess(len(english_b.splitlines()[2]), 380)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_a)
         self.assertIn("<PROJECT_FOLDER_PATH>", english_b)
+
+    def test_audit_blocks_lock_until_main_path_design_is_complete(self):
+        self.install()
+        tool = self.root / "harness/common/setup_lifecycle.py"
+        (self.root / "docs/CRITERIA.md").write_text("Status: APPROVED\nREQ-1: behavior\n", encoding="utf-8")
+        fresh = call(sys.executable, tool, "audit", cwd=self.root)
+        self.assertEqual(fresh.returncode, 2)
+        for gap in ("main path step not written: docs/IMPLEMENTATION_PLAN.md",
+                    "main path step not written: docs/MILESTONES.md",
+                    "lacks `Critic CR: PASS`"):
+            self.assertIn(gap, fresh.stdout)
+        (self.root / "docs/IMPLEMENTATION_PLAN.md").write_text("Status: ACTIVE\nPLAN-1\n", encoding="utf-8")
+        (self.root / "docs/MILESTONES.md").write_text("Status: ACTIVE\nM-1\n", encoding="utf-8")
+        proposal = self.root / "docs/TECHNICAL_PROPOSAL.md"
+        proposal.write_text("Status: FINAL\nCritic CR: CHANGES_REQUIRED\n", encoding="utf-8")
+        pending = call(sys.executable, tool, "audit", cwd=self.root)
+        self.assertNotIn("main path step not written", pending.stdout)
+        self.assertIn("lacks `Critic CR: PASS`", pending.stdout)
+        proposal.write_text("Status: FINAL\nCritic CR: PASS\n", encoding="utf-8")
+        passed = call(sys.executable, tool, "audit", cwd=self.root)
+        self.assertNotIn("Critic CR: PASS`", passed.stdout)
 
     def test_staged_audit_requires_interactive_intake_trace(self):
         self.install()

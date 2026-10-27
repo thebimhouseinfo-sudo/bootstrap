@@ -293,6 +293,29 @@ class InstallTests(unittest.TestCase):
                 self.assertIn("User-initiated SIMULATE",
                               (target / ".agents/roles/tester.md").read_text(encoding="utf-8"))
 
+    def test_main_path_contract_reaches_every_host_copy(self):
+        agents = (SOURCE / "AGENTS.md").read_text(encoding="utf-8")
+        for step in ("**Criteria.**", "**Plan**", "**Milestones**", "**Specialize Coder/Tester",
+                     "**Technical Proposal for the whole Plan**", "**Critic CR, top-down**",
+                     "**Setup lock, then code**", "keep or edit"):
+            self.assertIn(step, agents)
+        proposal = (SOURCE / "docs/TECHNICAL_PROPOSAL.md").read_text(encoding="utf-8")
+        self.assertIn("Critic CR: NOT_REVIEWED", proposal)
+        copies = {
+            "planner": ("## Human questions while planning", "Small Function → Big Solution",
+                        "no blanket Plan or milestone approval stop"),
+            "coder": ("covers the **whole Plan**", "docs/TECHNICAL_PROPOSAL.md"),
+            "critic": ("whole-Plan proposal review **top-down**",),
+        }
+        hosts = (".agents/roles/{}.md", ".claude/agents/{}.md", ".antigravity/agents/{}.md",
+                 ".codex/agents/{}.toml", ".continue/agents/{}/config.yaml",
+                 ".continue/rules/roles/{}.md", ".generic/agents/{}.md", ".github/agents/{}.agent.md")
+        for role, phrases in copies.items():
+            for pattern in hosts:
+                text = (SOURCE / pattern.format(role)).read_text(encoding="utf-8")
+                for phrase in phrases:
+                    self.assertIn(phrase, text, pattern.format(role))
+
     def test_portable_agent_contracts_remain_identical_to_canonical(self):
         for role in EXPECTED["Full"]:
             self.assertEqual(

@@ -48,6 +48,8 @@ class GenericNativePortTests(unittest.TestCase):
                                 {"id": "git_mode", "value": "local", "source": "native_dialog"}]}
         (self.root / "harness/setup-intake.json").write_text(json.dumps(intake))
         (self.root / "docs/CRITERIA.md").write_text("STATUS: APPROVED\nREQ1: test\n")
+        for _rel, _text in (("docs/IMPLEMENTATION_PLAN.md", "Status: ACTIVE\nPLAN-1\n"), ("docs/MILESTONES.md", "Status: ACTIVE\nM-1\n"), ("docs/TECHNICAL_PROPOSAL.md", "Status: FINAL\nCritic CR: PASS\n")):
+            (self.root / _rel).write_text(_text)
         (self.root / "docs/ARCHITECTURE.md").write_text("# Verified stack\nLocal runtime.\n")
         (self.root / "docs/PROJECT_PROFILE.md").write_text("# Verified host\nOpenCode.\n")
         (self.root / "harness/common/checks.json").write_text(json.dumps(

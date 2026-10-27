@@ -1,6 +1,6 @@
 # Implementation Plan — Planner-owned draft
 
-Status: NOT_CONFIGURED. Requires approved `docs/CRITERIA.md` and human-approved technical direction.
+Status: NOT_CONFIGURED. Requires confirmed `docs/CRITERIA.md`. Planner sets this to `Status: ACTIVE` when the Plan is written.
 
 **GOALMAP is inside this Plan**, not in CRITERIA. Each Plan item must **start with GOAL**: what tangible behavior or result does the code accomplish for the user? A technology task such as “write persistence.py” is not a GOAL.
 
@@ -27,4 +27,4 @@ Planner reads and links full current accepted Decision sources before writing Go
 - **Verification:** <test approach, expected real-host evidence and regression coverage>
 - **Limitations / risk / non-goals:** <approved tradeoffs>
 
-Planner presents this Plan for human review and approval **before** assigning milestones/tasks. Approved CRITERIA changes require independent Advisor consultation at the prescribed checkpoint. Do not claim authenticated gate approval when only normal chat/manual coordination exists.
+After writing this Plan, Planner continues to milestones without a blanket approval stop; Human is asked only about unsettled professional/domain solutions or Small Function → Big Solution cases (see AGENTS.md main path). Approved CRITERIA changes require independent Advisor consultation at the prescribed checkpoint. Do not claim authenticated gate approval when only normal chat/manual coordination exists.

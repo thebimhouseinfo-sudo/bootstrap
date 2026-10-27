@@ -26,7 +26,7 @@ Bootstrap helps **Codex, Claude Code, Antigravity**, and compatible coding agent
 
 ## What the coding agent handles
 
-The agent identifies the host runtime, inspects the project and runs the installer in **staged mode**. Greenfield uses `brainstorm-theory` with its scope questions; brownfield uses `write-criteria` to consolidate Human decisions and reconstruct observed CURRENT behavior from code without treating it as automatically approved DESIRED behavior. On Human request to finalize initial Criteria or change existing Criteria, Planner pauses **just before the file write** for Technical Advisor consultation (unless the exact proposal was already advised). Human decides after advice; only Planner edits Criteria. Advisor never approves or vetoes. Then the agent coordinates technical direction, Coder/Tester setup, audit and smoke tests. It then asks for real host verification before final hook activation and handoff. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
+The agent identifies the host runtime, inspects the project and runs the installer in **staged mode**. Greenfield uses `brainstorm-theory` with its scope questions; brownfield uses `write-criteria` to consolidate Human decisions and reconstruct observed CURRENT behavior from code without treating it as automatically approved DESIRED behavior. On Human request to finalize initial Criteria or change existing Criteria, Planner pauses **just before the file write** for Technical Advisor consultation (unless the exact proposal was already advised). Human decides after advice; only Planner edits Criteria. Advisor never approves or vetoes. Then the main path continues on its own, with no approval stop between steps: **Plan → Milestones → project-specific Coder/Tester skills and knowledge → Coder's Technical Proposal for the whole Plan → top-down Critic review, revised until PASS**. Planner asks you immediately only about an unsettled professional/domain solution (e.g. AutoCAD knowledge for an add-in) or when a small function gets a complex proposed solution. If CRITERIA already exists, Planner summarizes it and asks whether to keep or edit it, then continues. Last come audit, smoke tests, real host verification and hook activation, and only then coding. Detailed steps live in [For AI](FOR_AI.md), not in the user prompt.
 
 **Environment:** Codex CLI/App, Claude Code and compatible coding agents can run shell/terminal commands **when permitted by the host and user**. A sandbox, blocked network, or missing filesystem access must be reported, not silently assumed away. **Web-only Claude sessions are not substitutes for coding agents with access to the target project.**
 
@@ -36,9 +36,9 @@ If instructed to open a fresh coding-agent session for hook testing, **do not cl
 
 ## After handoff
 
-The agent supplies the Planner kickoff prompt. If needed manually:
+By handoff the main path has already produced CRITERIA, Plan, Milestones, project-specific Coder/Tester setup and a whole-Plan Technical Proposal that passed Critic review. Coding starts from that proposal. If needed manually:
 
-> Invoke **Planner** to review approved CRITERIA, draft/revise the Implementation Plan (GOALMAP inside the Plan, each section beginning with an outcome GOAL) and Milestones, then ask for my approval before Tasks or coding.
+> Invoke **Coder** to implement the first milestone from `docs/TECHNICAL_PROPOSAL.md` (Critic CR: PASS); Tester and Reviewer verify it before the next milestone.
 
 For `local/tracked` settings, upgrades, rollback, Lite limitations, and detailed tests, see [For AI](FOR_AI.md) and the [technical setup guide](../project-template/SETUP.md). Script PASS is not proof of native host enforcement.
 

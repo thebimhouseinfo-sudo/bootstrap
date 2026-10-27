@@ -97,6 +97,20 @@ def configured_checks():
         return False
 
 
+def read_lines(path):
+    try:
+        return path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+
+
+def status_line(path):
+    for line in read_lines(path):
+        if line.strip().upper().startswith("STATUS:"):
+            return line.strip()
+    return None
+
+
 def audit():
     missing = [name for name in REQUIRED if not (ROOT / name).is_file()]
     for item in missing:
@@ -120,6 +134,18 @@ def audit():
         if not any(x.strip().upper() == "STATUS: APPROVED" for x in criteria.splitlines()):
             print("NOT_CONFIGURED: CRITERIA is not explicitly APPROVED")
             problems.append("CRITERIA approval")
+    for doc in ("docs/IMPLEMENTATION_PLAN.md", "docs/MILESTONES.md"):
+        path = ROOT / doc
+        if doc == "docs/MILESTONES.md" and not path.is_file():
+            continue  # Lite tier installs no milestones file.
+        status = status_line(path)
+        if status is None or "NOT_CONFIGURED" in status.upper():
+            print("NOT_CONFIGURED: main path step not written:", doc)
+            problems.append(doc)
+    proposal = ROOT / "docs/TECHNICAL_PROPOSAL.md"
+    if not any(x.strip().upper() == "CRITIC CR: PASS" for x in read_lines(proposal)):
+        print("NOT_CONFIGURED: whole-Plan Technical Proposal lacks `Critic CR: PASS`")
+        problems.append("docs/TECHNICAL_PROPOSAL.md")
     for doc in ("docs/ARCHITECTURE.md", "docs/PROJECT_PROFILE.md"):
         if doc not in missing:
             value = (ROOT / doc).read_text(encoding="utf-8")
@@ -425,11 +451,9 @@ def finalize(evidence):
     print("HANDOFF_COMPLETE: manual observations recorded, NOT independently authenticated")
     if limited:
         print("LIMITATION: native blocking hooks NOT_CONFIGURED, GUIDED_ONLY workflows")
-    print("PLANNER START PROMPT: Invoke Planner. Read approved CRITERIA, ARCHITECTURE,")
-    print("PROJECT_PROFILE and codebase; create/review Implementation Plan and GOALMAP.")
-    print("Start EVERY Plan section with a GOAL: why does this code exist and what")
-    print("observable product result will it achieve? Link approved CRITERIA IDs,")
-    print("acceptance and tests. Derive milestones; ask Human to approve before tasks.")
+    print("CODER START PROMPT: Invoke Coder. Implement the first milestone from the final")
+    print("docs/TECHNICAL_PROPOSAL.md (Critic CR: PASS), then Tester and Reviewer verify it")
+    print("before the next milestone. A material design change returns to Critic CR.")
     return 0
 
 

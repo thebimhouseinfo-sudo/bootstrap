@@ -42,7 +42,7 @@ Bootstrap giúp **Codex, Claude Code, Antigravity** và các coding agent tươn
 
 ## AI sẽ tự làm gì?
 
-Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**. Với greenfield, Planner dùng `brainstorm-theory` để khám phá nhu cầu và giữ nguyên các câu hỏi scope; với brownfield, dùng `write-criteria` để tổng hợp quyết định Human và tái dựng CURRENT từ code (không tự xem code là DESIRED). Khi Human yêu cầu **chốt Criteria lần đầu hoặc sửa Criteria hiện có**, ngay trước khi ghi file Planner phải gọi Technical Advisor tư vấn nếu chưa có tư vấn cho đúng nội dung; Human quyết định **sau tư vấn**, Planner mới ghi. Advisor không phê duyệt hay phủ quyết. Sau đó AI xin duyệt hướng kỹ thuật, cấu hình Coder/Tester, audit và smoke test. Sau khi kiểm thử thực tế, agent hướng dẫn khóa hook và bàn giao. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
+Agent xác định runtime, kiểm tra dự án, chuẩn bị và chạy installer ở chế độ **staged**. Với greenfield, Planner dùng `brainstorm-theory` để khám phá nhu cầu và giữ nguyên các câu hỏi scope; với brownfield, dùng `write-criteria` để tổng hợp quyết định Human và tái dựng CURRENT từ code (không tự xem code là DESIRED). Khi Human yêu cầu **chốt Criteria lần đầu hoặc sửa Criteria hiện có**, ngay trước khi ghi file Planner phải gọi Technical Advisor tư vấn nếu chưa có tư vấn cho đúng nội dung; Human quyết định **sau tư vấn**, Planner mới ghi. Advisor không phê duyệt hay phủ quyết. Sau đó luồng chính tự chạy tiếp, không dừng chờ duyệt giữa các bước: **Plan → Milestones → cập nhật skill/knowledge cho Coder/Tester theo dự án → Coder viết Technical Proposal cho toàn bộ Plan → Critic review từ trên xuống, sửa tới khi PASS**. Planner chỉ hỏi bạn ngay khi gặp câu hỏi về giải pháp chuyên môn chưa được chốt (ví dụ kiến thức AutoCAD cho add-in), hoặc khi một chức năng nhỏ bị đề xuất giải pháp phức tạp. Nếu dự án đã có Criteria, Planner tóm tắt và hỏi bạn giữ hay sửa, rồi đi tiếp. Cuối cùng là audit, smoke test, kiểm thử thực tế, khóa hook, rồi mới bắt đầu code. Quy trình chi tiết dành cho agent nằm trong [For AI](docs/FOR_AI.md), không phải các bước người dùng phải tự làm.
 
 **Quyền truy cập:** Codex CLI/App, Claude Code và các coding agent tương thích có thể sử dụng shell/terminal **khi runtime và người dùng cấp quyền**. Nếu bị sandbox, không có mạng hoặc thiếu quyền đọc/ghi dự án, agent phải báo chính xác thao tác cần cho phép; không được giả định đã cài thành công. **Claude Web chỉ đọc trang web không thay thế coding agent có quyền truy cập dự án.**
 
@@ -52,9 +52,9 @@ Khi agent yêu cầu mở phiên mới để test hook, **giữ nguyên phiên s
 
 ## Sau khi bàn giao
 
-Agent sẽ đưa prompt vào luồng phát triển chính. Nếu cần gọi thủ công:
+Lúc bàn giao, CRITERIA, Plan, Milestones và Technical Proposal (đã qua Critic) đều đã có; việc tiếp theo là code. Nếu cần gọi thủ công:
 
-> Gọi **Planner** đọc CRITERIA đã duyệt, lập/rà soát Implementation Plan (GOALMAP trong Plan, GOAL ở đầu mỗi mục) và Milestones; trình tôi phê duyệt trước khi tạo Tasks hoặc viết code.
+> Gọi **Coder** code milestone đầu tiên theo `docs/TECHNICAL_PROPOSAL.md` (Critic CR: PASS); Tester và Reviewer kiểm tra xong milestone này mới sang milestone tiếp theo.
 
 Cấu hình `local/tracked`, cách nâng cấp, rollback, giới hạn của Lite và các bài test xem trong [hướng dẫn AI](docs/FOR_AI.md) và [hướng dẫn setup kỹ thuật](project-template/SETUP.md). Việc chạy script PASS không tự chứng minh hook đã được host kích hoạt.
 
